@@ -774,7 +774,7 @@ async function driveCreateFile(content){
   const r=await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",{
     method:"POST",
     headers:{Authorization:"Bearer "+gToken,"Content-Type":`multipart/related; boundary=${boundary}`},
-    body
+    body, keepalive:true
   });
   if(!r.ok) throw new Error("drive create "+r.status);
   const d=await r.json();
@@ -786,7 +786,7 @@ async function driveUpdateFile(id,content){
   const r=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{
     method:"PATCH",
     headers:{Authorization:"Bearer "+gToken,"Content-Type":"application/json"},
-    body:content
+    body:content, keepalive:true
   });
   if(!r.ok) throw new Error("drive update "+r.status);
 }
@@ -827,7 +827,7 @@ async function syncFromDrive(){
 function scheduleDrivePush(){
   if(!gOk) return;
   clearTimeout(driveSyncTimer);
-  driveSyncTimer=setTimeout(pushToDrive,1500);
+  driveSyncTimer=setTimeout(pushToDrive,800);
 }
 async function pushToDrive(){
   if(!gOk || !gToken || driveBusy) return;
@@ -836,8 +836,14 @@ async function pushToDrive(){
     const content=JSON.stringify(tasks);
     if(id) await driveUpdateFile(id,content);
     else await driveCreateFile(content);
-  }catch(e){ console.error("Erro de sincronização (push):",e); }
+  }catch(e){ console.error("Erro de sincronização (push):",e); showToast("⚠️ Não foi possível salvar na nuvem. Verifique sua conexão."); }
 }
+// Garante que o envio pendente para o Drive não se perca se o app for fechado/minimizado logo após salvar
+function flushDrivePush(){
+  if(driveSyncTimer){ clearTimeout(driveSyncTimer); driveSyncTimer=null; pushToDrive(); }
+}
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") flushDrivePush(); });
+window.addEventListener("pagehide",flushDrivePush);
 
 // ENVIAR PARA O GOOGLE AGENDA
 async function sendToGcal(task){
