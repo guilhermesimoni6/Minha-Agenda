@@ -756,11 +756,21 @@ function renderGcal(){
 
 async function driveFindFileId(){
   if(driveFileId) return driveFileId;
-  const r=await fetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)&q="+encodeURIComponent(`name='${DRIVE_FILE}'`),
+  const r=await fetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&orderBy=modifiedTime desc&q="+encodeURIComponent(`name='${DRIVE_FILE}'`),
     {headers:{Authorization:"Bearer "+gToken}});
   if(!r.ok) throw new Error("drive list "+r.status);
   const d=await r.json();
-  if(d.files && d.files.length){ driveFileId=d.files[0].id; return driveFileId; }
+  if(d.files && d.files.length){
+    // Usa sempre o mais recentemente modificado como "fonte da verdade"
+    driveFileId=d.files[0].id;
+    // Se houver duplicados antigos (de alguma falha anterior), apaga pra não confundir sincronizações futuras
+    if(d.files.length>1){
+      for(let i=1;i<d.files.length;i++){
+        fetch(`https://www.googleapis.com/drive/v3/files/${d.files[i].id}`,{method:"DELETE",headers:{Authorization:"Bearer "+gToken}}).catch(()=>{});
+      }
+    }
+    return driveFileId;
+  }
   return null;
 }
 
