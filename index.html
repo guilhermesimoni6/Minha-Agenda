@@ -14,228 +14,317 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
 <style>
-:root[data-theme="dark"]{--bg:#0f172a;--bg-card:#020617;--bg-input:#0f172a;--border:#1f2937;--border-hover:#374151;--text:#e5e7eb;--text-muted:#9ca3af;--text-faint:#6b7280;--nav-bg:#020617;--chip-bg:#0f172a;--shadow:rgba(0,0,0,0.5);}
-:root[data-theme="light"]{--bg:#f1f5f9;--bg-card:#ffffff;--bg-input:#f8fafc;--border:#e2e8f0;--border-hover:#cbd5e1;--text:#0f172a;--text-muted:#475569;--text-faint:#94a3b8;--nav-bg:#ffffff;--chip-bg:#f1f5f9;--shadow:rgba(0,0,0,0.08);}
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,sans-serif;}
+:root[data-theme="dark"]{
+  --bg:#0e0e16;--bg-card:#16162a;--bg-card2:#1c1c30;--bg-input:#1c1c30;
+  --border:rgba(255,255,255,0.08);--border-hover:rgba(255,255,255,0.15);
+  --text:#ffffff;--text-muted:#b0b0d0;--text-faint:#606080;
+  --nav-bg:#0e0e16;--chip-bg:#1c1c30;--shadow:rgba(0,0,0,0.6);
+  --orange:#f97316;--orange2:#fb923c;--orange3:#fdba74;--orange-glow:rgba(249,115,22,0.22);
+  --card-text:#fff;
+}
+:root[data-theme="light"]{
+  --bg:#f7f7fc;--bg-card:#ffffff;--bg-card2:#f0f0fa;--bg-input:#f0f0fa;
+  --border:rgba(0,0,0,0.07);--border-hover:rgba(0,0,0,0.14);
+  --text:#12122a;--text-muted:#5a5a80;--text-faint:#a0a0c0;
+  --nav-bg:#ffffff;--chip-bg:#f0f0fa;--shadow:rgba(0,0,0,0.1);
+  --orange:#f97316;--orange2:#fb923c;--orange3:#fdba74;--orange-glow:rgba(249,115,22,0.15);
+  --card-text:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;}
 body{background:var(--bg);color:var(--text);min-height:100vh;}
-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--nav-bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:8px;}
-.nav-brand{font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;}
-.dot{width:8px;height:8px;border-radius:50%;background:#3b82f6;}
-.nav-links{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-.nav-btn{background:transparent;border:none;border-radius:999px;padding:5px 12px;font-size:.78rem;color:var(--text-muted);cursor:pointer;}
-.nav-btn.active{background:rgba(59,130,246,.15);color:#3b82f6;}
-.theme-toggle{background:transparent;border:1px solid var(--border);border-radius:999px;padding:5px 11px;font-size:.78rem;color:var(--text-muted);cursor:pointer;}
-.google-btn{background:transparent;border:1px solid #4285f4;border-radius:999px;padding:5px 13px;font-size:.78rem;color:#4285f4;cursor:pointer;font-weight:600;}
+
+/* NAV TOPO */
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--nav-bg);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
+.nav-brand{font-size:1.05rem;font-weight:900;display:flex;align-items:center;gap:10px;cursor:pointer;letter-spacing:-.02em;}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px var(--orange),0 0 20px var(--orange-glow);}
+.theme-toggle{background:var(--orange);border:none;border-radius:12px;padding:8px 16px;font-size:.82rem;color:#fff;cursor:pointer;font-weight:700;box-shadow:0 4px 16px var(--orange-glow);transition:all .2s;}
+.theme-toggle:hover{transform:translateY(-1px);filter:brightness(1.1);}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:68px;background:var(--nav-bg);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:200;padding:0 4px;}
+.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;border:none;cursor:pointer;padding:8px 12px;border-radius:14px;transition:all .18s;flex:1;color:var(--text-faint);}
+.bnav-btn .bnav-icon{font-size:1.3rem;line-height:1;}
+.bnav-btn .bnav-label{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+.bnav-btn.active{color:var(--orange);}
+.bnav-btn.active .bnav-icon{filter:drop-shadow(0 0 6px var(--orange));}
+
+/* POPUP TEMA */
+.theme-popup{position:fixed;top:62px;right:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:9999;min-width:230px;display:none;}
+.theme-popup.open{display:block;}
+.theme-popup h4{font-size:.69rem;font-weight:800;color:var(--text-faint);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+.theme-mode{display:flex;gap:8px;margin-bottom:18px;}
+.mode-btn{flex:1;padding:9px;border-radius:12px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-muted);font-size:.78rem;cursor:pointer;text-align:center;transition:all .15s;font-weight:600;}
+.mode-btn.active{border-color:var(--orange);color:var(--orange);background:var(--orange-glow);}
+.color-swatches{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px;}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .18s;flex-shrink:0;}
+.swatch.active{border-color:white;transform:scale(1.2);box-shadow:0 3px 12px rgba(0,0,0,.5);}
+.custom-color-row{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--text-muted);}
+.custom-color-row input[type=color]{width:32px;height:32px;border:none;border-radius:8px;cursor:pointer;padding:0;background:transparent;}
+
+.google-btn{background:transparent;border:1px solid #4285f4;border-radius:12px;padding:6px 14px;font-size:.78rem;color:#4285f4;cursor:pointer;font-weight:700;}
 .google-btn.connected{border-color:#22c55e;color:#22c55e;}
-.screen{display:none;padding:28px 20px;max-width:900px;margin:0 auto;}
+
+/* SCREENS */
+.screen{display:none;padding:0 0 20px;max-width:520px;margin:0 auto;position:relative;z-index:1;}
 .screen.active{display:block;}
-/* HOME */
-.home-hero{text-align:center;padding:36px 16px 28px;}
-.home-hero h1{font-size:1.9rem;font-weight:800;margin-bottom:10px;background:linear-gradient(to right,#60a5fa,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.home-hero p{color:var(--text-muted);font-size:.9rem;max-width:420px;margin:0 auto 22px;line-height:1.6;}
-.stats-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
-.stat-pill{background:var(--bg-card);border:1px solid var(--border);border-radius:999px;padding:5px 13px;font-size:.77rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;}
-.stat-pill strong{color:var(--text);}
-.ds{width:7px;height:7px;border-radius:50%;}
-.gcal-banner{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.gcal-info{display:flex;align-items:center;gap:12px;}
-.gcal-icon{font-size:1.6rem;}
-.gcal-banner h4{font-size:.88rem;font-weight:700;margin-bottom:2px;}
-.gcal-banner p{font-size:.74rem;color:var(--text-faint);}
-.gcal-status{font-size:.7rem;padding:3px 10px;border-radius:999px;border:1px solid;}
-.gcal-status.disconnected{border-color:rgba(234,179,8,.5);color:#eab308;background:rgba(234,179,8,.06);}
-.gcal-status.connected{border-color:rgba(34,197,94,.5);color:#22c55e;background:rgba(34,197,94,.06);}
-.home-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px;}
-.home-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px 16px;cursor:pointer;transition:all .2s;}
-.home-card:hover{border-color:#3b82f6;transform:translateY(-2px);box-shadow:0 10px 28px rgba(59,130,246,.15);}
-.card-icon{font-size:1.7rem;margin-bottom:9px;}
-.home-card h3{font-size:.9rem;font-weight:600;margin-bottom:5px;}
-.home-card p{font-size:.75rem;color:var(--text-faint);line-height:1.5;}
-.card-arrow{display:flex;justify-content:flex-end;margin-top:12px;color:#3b82f6;font-size:.75rem;}
+.screen-inner{padding:20px 18px;}
+
+/* HOME HERO */
+.home-hero{background:linear-gradient(135deg,var(--orange),var(--orange2));padding:32px 22px 44px;position:relative;overflow:hidden;border-radius:0 0 32px 32px;}
+.home-hero::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.1);top:-60px;right:-40px;}
+.home-hero::after{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.07);bottom:-30px;left:20px;}
+.hero-date{font-size:.75rem;color:rgba(255,255,255,0.7);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.home-hero h1{font-size:2.1rem;font-weight:900;color:#fff;letter-spacing:-.04em;line-height:1.1;margin-bottom:8px;position:relative;z-index:1;}
+.home-hero p{font-size:.88rem;color:rgba(255,255,255,0.8);font-weight:500;position:relative;z-index:1;}
+
+/* STATS FLUTUANTES */
+.stats-float{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 16px;margin-top:-22px;position:relative;z-index:10;}
+.stat-card{background:var(--bg-card);border-radius:16px;padding:12px 6px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.18);border:1px solid var(--border);}
+.stat-card strong{display:block;font-size:1.3rem;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.stat-card span{font-size:.57rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px;display:block;}
+.stat-card:nth-child(1) strong{color:var(--orange);}
+.stat-card:nth-child(2) strong{color:#a855f7;}
+.stat-card:nth-child(3) strong{color:#f59e0b;}
+.stat-card:nth-child(4) strong{color:#22c55e;}
+.stat-card:nth-child(5) strong{color:#ef4444;}
+
+/* HOME CARDS */
+.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:24px 16px 8px;}
+.home-card{background:linear-gradient(135deg,var(--orange),var(--orange2));border-radius:22px;padding:20px 18px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;border:none;text-align:center;}
+.home-card::before{content:'';position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.12);top:-25px;right:-25px;transition:all .3s;}
+.home-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px var(--orange-glow);}
+.home-card:hover::before{transform:scale(1.3);}
+.home-card:nth-child(1){background:linear-gradient(135deg,var(--orange),var(--orange2));}
+.home-card:nth-child(2){background:linear-gradient(135deg,#7c3aed,#a855f7);}
+.home-card:nth-child(3){background:linear-gradient(135deg,#d97706,#f59e0b);}
+.home-card:nth-child(4){background:linear-gradient(135deg,#dc2626,#ef4444);}
+.home-card:nth-child(5){background:linear-gradient(135deg,#15803d,#22c55e);}
+.home-card:nth-child(6){background:linear-gradient(135deg,#1d4ed8,#3b82f6);}
+.card-icon-wrap{font-size:1.8rem;margin-bottom:14px;display:block;}
+.home-card h3{font-size:1rem;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.01em;line-height:1.3;}
+.home-card p{font-size:.78rem;color:rgba(255,255,255,0.75);line-height:1.5;}
+.card-arrow{display:none;}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;color:var(--text-muted);font-size:.8rem;cursor:pointer;padding:8px 16px;margin:16px 18px;transition:all .18s;font-weight:600;}
+.back-btn:hover{border-color:var(--orange);color:var(--orange);}
+
+/* SCREEN HEADERS */
+.screen-title-bar{padding:20px 18px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.screen-title-bar h2{font-size:1.4rem;font-weight:900;letter-spacing:-.03em;}
+.screen-title-bar p{font-size:.8rem;color:var(--text-faint);margin-top:2px;}
+
 /* FORM */
-.screen-header{margin-bottom:20px;}
-.screen-header h2{font-size:1.25rem;font-weight:700;margin-bottom:3px;}
-.screen-header p{color:var(--text-faint);font-size:.81rem;}
-.back-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;color:var(--text-faint);font-size:.78rem;cursor:pointer;padding:0;margin-bottom:14px;}
-.form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;}
-.form-group{margin-bottom:14px;}
-label{font-size:.72rem;color:var(--text-muted);display:block;margin-bottom:4px;}
-input,select,textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:8px 11px;color:var(--text);font-size:.82rem;outline:none;transition:border .15s;}
-input:focus,select:focus,textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.2);}
-textarea{resize:vertical;min-height:60px;}
+.form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:22px;margin:0 18px 16px;}
+.form-group{margin-bottom:18px;}
+label{font-size:.68rem;color:var(--text-muted);display:block;margin-bottom:6px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+input,select,textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:14px;padding:12px 14px;color:var(--text);font-size:.86rem;outline:none;transition:all .2s;font-weight:500;}
+input:focus,select:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow);}
+textarea{resize:vertical;min-height:64px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:500px){.form-row{grid-template-columns:1fr;}}
-.chip-group{display:flex;flex-wrap:wrap;gap:6px;}
-.chip{padding:5px 12px;border-radius:999px;background:var(--chip-bg);border:1px solid var(--border);font-size:.72rem;color:var(--text-muted);cursor:pointer;transition:all .15s;}
-.chip.active{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#3b82f6;}
-.tog{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text-muted);margin-top:8px;}
-.tog input[type=checkbox]{width:15px;height:15px;accent-color:#3b82f6;}
-.form-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
-.btn-primary{background:linear-gradient(to right,#2563eb,#4f46e5);color:#fff;border:none;border-radius:999px;padding:9px 20px;font-size:.84rem;cursor:pointer;font-weight:600;box-shadow:0 6px 14px rgba(37,99,235,.3);}
-.btn-secondary{background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:999px;padding:9px 16px;font-size:.82rem;cursor:pointer;}
-.nbox{background:var(--bg-input);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.chip-group{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{padding:7px 16px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border);font-size:.76rem;color:var(--text-muted);cursor:pointer;transition:all .18s;font-weight:600;}
+.chip.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+.tog{display:flex;align-items:center;gap:9px;font-size:.83rem;color:var(--text-muted);margin-top:9px;}
+.tog input[type=checkbox]{width:16px;height:16px;accent-color:var(--orange);}
+.form-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;border:none;border-radius:14px;padding:13px 24px;font-size:.88rem;cursor:pointer;font-weight:800;box-shadow:0 6px 24px var(--orange-glow);transition:all .22s;}
+.btn-primary:hover{transform:translateY(-2px);filter:brightness(1.08);}
+.btn-secondary{background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:14px;padding:13px 18px;font-size:.84rem;cursor:pointer;transition:all .18s;font-weight:600;}
+.btn-secondary:hover{border-color:var(--border-hover);color:var(--text);}
+.nbox{background:var(--bg-input);border:1px solid var(--border);border-radius:16px;padding:15px 16px;display:flex;flex-direction:column;gap:9px;}
 .nrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .ndesc{font-size:.69rem;color:var(--text-faint);}
-.nperm{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.3);border-radius:10px;padding:8px 12px;font-size:.75rem;color:#eab308;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.btn-notif{background:#eab308;color:#000;border:none;border-radius:999px;padding:4px 12px;font-size:.72rem;font-weight:600;cursor:pointer;}
-.ghint{background:rgba(66,133,244,.07);border:1px solid rgba(66,133,244,.3);border-radius:10px;padding:8px 12px;font-size:.75rem;color:#4285f4;}
-.dlhint{font-size:.69rem;margin-top:4px;}
+.nperm{background:rgba(234,179,8,.07);border:1px solid rgba(234,179,8,.25);border-radius:12px;padding:9px 13px;font-size:.75rem;color:#fbbf24;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.btn-notif{background:var(--orange);color:#fff;border:none;border-radius:10px;padding:5px 14px;font-size:.72rem;font-weight:800;cursor:pointer;}
+.ghint{background:var(--orange-glow);border:1px solid rgba(249,115,22,.25);border-radius:12px;padding:9px 13px;font-size:.75rem;color:var(--orange);}
+.dlhint{font-size:.69rem;margin-top:5px;}
+
 /* LISTA */
-.list-toolbar{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;}
-.filter-group{display:flex;gap:6px;flex-wrap:wrap;}
-.ftitle{font-size:.69rem;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px;}
+.list-toolbar{display:flex;gap:10px;align-items:flex-start;margin:0 18px 16px;flex-wrap:wrap;}
+.filter-group{display:flex;gap:7px;flex-wrap:wrap;}
+.ftitle{font-size:.65rem;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px;letter-spacing:.07em;font-weight:700;}
 .sw{flex:1;min-width:150px;}
-.tasks-list{display:flex;flex-direction:column;gap:8px;}
-.task-item{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-radius:14px;border:1px solid var(--border);background:var(--bg-card);transition:all .15s;}
-.task-item:hover{border-color:var(--border-hover);}
+.tasks-list{display:flex;flex-direction:column;gap:10px;padding:0 18px;}
+.task-item{display:flex;align-items:flex-start;gap:13px;padding:15px 17px;border-radius:20px;background:var(--bg-card);border:1px solid var(--border);transition:all .2s;position:relative;overflow:hidden;}
+.task-item::before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;background:var(--orange);border-radius:0 3px 3px 0;opacity:0;transition:opacity .2s;}
+.task-item:hover{border-color:rgba(249,115,22,.3);box-shadow:0 6px 24px rgba(0,0,0,.15);}
+.task-item:hover::before{opacity:1;}
 .task-main{flex:1;min-width:0;}
-.task-title{font-size:.88rem;font-weight:600;margin-bottom:4px;}
+.task-title{font-size:.92rem;font-weight:800;margin-bottom:5px;letter-spacing:-.01em;}
 .task-title.done{text-decoration:line-through;color:var(--text-faint);}
 .task-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px;}
-.mt{font-size:.67rem;padding:2px 7px;border-radius:999px;background:var(--chip-bg);border:1px solid var(--border);color:var(--text-muted);}
-.mt.high{border-color:#ef4444;color:#ef4444;}
-.mt.medium{border-color:#eab308;color:#eab308;}
-.mt.low{border-color:#22c55e;color:#22c55e;}
-.mt.gcal{border-color:#4285f4;color:#4285f4;}
-.task-notes{font-size:.72rem;color:var(--text-faint);margin-bottom:5px;}
-.task-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:5px;margin-top:7px;}
-.sbadge{font-size:.67rem;padding:2px 9px;border-radius:999px;border:1px solid;}
-.sbadge.pending{background:rgba(234,179,8,.06);color:#eab308;border-color:rgba(234,179,8,.4);}
-.sbadge.late{background:rgba(220,38,38,.08);color:#ef4444;border-color:rgba(220,38,38,.5);}
-.sbadge.completed{background:rgba(22,163,74,.08);color:#22c55e;border-color:rgba(22,163,74,.4);}
-.task-actions{display:flex;gap:5px;flex-wrap:wrap;}
-.task-actions button{background:transparent;border:1px solid var(--border);border-radius:999px;padding:3px 9px;font-size:.67rem;color:var(--text-muted);cursor:pointer;}
-.task-actions button:hover{background:rgba(148,163,184,.1);}
-.del-btn:hover{border-color:#ef4444!important;color:#ef4444!important;}
-.gcal-btn{border-color:rgba(66,133,244,.4)!important;color:#4285f4!important;}
+.mt{font-size:.67rem;padding:3px 9px;border-radius:8px;background:var(--bg-input);border:1px solid var(--border);color:var(--text-muted);font-weight:600;}
+.mt.high{border-color:rgba(239,68,68,.4);color:#f87171;background:rgba(239,68,68,.08);}
+.mt.medium{border-color:rgba(249,115,22,.4);color:var(--orange2);background:rgba(249,115,22,.08);}
+.mt.low{border-color:rgba(34,197,94,.4);color:#4ade80;background:rgba(34,197,94,.08);}
+.mt.gcal{border-color:rgba(96,165,250,.4);color:#60a5fa;background:rgba(96,165,250,.08);}
+.task-notes{font-size:.73rem;color:var(--text-muted);margin-bottom:5px;line-height:1.55;}
+.task-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-top:9px;}
+.sbadge{font-size:.67rem;padding:4px 11px;border-radius:8px;border:1px solid;font-weight:700;}
+.sbadge.pending{background:rgba(249,115,22,.1);color:var(--orange2);border-color:rgba(249,115,22,.3);}
+.sbadge.late{background:rgba(239,68,68,.08);color:#f87171;border-color:rgba(239,68,68,.3);}
+.sbadge.completed{background:rgba(34,197,94,.08);color:#4ade80;border-color:rgba(34,197,94,.3);}
+.task-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.task-actions button{background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:4px 11px;font-size:.68rem;color:var(--text-muted);cursor:pointer;transition:all .15s;font-weight:600;}
+.task-actions button:hover{border-color:var(--border-hover);color:var(--text);}
+.del-btn:hover{border-color:rgba(239,68,68,.4)!important;color:#f87171!important;background:rgba(239,68,68,.08)!important;}
+.gcal-btn{border-color:rgba(96,165,250,.35)!important;color:#60a5fa!important;}
+
 /* AGENDA */
-.ag-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
-.ag-header h3{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px;}
-.badge{font-size:.67rem;padding:2px 9px;border-radius:999px;background:rgba(66,133,244,.12);border:1px solid rgba(66,133,244,.3);color:#4285f4;}
-.btn-refresh{background:transparent;border:1px solid var(--border);border-radius:999px;padding:5px 13px;font-size:.75rem;color:var(--text-muted);cursor:pointer;}
+.ag-header{display:flex;align-items:center;justify-content:space-between;margin:0 18px 16px;flex-wrap:wrap;gap:8px;}
+.ag-header h3{font-size:1rem;font-weight:800;display:flex;align-items:center;gap:9px;}
+.badge{font-size:.67rem;padding:4px 11px;border-radius:8px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);color:var(--orange);font-weight:700;}
+.btn-refresh{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:7px 15px;font-size:.76rem;color:var(--text-muted);cursor:pointer;transition:all .15s;font-weight:600;}
+.btn-refresh:hover{border-color:var(--orange);color:var(--orange);}
 .btn-refresh.loading{opacity:.5;pointer-events:none;}
-.gcf-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-.gcf{padding:4px 11px;border-radius:999px;background:var(--chip-bg);border:1px solid var(--border);font-size:.7rem;color:var(--text-muted);cursor:pointer;}
-.gcf.active{background:rgba(66,133,244,.15);border-color:#4285f4;color:#4285f4;}
-.ev-list{display:flex;flex-direction:column;gap:8px;}
-.ev-item{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border-radius:14px;border:1px solid var(--border);background:var(--bg-card);cursor:pointer;transition:all .15s;}
-.ev-item:hover{border-color:#4285f4;}
-.ev-item.today-ev{border-color:rgba(66,133,244,.4);background:rgba(66,133,244,.04);}
-.ev-date{min-width:44px;text-align:center;background:rgba(66,133,244,.1);border:1px solid rgba(66,133,244,.2);border-radius:10px;padding:5px 3px;}
-.ev-day{font-size:1.05rem;font-weight:800;color:#4285f4;line-height:1;}
-.ev-mon{font-size:.61rem;color:var(--text-faint);text-transform:uppercase;}
-.ev-wday{font-size:.57rem;color:var(--text-faint);}
+.gcf-row{display:flex;gap:7px;flex-wrap:wrap;margin:0 18px 14px;}
+.gcf{padding:6px 14px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border);font-size:.72rem;color:var(--text-muted);cursor:pointer;font-weight:600;transition:all .15s;}
+.gcf.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+.ev-list{display:flex;flex-direction:column;gap:10px;padding:0 18px;}
+.ev-item{display:flex;align-items:flex-start;gap:13px;padding:15px 17px;border-radius:20px;background:var(--bg-card);border:1px solid var(--border);cursor:pointer;transition:all .2s;}
+.ev-item:hover{border-color:rgba(249,115,22,.3);box-shadow:0 6px 24px rgba(0,0,0,.15);}
+.ev-item.today-ev{border-color:rgba(249,115,22,.35);background:rgba(249,115,22,.04);}
+.ev-date{min-width:48px;text-align:center;background:var(--orange);border-radius:14px;padding:8px 4px;}
+.ev-day{font-size:1.2rem;font-weight:900;color:#fff;line-height:1;}
+.ev-mon{font-size:.6rem;color:rgba(255,255,255,0.8);text-transform:uppercase;font-weight:700;}
+.ev-wday{font-size:.55rem;color:rgba(255,255,255,0.65);}
 .ev-main{flex:1;min-width:0;}
-.ev-title{font-size:.86rem;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ev-time{font-size:.72rem;color:var(--text-muted);margin-bottom:3px;}
-.ev-loc{font-size:.69rem;color:var(--text-faint);}
-.ev-desc{font-size:.69rem;color:var(--text-faint);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.ev-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-.ev-link{font-size:.67rem;color:#4285f4;text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:5px;}
-.ev-empty{text-align:center;padding:28px;color:var(--text-faint);background:var(--bg-card);border:1px solid var(--border);border-radius:14px;}
-.ag-off{background:var(--bg-card);border:2px dashed var(--border);border-radius:14px;padding:32px;text-align:center;color:var(--text-faint);}
-.ag-off p{font-size:.81rem;margin-bottom:14px;}
-.spin{display:inline-block;width:15px;height:15px;border:2px solid var(--border);border-top-color:#4285f4;border-radius:50%;animation:sp .7s linear infinite;margin-right:7px;vertical-align:middle;}
+.ev-title{font-size:.9rem;font-weight:800;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ev-time{font-size:.73rem;color:var(--text-muted);margin-bottom:3px;font-weight:500;}
+.ev-loc,.ev-desc{font-size:.7rem;color:var(--text-faint);}
+.ev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.ev-link{font-size:.69rem;color:var(--orange);text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:5px;font-weight:700;}
+.ev-empty{text-align:center;padding:36px;color:var(--text-faint);background:var(--bg-card);border:1px solid var(--border);border-radius:20px;margin:0 18px;}
+.ag-off{background:var(--bg-card);border:2px dashed var(--border);border-radius:22px;padding:40px;text-align:center;color:var(--text-faint);margin:0 18px;}
+.ag-off p{font-size:.84rem;margin-bottom:18px;}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:sp .7s linear infinite;margin-right:7px;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg);}}
-.gcal-loading{text-align:center;padding:22px;color:var(--text-faint);font-size:.81rem;}
+.gcal-loading{text-align:center;padding:26px;color:var(--text-faint);font-size:.83rem;}
+
 /* EMPTY */
-.empty-state{text-align:center;padding:40px 16px;color:var(--text-faint);}
-.empty-state .ei{font-size:2rem;margin-bottom:10px;}
-.empty-state strong{display:block;color:var(--text-muted);margin-bottom:5px;}
+.empty-state{text-align:center;padding:52px 16px;color:var(--text-faint);}
+.empty-state .ei{font-size:2.6rem;margin-bottom:14px;display:block;}
+.empty-state strong{display:block;color:var(--text-muted);margin-bottom:7px;font-size:.96rem;font-weight:700;}
+.empty-state span{font-size:.81rem;}
+
 /* METAS */
-.checkin-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:18px;}
-.checkin-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.checkin-card{background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:20px 22px;margin:0 18px 18px;}
+.checkin-row{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
 .checkin-row:last-child{border-bottom:none;}
 .meta-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
-.meta-dash{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:12px;}
-.meta-stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
+.meta-dash{background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:18px 20px;margin:0 18px 12px;}
+.meta-stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;}
 .meta-stat{text-align:center;}
-.meta-stat-val{font-size:1.25rem;font-weight:800;}
-.meta-stat-lbl{font-size:.64rem;color:var(--text-faint);}
+.meta-stat-val{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;}
+.meta-stat-lbl{font-size:.62rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;font-weight:700;}
 .day-grid{display:flex;flex-wrap:wrap;gap:3px;}
-.day-cell{width:17px;height:17px;border-radius:3px;flex-shrink:0;cursor:default;}
+.day-cell{width:18px;height:18px;border-radius:5px;flex-shrink:0;cursor:default;transition:transform .15s;}
+.day-cell:hover{transform:scale(1.25);}
+
 /* TOAST */
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg-card);border:1px solid var(--border);border-radius:999px;padding:9px 20px;font-size:.82rem;color:var(--text);box-shadow:0 8px 22px var(--shadow);transition:transform .3s;z-index:9999;white-space:nowrap;}
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:12px 24px;font-size:.84rem;color:var(--text);box-shadow:0 16px 48px rgba(0,0,0,.5);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:9999;white-space:nowrap;font-weight:600;}
 #toast.show{transform:translateX(-50%) translateY(0);}
-.lembrete-badge{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);color:#a855f7;font-size:.67rem;padding:2px 8px;border-radius:999px;}
-.agendar-btn{border-color:rgba(59,130,246,.4)!important;color:#3b82f6!important;}
+
+/* LEMBRETES */
+.lem-edit-banner{background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:14px;padding:10px 15px;font-size:.78rem;color:var(--orange2);display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font-weight:600;}
+.lem-card{display:flex;align-items:flex-start;gap:12px;padding:15px 17px;border-radius:20px;border:1px solid;transition:all .2s;background:var(--bg-card);}
+.lem-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.15);}
+.lem-card.lem-done{opacity:.5;}
+.lem-title{font-size:.92rem;font-weight:800;margin-bottom:5px;letter-spacing:-.01em;}
+.lem-title.lem-checked{text-decoration:line-through;color:var(--text-faint);}
+.icon-picker{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.icon-opt{width:36px;height:36px;border-radius:11px;border:1px solid var(--border);background:var(--bg-input);font-size:1.08rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.icon-opt:hover{transform:scale(1.1);}
+.icon-opt.active{border-color:var(--orange);background:var(--orange-glow);transform:scale(1.12);}
+
+/* ANEXOS */
+.attach-chip{display:flex;align-items:center;gap:7px;background:var(--bg-input);border:1px solid var(--border);border-radius:14px;padding:8px 12px;font-size:.74rem;max-width:200px;}
+.attach-chip img{width:44px;height:44px;object-fit:cover;border-radius:9px;flex-shrink:0;}
+.attach-chip-info{flex:1;min-width:0;}
+.attach-chip-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.75rem;color:var(--text);font-weight:600;}
+.attach-chip-size{font-size:.63rem;color:var(--text-faint);}
+.attach-remove{background:transparent;border:none;color:var(--text-faint);cursor:pointer;font-size:.82rem;padding:0;flex-shrink:0;}
+.attach-remove:hover{color:#f87171;}
+.attach-card-chip{display:inline-flex;align-items:center;gap:5px;background:var(--bg-input);border:1px solid var(--border);border-radius:9px;padding:4px 11px;font-size:.7rem;color:var(--text-muted);cursor:pointer;text-decoration:none;transition:all .15s;font-weight:600;}
+.attach-card-chip:hover{border-color:var(--orange);color:var(--orange);}
+.lembrete-badge{font-size:.67rem;padding:3px 9px;border-radius:8px;font-weight:700;}
+.agendar-btn{border-color:rgba(249,115,22,.35)!important;color:var(--orange)!important;}
+#gNavStatus{transition:all .2s;}
+#gNavStatus:hover{opacity:.8;}
+.gcal-status.connected{border-color:rgba(34,197,94,.5);color:#22c55e;background:rgba(34,197,94,.06);}
+.gcal-status.disconnected{border-color:rgba(249,115,22,.5);color:var(--orange);background:rgba(249,115,22,.06);}
+.gcal-status{font-size:.7rem;padding:3px 10px;border-radius:999px;border:1px solid;}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-brand" onclick="goTo('home')"><div class="dot"></div>Atividades Diárias</div>
-  <div class="nav-links">
-    <button class="nav-btn active" data-nav="home" onclick="goTo('home')">Início</button>
-    <button class="nav-btn" data-nav="add" onclick="goTo('add')">+ Nova</button>
-    <button class="nav-btn" data-nav="list" onclick="goTo('list')">Compromissos</button>
-    <button class="nav-btn" data-nav="lembretes" onclick="goTo('lembretes')">📝 Lembretes</button>
-    <button class="nav-btn" data-nav="metas" onclick="goTo('metas')">🎯 Metas</button>
-    <button class="nav-btn" data-nav="agenda" onclick="goTo('agenda')">🗓️ Agenda</button>
-    <button class="google-btn" id="gLoginBtn" onclick="handleGoogleLogin()">📅 Conectar</button>
-    <button class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">☀️</span></button>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div id="gNavStatus" onclick="handleGoogleLogin()" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:5px 12px;border-radius:999px;border:1px solid var(--border);font-size:.75rem;color:var(--text-muted);transition:all .2s;" title="Status Google">
+      <span id="gNavDot" style="width:7px;height:7px;border-radius:50%;background:#eab308;flex-shrink:0"></span>
+      <span id="gNavLabel">Desconectado</span>
+    </div>
+    <button class="theme-toggle" onclick="toggleThemePopup(event)" title="Personalizar tema"><span id="themeIcon">☀️</span></button>
   </div>
 </nav>
 
 <!-- HOME -->
 <div class="screen active" id="screen-home">
   <div class="home-hero">
-    <h1>Equilibre trabalho e vida pessoal</h1>
-    <p>Organize compromissos, lembretes e acompanhe suas metas diárias.</p>
-    <div class="stats-row">
-      <div class="stat-pill"><div class="ds" style="background:#3b82f6"></div>Compromissos:<strong id="sTotal">0</strong></div>
-      <div class="stat-pill"><div class="ds" style="background:#38bdf8"></div>Trabalho:<strong id="sWork">0</strong></div>
-      <div class="stat-pill"><div class="ds" style="background:#a855f7"></div>Pessoal:<strong id="sPersonal">0</strong></div>
-      <div class="stat-pill"><div class="ds" style="background:#f59e0b"></div>Lembretes:<strong id="sLem">0</strong></div>
-      <div class="stat-pill"><div class="ds" style="background:#22c55e"></div>Concluídas:<strong id="sDone">0</strong></div>
-      <div class="stat-pill"><div class="ds" style="background:#ef4444"></div>Atrasadas:<strong id="sLate">0</strong></div>
-    </div>
+    <div class="hero-date" id="heroDate"></div>
+    <h1>Sua agenda,<br/>do seu jeito.</h1>
+    <p>Tudo organizado em um só lugar.</p>
   </div>
-  <div class="gcal-banner">
-    <div class="gcal-info">
-      <div class="gcal-icon">📅</div>
-      <div>
-        <h4>Google Agenda</h4>
-        <p id="gBannerDesc">Conecte sua conta Google para sincronizar atividades entre seus aparelhos.</p>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <span class="gcal-status disconnected" id="gStatusBadge">Desconectado</span>
-      <button class="btn-refresh" id="gSyncBtn" style="display:none" onclick="syncFromDrive()">🔄 Sincronizar</button>
-      <button class="google-btn" id="gBannerBtn" onclick="handleGoogleLogin()">📅 Conectar</button>
-    </div>
+  <div class="stats-float">
+    <div class="stat-card"><strong id="sWork">0</strong><span>Trabalho</span></div>
+    <div class="stat-card"><strong id="sPersonal">0</strong><span>Pessoal</span></div>
+    <div class="stat-card"><strong id="sLem">0</strong><span>Lembretes</span></div>
+    <div class="stat-card"><strong id="sDone">0</strong><span>Feitas</span></div>
+    <div class="stat-card"><strong id="sLate">0</strong><span>Atrasadas</span></div>
   </div>
   <div class="home-cards">
     <div class="home-card" onclick="goTo('list',{type:'Trabalho'})">
-      <div class="card-icon">💼</div><h3>Compromissos de Trabalho</h3>
-      <p>Reuniões, projetos, administração e estudos.</p>
+      <div class="card-icon-wrap">💼</div>
+      <h3>Compromissos de Trabalho</h3>
+      <p>Reuniões, projetos e estudos.</p>
       <div class="card-arrow">Ver →</div>
     </div>
     <div class="home-card" onclick="goTo('list',{type:'Pessoal'})">
-      <div class="card-icon">📅</div><h3>Compromissos Pessoais</h3>
-      <p>Consultas, eventos, saúde, família e lazer.</p>
+      <div class="card-icon-wrap">📅</div>
+      <h3>Compromissos Pessoais</h3>
+      <p>Saúde, família e lazer.</p>
       <div class="card-arrow">Ver →</div>
     </div>
     <div class="home-card" onclick="goTo('lembretes')">
-      <div class="card-icon">📝</div><h3>Lembretes</h3>
-      <p>Anotações sem data — coisas que precisa resolver logo.</p>
+      <div class="card-icon-wrap">📝</div>
+      <h3>Lembretes</h3>
+      <p>Anotações e pendências.</p>
       <div class="card-arrow">Ver →</div>
     </div>
     <div class="home-card" onclick="goTo('metas')">
-      <div class="card-icon">🎯</div><h3>Metas Diárias</h3>
-      <p>Hábitos e rotinas que quer cultivar todo dia.</p>
+      <div class="card-icon-wrap">🎯</div>
+      <h3>Metas Diárias</h3>
+      <p>Hábitos e rotinas.</p>
       <div class="card-arrow">Ver →</div>
     </div>
     <div class="home-card" onclick="goTo('list',{filter:'today'})">
-      <div class="card-icon">⚡</div><h3>Para hoje</h3>
-      <p>Compromissos com prazo hoje.</p>
+      <div class="card-icon-wrap">⚡</div>
+      <h3>Para hoje</h3>
+      <p>Compromissos de hoje.</p>
       <div class="card-arrow">Ver →</div>
     </div>
     <div class="home-card" onclick="goTo('agenda')">
-      <div class="card-icon">🗓️</div><h3>Google Agenda</h3>
-      <p>Seus próximos compromissos sincronizados.</p>
+      <div class="card-icon-wrap">🗓️</div>
+      <h3>Google Agenda</h3>
+      <p>Compromissos sincronizados.</p>
       <div class="card-arrow">Ver →</div>
     </div>
+  </div>
+  <div style="text-align:center;padding:4px 0 8px">
+    <button id="gSyncBtn" onclick="syncFromDrive()" style="display:none;background:transparent;border:1px solid var(--border);border-radius:999px;padding:6px 16px;font-size:.74rem;color:var(--text-faint);cursor:pointer">🔄 Sincronizar dados</button>
   </div>
 </div>
 
@@ -266,6 +355,22 @@ textarea{resize:vertical;min-height:60px;}
       <div class="form-group">
         <label>Notas (opcional)</label>
         <textarea id="fNotes" placeholder="Detalhes, links, observações..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Cor do card</label>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px">
+          <input type="color" id="fColor" value="#f97316" style="height:38px;width:50px;padding:2px 3px;cursor:pointer;border-radius:10px;border:1px solid var(--border);background:transparent"/>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <button type="button" onclick="setTaskColor('#f97316')" style="width:24px;height:24px;border-radius:50%;background:#f97316;border:2px solid transparent;cursor:pointer" title="Laranja"></button>
+            <button type="button" onclick="setTaskColor('#3b82f6')" style="width:24px;height:24px;border-radius:50%;background:#3b82f6;border:2px solid transparent;cursor:pointer" title="Azul"></button>
+            <button type="button" onclick="setTaskColor('#8b5cf6')" style="width:24px;height:24px;border-radius:50%;background:#8b5cf6;border:2px solid transparent;cursor:pointer" title="Roxo"></button>
+            <button type="button" onclick="setTaskColor('#22c55e')" style="width:24px;height:24px;border-radius:50%;background:#22c55e;border:2px solid transparent;cursor:pointer" title="Verde"></button>
+            <button type="button" onclick="setTaskColor('#ef4444')" style="width:24px;height:24px;border-radius:50%;background:#ef4444;border:2px solid transparent;cursor:pointer" title="Vermelho"></button>
+            <button type="button" onclick="setTaskColor('#ec4899')" style="width:24px;height:24px;border-radius:50%;background:#ec4899;border:2px solid transparent;cursor:pointer" title="Rosa"></button>
+            <button type="button" onclick="setTaskColor('#14b8a6')" style="width:24px;height:24px;border-radius:50%;background:#14b8a6;border:2px solid transparent;cursor:pointer" title="Teal"></button>
+            <button type="button" onclick="setTaskColor('#6b7280')" style="width:24px;height:24px;border-radius:50%;background:#6b7280;border:2px solid transparent;cursor:pointer" title="Cinza"></button>
+          </div>
+        </div>
       </div>
       <div class="form-row form-group">
         <div>
@@ -332,6 +437,15 @@ textarea{resize:vertical;min-height:60px;}
           <div id="gHint" style="display:none" class="ghint">📅 Será enviado ao seu Google Agenda ao salvar.</div>
         </div>
       </div>
+      <div class="form-group">
+        <label>📎 Anexos (opcional)</label>
+        <div id="attachPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>
+        <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;background:var(--bg-input);border:1px dashed var(--border);border-radius:10px;padding:9px 14px;font-size:.8rem;color:var(--text-muted);transition:all .15s" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='var(--border)'">
+          <span>📎</span> Adicionar arquivo
+          <input type="file" id="fileInput" multiple style="display:none" onchange="handleFileSelect(event)"/>
+        </label>
+        <div style="font-size:.67rem;color:var(--text-faint);margin-top:5px">Máx. 3 arquivos · 2MB cada · Imagens, PDF, documentos</div>
+      </div>
       <div class="form-actions">
         <button type="submit" class="btn-primary" id="submitBtn">Salvar compromisso</button>
         <button type="button" class="btn-secondary" onclick="cancelForm()">Cancelar</button>
@@ -343,9 +457,12 @@ textarea{resize:vertical;min-height:60px;}
 <!-- COMPROMISSOS (lista) -->
 <div class="screen" id="screen-list">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div class="screen-header">
-    <h2 id="listTitle">Compromissos</h2>
-    <p>Gerencie e acompanhe seus compromissos.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 id="listTitle" style="font-size:1.25rem;font-weight:700;margin-bottom:3px">Compromissos</h2>
+      <p style="color:var(--text-faint);font-size:.81rem">Gerencie e acompanhe seus compromissos.</p>
+    </div>
+    <button class="btn-primary" id="listAddBtn" onclick="addFromList()" style="display:none">+ Adicionar</button>
   </div>
   <div class="list-toolbar">
     <div>
@@ -368,33 +485,95 @@ textarea{resize:vertical;min-height:60px;}
 <!-- LEMBRETES -->
 <div class="screen" id="screen-lembretes">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div class="screen-header">
-    <h2>📝 Lembretes</h2>
-    <p>Anotações sem data — quando tiver data, vira compromisso.</p>
-  </div>
-  <div class="form-card" style="margin-bottom:18px">
-    <div class="form-group">
-      <label>O que precisa resolver? *</label>
-      <input id="lemTitle" placeholder="Ex: Marcar consulta no dentista, Comprar presente..."/>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:3px">📝 Lembretes</h2>
+      <p style="color:var(--text-faint);font-size:.81rem">Anotações sem data — quando tiver data, vira compromisso.</p>
     </div>
-    <div class="form-row form-group">
-      <div>
-        <label>Tipo</label>
-        <div class="chip-group" id="lemAreaChips">
-          <button type="button" class="chip active" data-area="Trabalho" onclick="selLemArea('Trabalho')">💼 Trabalho</button>
-          <button type="button" class="chip" data-area="Pessoal" onclick="selLemArea('Pessoal')">🏡 Pessoal</button>
+    <button class="btn-primary" onclick="openLemForm()" id="lemAddBtn" style="background:linear-gradient(to right,#d97706,#f59e0b);white-space:nowrap">+ Adicionar lembrete</button>
+  </div>
+
+  <div id="lemFormWrap" style="display:none;margin-bottom:18px">
+    <div class="form-card">
+      <div id="lemEditBanner" class="lem-edit-banner" style="display:none">
+        ✏️ Editando lembrete — <button onclick="cancelLemEdit()" style="background:transparent;border:none;color:#f59e0b;cursor:pointer;font-size:.78rem;font-weight:600">✕ Cancelar</button>
+      </div>
+      <div class="form-group">
+        <label>Ícone</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button type="button" id="iconSelectedBtn" onclick="toggleIconPicker()" style="width:42px;height:42px;border-radius:10px;border:2px solid #f59e0b;background:rgba(245,158,11,0.12);font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Clique para escolher ícone">📝</button>
+          <span style="font-size:.74rem;color:var(--text-faint)">Clique para escolher</span>
+        </div>
+        <div id="iconPickerWrap" style="display:none;margin-top:8px">
+          <div class="icon-picker" id="iconPicker"></div>
         </div>
       </div>
-      <div>
-        <label>Categoria</label>
-        <select id="lemCat"></select>
+      <div class="form-group">
+        <label>O que precisa resolver? *</label>
+        <input id="lemTitle" placeholder="Ex: Marcar consulta no dentista, Comprar presente..."/>
       </div>
-    </div>
-    <div class="form-group">
-      <textarea id="lemNotes" placeholder="Detalhes (opcional)..." style="min-height:52px"></textarea>
-    </div>
-    <div class="form-actions">
-      <button class="btn-primary" onclick="saveLembrete()">Adicionar lembrete</button>
+      <div class="form-row form-group">
+        <div>
+          <label>Tipo</label>
+          <div class="chip-group" id="lemAreaChips">
+            <button type="button" class="chip active" data-area="Trabalho" onclick="selLemArea('Trabalho')">💼 Trabalho</button>
+            <button type="button" class="chip" data-area="Pessoal" onclick="selLemArea('Pessoal')">🏡 Pessoal</button>
+          </div>
+        </div>
+        <div>
+          <label>Categoria</label>
+          <select id="lemCat"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="lemNotes" placeholder="Detalhes, contexto, próximos passos..." style="min-height:52px"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Checklist (opcional)</label>
+        <div id="lemCheckList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:7px"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="lemCheckInput" placeholder="Adicionar item..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addLemCheckItem();}"/>
+          <button type="button" onclick="addLemCheckItem()" class="btn-secondary" style="padding:7px 13px;font-size:.78rem;white-space:nowrap">+ Item</button>
+        </div>
+      </div>
+      <div class="form-row form-group">
+        <div>
+          <label>Cor do card</label>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <input type="color" id="lemColor" value="#f59e0b" style="height:36px;width:50px;padding:2px 3px;cursor:pointer;border-radius:8px"/>
+            <div class="chip-group">
+              <button type="button" onclick="setLemColor('#f59e0b')" style="width:22px;height:22px;border-radius:50%;background:#f59e0b;border:2px solid transparent;cursor:pointer" title="Âmbar"></button>
+              <button type="button" onclick="setLemColor('#3b82f6')" style="width:22px;height:22px;border-radius:50%;background:#3b82f6;border:2px solid transparent;cursor:pointer" title="Azul"></button>
+              <button type="button" onclick="setLemColor('#22c55e')" style="width:22px;height:22px;border-radius:50%;background:#22c55e;border:2px solid transparent;cursor:pointer" title="Verde"></button>
+              <button type="button" onclick="setLemColor('#ef4444')" style="width:22px;height:22px;border-radius:50%;background:#ef4444;border:2px solid transparent;cursor:pointer" title="Vermelho"></button>
+              <button type="button" onclick="setLemColor('#a855f7')" style="width:22px;height:22px;border-radius:50%;background:#a855f7;border:2px solid transparent;cursor:pointer" title="Roxo"></button>
+              <button type="button" onclick="setLemColor('#ec4899')" style="width:22px;height:22px;border-radius:50%;background:#ec4899;border:2px solid transparent;cursor:pointer" title="Rosa"></button>
+              <button type="button" onclick="setLemColor('#6b7280')" style="width:22px;height:22px;border-radius:50%;background:#6b7280;border:2px solid transparent;cursor:pointer" title="Cinza"></button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label>Status inicial</label>
+          <div class="tog" style="margin-top:10px">
+            <input type="checkbox" id="lemChecked" style="width:15px;height:15px;accent-color:#f59e0b"/>
+            <label for="lemChecked" style="margin:0;font-size:.82rem">Marcar como resolvido</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>📎 Anexos (opcional)</label>
+        <div id="lemAttachPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>
+        <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;background:var(--bg-input);border:1px dashed var(--border);border-radius:10px;padding:9px 14px;font-size:.8rem;color:var(--text-muted);transition:all .15s" onmouseover="this.style.borderColor='#f59e0b'" onmouseout="this.style.borderColor='var(--border)'">
+          <span>📎</span> Adicionar arquivo
+          <input type="file" id="lemFileInput" multiple style="display:none" onchange="handleLemFileSelect(event)"/>
+        </label>
+        <div style="font-size:.67rem;color:var(--text-faint);margin-top:5px">Máx. 3 arquivos · 2MB cada</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" id="lemSaveBtn" onclick="saveLembrete()" style="background:linear-gradient(to right,#d97706,#f59e0b)">Adicionar lembrete</button>
+        <button class="btn-secondary" onclick="closeLemForm()">Cancelar</button>
+      </div>
     </div>
   </div>
   <div id="lemList"></div>
@@ -403,9 +582,39 @@ textarea{resize:vertical;min-height:60px;}
 <!-- METAS DIÁRIAS -->
 <div class="screen" id="screen-metas">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div class="screen-header">
-    <h2>🎯 Metas Diárias</h2>
-    <p>Hábitos que você quer cultivar todo dia.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:3px">🎯 Metas Diárias</h2>
+      <p style="color:var(--text-faint);font-size:.81rem">Hábitos que você quer cultivar todo dia.</p>
+    </div>
+    <button class="btn-primary" onclick="openMetaForm()" id="metaAddBtn">+ Nova meta</button>
+  </div>
+
+  <!-- Formulário oculto -->
+  <div id="metaFormWrap" style="display:none;margin-bottom:22px">
+    <div class="form-card">
+      <div class="form-row form-group">
+        <div>
+          <label>Nome da meta *</label>
+          <input id="metaTitle" placeholder="Ex: Ler, Academia, Creatina..."/>
+        </div>
+        <div>
+          <label>Cor</label>
+          <input type="color" id="metaColor" value="#3b82f6" style="height:38px;padding:2px 4px;cursor:pointer"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Tipo de registro</label>
+        <div class="chip-group" id="metaTypeChips">
+          <button type="button" class="chip active" data-mt="check" onclick="selMetaType('check')">✅ Só check</button>
+          <button type="button" class="chip" data-mt="time" onclick="selMetaType('time')">⏱️ Check + tempo (minutos)</button>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveMeta()">Criar meta</button>
+        <button class="btn-secondary" onclick="closeMetaForm()">Cancelar</button>
+      </div>
+    </div>
   </div>
 
   <!-- Check-in de hoje -->
@@ -427,33 +636,6 @@ textarea{resize:vertical;min-height:60px;}
       <div><label>Até</label><input type="date" id="pTo" onchange="renderDashboard()"/></div>
     </div>
     <div id="dashboardContent"></div>
-  </div>
-
-  <!-- Nova meta -->
-  <div>
-    <h3 style="font-size:.85rem;font-weight:700;margin-bottom:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">+ Nova meta</h3>
-    <div class="form-card">
-      <div class="form-row form-group">
-        <div>
-          <label>Nome da meta *</label>
-          <input id="metaTitle" placeholder="Ex: Ler, Academia, Creatina..."/>
-        </div>
-        <div>
-          <label>Cor</label>
-          <input type="color" id="metaColor" value="#3b82f6" style="height:38px;padding:2px 4px;cursor:pointer"/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Tipo de registro</label>
-        <div class="chip-group" id="metaTypeChips">
-          <button type="button" class="chip active" data-mt="check" onclick="selMetaType('check')">✅ Só check</button>
-          <button type="button" class="chip" data-mt="time" onclick="selMetaType('time')">⏱️ Check + tempo (minutos)</button>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn-primary" onclick="saveMeta()">Criar meta</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -486,6 +668,53 @@ textarea{resize:vertical;min-height:60px;}
   </div>
 </div>
 
+<!-- POPUP DE TEMA -->
+<div id="themePopup" class="theme-popup">
+  <h4>Aparência</h4>
+  <div class="theme-mode">
+    <button class="mode-btn" id="modeDark" onclick="setMode('dark')">🌙 Escuro</button>
+    <button class="mode-btn" id="modeLight" onclick="setMode('light')">☀️ Claro</button>
+  </div>
+  <h4>Cor de destaque</h4>
+  <div class="color-swatches">
+    <div class="swatch" data-color="#3b82f6" style="background:#3b82f6" onclick="setAccent('#3b82f6')" title="Azul"></div>
+    <div class="swatch" data-color="#6366f1" style="background:#6366f1" onclick="setAccent('#6366f1')" title="Índigo"></div>
+    <div class="swatch" data-color="#a855f7" style="background:#a855f7" onclick="setAccent('#a855f7')" title="Roxo"></div>
+    <div class="swatch" data-color="#ec4899" style="background:#ec4899" onclick="setAccent('#ec4899')" title="Rosa"></div>
+    <div class="swatch" data-color="#ef4444" style="background:#ef4444" onclick="setAccent('#ef4444')" title="Vermelho"></div>
+    <div class="swatch" data-color="#f59e0b" style="background:#f59e0b" onclick="setAccent('#f59e0b')" title="Âmbar"></div>
+    <div class="swatch" data-color="#22c55e" style="background:#22c55e" onclick="setAccent('#22c55e')" title="Verde"></div>
+    <div class="swatch" data-color="#14b8a6" style="background:#14b8a6" onclick="setAccent('#14b8a6')" title="Teal"></div>
+    <div class="swatch" data-color="#0ea5e9" style="background:#0ea5e9" onclick="setAccent('#0ea5e9')" title="Céu"></div>
+  </div>
+  <div class="custom-color-row">
+    <input type="color" id="customAccent" onchange="setAccent(this.value)"/>
+    <span>Cor personalizada</span>
+  </div>
+</div>
+
+<!-- MODAL DE AGENDAMENTO -->
+<div id="agendarModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:380px;box-shadow:0 20px 50px rgba(0,0,0,.5)">
+    <div style="margin-bottom:18px">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:4px">📅 Agendar compromisso</h3>
+      <p id="agendarLemTitle" style="font-size:.82rem;color:var(--text-muted);background:var(--bg-input);padding:8px 12px;border-radius:8px;border:1px solid var(--border);margin-top:8px"></p>
+    </div>
+    <div class="form-group">
+      <label>Data *</label>
+      <input type="date" id="agendarData" style="font-size:.9rem"/>
+    </div>
+    <div class="form-group">
+      <label>Horário (opcional)</label>
+      <input type="time" id="agendarHora"/>
+    </div>
+    <div class="form-actions" style="margin-top:20px">
+      <button class="btn-primary" onclick="confirmarAgendamento()">✅ Confirmar agendamento</button>
+      <button class="btn-secondary" onclick="fecharAgendarModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -506,7 +735,10 @@ let gTC=null, gapiOk=false, gOk=false, gToken=null;
 let gcEvs=[], gcF="all";
 let driveFileId=null, driveSyncTimer=null, driveBusy=false;
 let selLemAreaVal="Trabalho", selMetaTypeVal="check", dashPeriod="week";
-let _fromLembreteId=null;
+let _fromLembreteId=null, editLembreteId=null, selLemIcon="📝", selLemColor="#f59e0b";
+let lemCheckItems=[]; // itens do checklist em edição no formulário
+
+const LEM_ICONS=["📝","🦷","🏋️","📚","💊","📞","🛒","🏠","🚗","✂️","💈","🔧","🍎","💉","💰","🧹","📦","🎯","⚡","🔑","📱","💻","🌟","🎂","🐾","🌿","🏥","💼","📋","🔔"];
 
 const CATS={
   Trabalho:["Projetos","Reuniões","Administração","Estudo técnico","Outro"],
@@ -514,16 +746,183 @@ const CATS={
 };
 const GCOLS={"1":"#4285f4","2":"#33b679","3":"#8e24aa","4":"#e67c73","5":"#f6c026","6":"#f5511d","7":"#039be5","8":"#616161","9":"#3f51b5","10":"#0b8043","11":"#d60000"};
 
-// ===== UTILS =====
+let taskAttachments = [];
+let selTaskColor = "#f97316";
+
+function setTaskColor(c){
+  selTaskColor=c;
+  const el=document.getElementById("fColor"); if(el) el.value=c;
+} // anexos do formulário atual
+
+function fileIcon(type){
+  if(type.startsWith("image/")) return "🖼️";
+  if(type==="application/pdf") return "📄";
+  if(type.includes("word")) return "📝";
+  if(type.includes("excel")||type.includes("spreadsheet")) return "📊";
+  if(type.startsWith("audio/")) return "🎵";
+  if(type.startsWith("video/")) return "🎬";
+  return "📎";
+}
+function fmtSize(bytes){
+  if(bytes<1024) return bytes+"B";
+  if(bytes<1048576) return (bytes/1024).toFixed(1)+"KB";
+  return (bytes/1048576).toFixed(1)+"MB";
+}
+function handleFileSelect(e){
+  const files=Array.from(e.target.files);
+  const remaining=3-taskAttachments.length;
+  if(remaining<=0){ showToast("Máximo de 3 anexos por compromisso."); return; }
+  const toAdd=files.slice(0,remaining);
+  const maxSize=2*1024*1024;
+  let skipped=0;
+  toAdd.forEach(f=>{
+    if(f.size>maxSize){ skipped++; return; }
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      taskAttachments.push({id:uid(),name:f.name,type:f.type,size:f.size,data:ev.target.result});
+      renderAttachPreview();
+    };
+    reader.readAsDataURL(f);
+  });
+  if(skipped) showToast(`${skipped} arquivo(s) ignorado(s): tamanho acima de 2MB.`);
+  e.target.value="";
+}
+function removeAttachment(id){
+  taskAttachments=taskAttachments.filter(a=>a.id!==id);
+  renderAttachPreview();
+}
+function renderAttachPreview(){
+  const el=document.getElementById("attachPreview"); if(!el) return;
+  if(!taskAttachments.length){ el.innerHTML=""; return; }
+  el.innerHTML=taskAttachments.map(a=>{
+    const isImg=a.type.startsWith("image/");
+    return `<div class="attach-chip">
+      ${isImg?`<img src="${a.data}" alt="${a.name}"/>`:`<span style="font-size:1.4rem">${fileIcon(a.type)}</span>`}
+      <div class="attach-chip-info">
+        <div class="attach-chip-name" title="${a.name}">${a.name}</div>
+        <div class="attach-chip-size">${fmtSize(a.size)}</div>
+      </div>
+      <button type="button" class="attach-remove" onclick="removeAttachment('${a.id}')" title="Remover">✕</button>
+    </div>`;
+  }).join("");
+}
+function downloadAttachment(taskId, fileName){
+  // Busca o task e o anexo pelo nome do arquivo
+  const task = tasks.find(t => t.id === taskId);
+  if(!task || !task.attachments) return;
+  const att = task.attachments.find(a => a.name === fileName);
+  if(!att) return;
+  if(att.type.startsWith("image/")){
+    // Para imagens, abre em nova aba para visualizar
+    const w = window.open(); w.document.write(`<img src="${att.data}" style="max-width:100%;"/>`); w.document.close();
+  } else {
+    const a=document.createElement("a"); a.href=att.data; a.download=att.name; a.click();
+  }
+}
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function today(){ return new Date().toISOString().slice(0,10); }
 function showToast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2800); }
 function hexToRgb(hex){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `${r},${g},${b}`; }
 
 // ===== TEMA =====
-function applyTheme(t){ document.documentElement.setAttribute("data-theme",t); document.getElementById("themeIcon").textContent=t==="dark"?"☀️":"🌙"; localStorage.setItem(TK,t); }
-function toggleTheme(){ applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"); }
+const AK = "atividadesacor";
+let curAccent = "#3b82f6";
 
+function lightenColor(hex, pct){
+  let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  r=Math.min(255,Math.round(r+(255-r)*pct/100));
+  g=Math.min(255,Math.round(g+(255-g)*pct/100));
+  b=Math.min(255,Math.round(b+(255-b)*pct/100));
+  return `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${b.toString(16).padStart(2,"0")}`;
+}
+function darkenColor(hex, pct){
+  let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  r=Math.max(0,Math.round(r*(1-pct/100)));
+  g=Math.max(0,Math.round(g*(1-pct/100)));
+  b=Math.max(0,Math.round(b*(1-pct/100)));
+  return `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${b.toString(16).padStart(2,"0")}`;
+}
+
+function applyAccent(color){
+  curAccent=color;
+  const r=parseInt(color.slice(1,3),16), g=parseInt(color.slice(3,5),16), b=parseInt(color.slice(5,7),16);
+  const rgb=`${r},${g},${b}`;
+  const isDark=document.documentElement.getAttribute("data-theme")==="dark";
+  const root=document.documentElement;
+
+  // Cores derivadas
+  const c2=lightenColor(color,18);
+  const c3=lightenColor(color,42);
+  root.style.setProperty("--orange",color);
+  root.style.setProperty("--orange2",c2);
+  root.style.setProperty("--orange3",c3);
+  root.style.setProperty("--orange-glow",`rgba(${rgb},${isDark?".22":".14"})`);
+
+  if(isDark){
+    // Fundo principal: quase preto com leve tint da cor escolhida
+    const mix=(v,base)=>Math.min(v,base+Math.round(v*0.06));
+    const bg=`rgb(${mix(r,6)},${mix(g,6)},${mix(b,8)})`;
+    const bgCard=`rgb(${mix(r,14)},${mix(g,14)},${mix(b,18)})`;
+    const bgInput=`rgb(${mix(r,20)},${mix(g,20)},${mix(b,26)})`;
+    root.style.setProperty("--bg",bg);
+    root.style.setProperty("--bg-card",bgCard);
+    root.style.setProperty("--bg-input",bgInput);
+    root.style.setProperty("--bg-card2",bgInput);
+    root.style.setProperty("--chip-bg",bgInput);
+    root.style.setProperty("--border",`rgba(${rgb},0.14)`);
+    root.style.setProperty("--border-hover",`rgba(${rgb},0.3)`);
+    root.style.setProperty("--glass-border",`rgba(${rgb},0.1)`);
+    // Glow de fundo no canto superior direito
+    let bgEl=document.getElementById("bgGlow");
+    if(!bgEl){ bgEl=document.createElement("div"); bgEl.id="bgGlow"; bgEl.style.cssText="position:fixed;width:320px;height:320px;border-radius:50%;top:-80px;right:-60px;pointer-events:none;z-index:0;transition:background .4s;"; document.body.appendChild(bgEl); }
+    bgEl.style.background=`radial-gradient(circle,rgba(${rgb},0.1),transparent 70%)`;
+  } else {
+    // Tema claro: fundo com tom quente da cor
+    root.style.removeProperty("--bg");
+    root.style.removeProperty("--bg-card");
+    root.style.removeProperty("--bg-input");
+    root.style.removeProperty("--border");
+    root.style.removeProperty("--glass-border");
+    const bgGlow=document.getElementById("bgGlow"); if(bgGlow) bgGlow.remove();
+  }
+
+  // Dot do logo com glow
+  const dot=document.querySelector(".nav-brand .dot");
+  if(dot){ dot.style.background=color; dot.style.boxShadow=`0 0 10px ${color},0 0 20px rgba(${rgb},0.4)`; }
+
+  document.querySelectorAll(".swatch").forEach(sw=>sw.classList.toggle("active",sw.dataset.color===color));
+  const ca=document.getElementById("customAccent"); if(ca) ca.value=color;
+  localStorage.setItem(AK,color);
+}
+function shiftColor(hex,amount){
+  let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  r=Math.min(255,r+amount); g=Math.min(255,g+amount);
+  return `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${b.toString(16).padStart(2,"0")}`;
+}
+function setAccent(color){ applyAccent(color); }
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  document.getElementById("themeIcon").textContent=t==="dark"?"🌙":"☀️";
+  localStorage.setItem(TK,t);
+  const d=document.getElementById("modeDark"), l=document.getElementById("modeLight");
+  if(d) d.classList.toggle("active",t==="dark");
+  if(l) l.classList.toggle("active",t==="light");
+  // Reaplicar a cor de destaque pois o tema mudou
+  applyAccent(curAccent);
+}
+function setMode(t){ applyTheme(t); }
+function toggleTheme(){ applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"); }
+function toggleThemePopup(e){
+  e.stopPropagation();
+  document.getElementById("themePopup").classList.toggle("open");
+}
+document.addEventListener("click",()=>{ const p=document.getElementById("themePopup"); if(p) p.classList.remove("open"); });
+
+function setHeroDate(){
+  const el=document.getElementById("heroDate"); if(!el) return;
+  const d=new Date();
+  el.textContent=d.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+}
 // ===== STORAGE =====
 function load(){ try{ tasks=JSON.parse(localStorage.getItem(SK)||"[]"); }catch{ tasks=[]; } }
 function loadLembretes(){ try{ lembretes=JSON.parse(localStorage.getItem(LEM_SK)||"[]"); }catch{ lembretes=[]; } }
@@ -552,7 +951,6 @@ function getStatus(t){
 
 // ===== STATS =====
 function updateStats(){
-  document.getElementById("sTotal").textContent=tasks.length;
   document.getElementById("sWork").textContent=tasks.filter(t=>t.area==="Trabalho").length;
   document.getElementById("sPersonal").textContent=tasks.filter(t=>t.area==="Pessoal").length;
   document.getElementById("sLem").textContent=lembretes.length;
@@ -561,13 +959,18 @@ function updateStats(){
 }
 
 // ===== NAVEGAÇÃO =====
+function updateBottomNav(screen){
+  document.querySelectorAll(".bnav-btn").forEach(b=>{
+    const match = b.dataset.bnav===screen || (screen==="list" && b.dataset.bnav==="list");
+    b.classList.toggle("active", match);
+  });
+}
 function goTo(screen,opts={}){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   document.getElementById("screen-"+screen).classList.add("active");
-  const nb=document.querySelector('[data-nav="'+screen+'"]');
-  if(nb) nb.classList.add("active");
-  if(screen==="home"){ updateStats(); window.scrollTo(0,0); }
+  updateBottomNav(screen);
+  window.scrollTo(0,0);
+  if(screen==="home"){ updateStats(); setHeroDate(); }
   if(screen==="list"){
     curType=opts.type||"all"; curFilter=opts.filter||"all"; curSearch="";
     document.getElementById("searchInput").value="";
@@ -575,6 +978,9 @@ function goTo(screen,opts={}){
     document.getElementById("listTitle").textContent=
       curType==="Trabalho"?"💼 Compromissos de Trabalho":
       curType==="Pessoal"?"📅 Compromissos Pessoais":"Todos os Compromissos";
+    // Botão de adicionar apenas em Trabalho e Pessoal (não em "Para hoje")
+    const addBtn=document.getElementById("listAddBtn");
+    if(addBtn) addBtn.style.display=(curType==="Trabalho"||curType==="Pessoal")?"inline-block":"none";
     renderTasks();
   }
   if(screen==="add" && !editId) resetForm();
@@ -582,7 +988,7 @@ function goTo(screen,opts={}){
     if(gOk){ document.getElementById("agOn").style.display="block"; document.getElementById("agOff").style.display="none"; if(!gcEvs.length) fetchGcal(); }
     else { document.getElementById("agOn").style.display="none"; document.getElementById("agOff").style.display="block"; }
   }
-  if(screen==="lembretes"){ updateLemCats(); renderLembretes(); }
+  if(screen==="lembretes"){ updateLemCats(); initIconPicker(); renderLembretes(); }
   if(screen==="metas"){ renderMetas(); renderDashboard(); }
 }
 
@@ -597,6 +1003,9 @@ function updateCats(){
   document.getElementById("catLabel").textContent=`Categoria de ${selArea} *`;
 }
 function resetForm(){
+  taskAttachments=[]; selTaskColor="#f97316";
+  const fc=document.getElementById("fColor"); if(fc) fc.value="#f97316";
+  renderAttachPreview();
   editId=null; selArea="Trabalho"; _fromLembreteId=null;
   document.getElementById("taskForm").reset();
   document.querySelectorAll("#areaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area==="Trabalho"));
@@ -609,6 +1018,17 @@ function resetForm(){
   document.getElementById("gHint").style.display="none";
   document.getElementById("dlHint").textContent="";
   updatePermUI();
+}
+function addFromList(){
+  resetForm();
+  // Pré-seleciona a área conforme a lista que o usuário está vendo
+  if(curType==="Trabalho"||curType==="Pessoal"){
+    selArea=curType;
+    document.querySelectorAll("#areaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area===curType));
+    updateCats();
+  }
+  document.getElementById("addBackBtn").onclick=()=>goTo("list");
+  goTo("add");
 }
 function cancelForm(){
   if(_fromLembreteId) goTo('lembretes');
@@ -639,6 +1059,8 @@ async function saveTask(e){
     isDaily:document.getElementById("fDaily").checked,
     reminder:document.getElementById("fReminder").checked,
     remBefore:document.getElementById("fRemBefore").value,
+    color:document.getElementById("fColor")?.value||selTaskColor,
+    attachments:[...taskAttachments],
     completed:false, createdAt:new Date().toISOString(),
     gcalEventId:null, gcalLink:null
   };
@@ -665,6 +1087,10 @@ async function saveTask(e){
 function editTask(id){
   const t=tasks.find(x=>x.id===id); if(!t) return;
   editId=id; selArea=t.area;
+  taskAttachments=[...(t.attachments||[])];
+  selTaskColor=t.color||"#f97316";
+  const fc=document.getElementById("fColor"); if(fc) fc.value=selTaskColor;
+  renderAttachPreview();
   document.getElementById("fTitle").value=t.title;
   document.getElementById("fNotes").value=t.notes||"";
   document.getElementById("fPrio").value=t.priority||"medium";
@@ -721,8 +1147,14 @@ function renderTasks(){
     const gbtn=t.gcalLink
       ?`<button class="gcal-btn" onclick="window.open('${t.gcalLink}','_blank')">📅 Ver</button>`
       :`<button class="gcal-btn" onclick="sendFromList('${t.id}')">📅 Enviar</button>`;
-    return `<div class="task-item">
-      <div style="padding-top:2px"><input type="checkbox" ${t.completed?"checked":""} onchange="toggleDone('${t.id}')" style="width:15px;height:15px;accent-color:#3b82f6;cursor:pointer"/></div>
+    const tc=t.color||"";
+    const rgb=tc?`${parseInt(tc.slice(1,3),16)},${parseInt(tc.slice(3,5),16)},${parseInt(tc.slice(5,7),16)}`:"";
+    const cardStyle=tc?`border-color:rgba(${rgb},0.35);background:rgba(${rgb},0.06);`:"";
+    const barStyle=tc?`background:${tc};`:"";
+    const chkColor=tc||"var(--orange)";
+    return `<div class="task-item" style="${cardStyle}">
+      <div style="position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;${barStyle}opacity:1"></div>
+      <div style="padding-top:2px;padding-left:8px"><input type="checkbox" ${t.completed?"checked":""} onchange="toggleDone('${t.id}')" style="width:15px;height:15px;accent-color:${chkColor};cursor:pointer"/></div>
       <div class="task-main">
         <div class="task-title ${t.completed?"done":""}">${t.title}</div>
         <div class="task-meta">
@@ -735,6 +1167,12 @@ function renderTasks(){
           ${gtag}
         </div>
         ${t.notes?`<div class="task-notes">${t.notes}</div>`:""}
+        ${(t.attachments&&t.attachments.length)?`
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
+            ${t.attachments.map(a=>`<span class="attach-card-chip" onclick="downloadAttachment('${t.id}','${a.name.replace(/'/g,"\\'")}')" title="${a.name}">
+              ${fileIcon(a.type)} <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle">${a.name}</span>
+            </span>`).join("")}
+          </div>`:""}
         <div class="task-footer">
           <span class="sbadge ${st}">${SL[st]}</span>
           <div class="task-actions">
@@ -749,7 +1187,94 @@ function renderTasks(){
 }
 async function sendFromList(id){ const t=tasks.find(x=>x.id===id); if(t) await sendToGcal(t); }
 
-// ===== LEMBRETES =====
+let lemAttachments = [];
+
+function handleLemFileSelect(e){
+  const files=Array.from(e.target.files);
+  const remaining=3-lemAttachments.length;
+  if(remaining<=0){ showToast("Máximo de 3 anexos por lembrete."); return; }
+  const toAdd=files.slice(0,remaining);
+  const maxSize=2*1024*1024; let skipped=0;
+  toAdd.forEach(f=>{
+    if(f.size>maxSize){ skipped++; return; }
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      lemAttachments.push({id:uid(),name:f.name,type:f.type,size:f.size,data:ev.target.result});
+      renderLemAttachPreview();
+    };
+    reader.readAsDataURL(f);
+  });
+  if(skipped) showToast(`${skipped} arquivo(s) ignorado(s): acima de 2MB.`);
+  e.target.value="";
+}
+function removeLemAttachment(id){
+  lemAttachments=lemAttachments.filter(a=>a.id!==id);
+  renderLemAttachPreview();
+}
+function renderLemAttachPreview(){
+  const el=document.getElementById("lemAttachPreview"); if(!el) return;
+  if(!lemAttachments.length){ el.innerHTML=""; return; }
+  el.innerHTML=lemAttachments.map(a=>{
+    const isImg=a.type.startsWith("image/");
+    return `<div class="attach-chip">
+      ${isImg?`<img src="${a.data}" alt="${a.name}"/>`:`<span style="font-size:1.4rem">${fileIcon(a.type)}</span>`}
+      <div class="attach-chip-info">
+        <div class="attach-chip-name" title="${a.name}">${a.name}</div>
+        <div class="attach-chip-size">${fmtSize(a.size)}</div>
+      </div>
+      <button type="button" class="attach-remove" onclick="removeLemAttachment('${a.id}')" title="Remover">✕</button>
+    </div>`;
+  }).join("");
+}
+function downloadLemAttachment(lemId, fileName){
+  const lem=lembretes.find(l=>l.id===lemId); if(!lem||!lem.attachments) return;
+  const att=lem.attachments.find(a=>a.name===fileName); if(!att) return;
+  if(att.type.startsWith("image/")){
+    const w=window.open(); w.document.write(`<img src="${att.data}" style="max-width:100%;"/>`); w.document.close();
+  } else {
+    const a=document.createElement("a"); a.href=att.data; a.download=att.name; a.click();
+  }
+}
+function setLemColor(c){
+  selLemColor=c;
+  document.getElementById("lemColor").value=c;
+}
+function addLemCheckItem(){
+  const inp=document.getElementById("lemCheckInput");
+  const txt=inp.value.trim(); if(!txt) return;
+  lemCheckItems.push({id:uid(),text:txt,checked:false});
+  inp.value=""; renderLemCheckForm();
+}
+function removeLemCheckItem(id){
+  lemCheckItems=lemCheckItems.filter(i=>i.id!==id); renderLemCheckForm();
+}
+function renderLemCheckForm(){
+  const el=document.getElementById("lemCheckList"); if(!el) return;
+  if(!lemCheckItems.length){ el.innerHTML=""; return; }
+  el.innerHTML=lemCheckItems.map(i=>`
+    <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px">
+      <span style="font-size:.83rem;flex:1">${i.text}</span>
+      <button type="button" onclick="removeLemCheckItem('${i.id}')" style="background:transparent;border:none;color:var(--text-faint);cursor:pointer;font-size:.8rem;padding:0">✕</button>
+    </div>
+  `).join("");
+}
+function toggleIconPicker(){
+  const wrap=document.getElementById("iconPickerWrap");
+  if(wrap) wrap.style.display=wrap.style.display==="none"?"block":"none";
+}
+function initIconPicker(){
+  const el=document.getElementById("iconPicker"); if(!el) return;
+  el.innerHTML=LEM_ICONS.map(ic=>`<button type="button" class="icon-opt ${ic===selLemIcon?"active":""}" onclick="selIcon('${ic}')">${ic}</button>`).join("");
+  const btn=document.getElementById("iconSelectedBtn"); if(btn) btn.textContent=selLemIcon;
+  const wrap=document.getElementById("iconPickerWrap"); if(wrap) wrap.style.display="none";
+}
+function selIcon(ic){
+  selLemIcon=ic;
+  document.querySelectorAll(".icon-opt").forEach(b=>b.classList.toggle("active",b.textContent===ic));
+  const btn=document.getElementById("iconSelectedBtn"); if(btn) btn.textContent=ic;
+  // Fecha o picker após selecionar
+  const wrap=document.getElementById("iconPickerWrap"); if(wrap) wrap.style.display="none";
+}
 function selLemArea(a){
   selLemAreaVal=a;
   document.querySelectorAll("#lemAreaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area===a));
@@ -759,41 +1284,85 @@ function updateLemCats(){
   const el=document.getElementById("lemCat"); if(!el) return;
   el.innerHTML=CATS[selLemAreaVal].map(c=>`<option value="${c}">${c}</option>`).join("");
 }
+function openLemForm(){
+  resetLemForm();
+  document.getElementById("lemFormWrap").style.display="block";
+  document.getElementById("lemAddBtn").style.display="none";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function closeLemForm(){
+  document.getElementById("lemFormWrap").style.display="none";
+  document.getElementById("lemAddBtn").style.display="inline-block";
+  resetLemForm();
+}
+function resetLemForm(){
+  editLembreteId=null; selLemIcon="📝"; selLemAreaVal="Trabalho"; selLemColor="#f59e0b"; lemCheckItems=[]; lemAttachments=[];
+  document.getElementById("lemTitle").value="";
+  document.getElementById("lemNotes").value="";
+  document.getElementById("lemChecked").checked=false;
+  document.getElementById("lemColor").value="#f59e0b";
+  document.getElementById("lemCheckInput").value="";
+  document.querySelectorAll("#lemAreaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area==="Trabalho"));
+  document.getElementById("lemEditBanner").style.display="none";
+  document.getElementById("lemSaveBtn").textContent="Adicionar lembrete";
+  updateLemCats(); initIconPicker(); renderLemCheckForm(); renderLemAttachPreview();
+}
+function cancelLemEdit(){ closeLemForm(); }
+function editLembrete(id){
+  const l=lembretes.find(x=>x.id===id); if(!l) return;
+  editLembreteId=id; selLemIcon=l.icon||"📝"; selLemAreaVal=l.area;
+  selLemColor=l.color||"#f59e0b";
+  lemCheckItems=(l.checklist||[]).map(i=>({...i}));
+  lemAttachments=(l.attachments||[]).map(a=>({...a}));
+  document.getElementById("lemTitle").value=l.title;
+  document.getElementById("lemNotes").value=l.notes||"";
+  document.getElementById("lemChecked").checked=!!l.checked;
+  document.getElementById("lemColor").value=selLemColor;
+  document.querySelectorAll("#lemAreaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area===l.area));
+  updateLemCats();
+  if(l.category) document.getElementById("lemCat").value=l.category;
+  document.getElementById("lemEditBanner").style.display="flex";
+  document.getElementById("lemSaveBtn").textContent="Salvar alterações";
+  document.getElementById("lemFormWrap").style.display="block";
+  document.getElementById("lemAddBtn").style.display="none";
+  initIconPicker(); renderLemCheckForm(); renderLemAttachPreview();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 function saveLembrete(){
   const t=document.getElementById("lemTitle").value.trim();
   if(!t){ showToast("Informe o que precisa resolver."); return; }
+  const colorVal=document.getElementById("lemColor").value||selLemColor;
   const lem={
-    id:uid(), title:t, area:selLemAreaVal,
+    id:editLembreteId||uid(), title:t, area:selLemAreaVal,
     category:document.getElementById("lemCat").value,
     notes:document.getElementById("lemNotes").value.trim(),
-    createdAt:new Date().toISOString()
+    icon:selLemIcon, color:colorVal,
+    checklist:[...lemCheckItems],
+    attachments:[...lemAttachments],
+    checked:document.getElementById("lemChecked").checked,
+    createdAt:editLembreteId?(lembretes.find(l=>l.id===editLembreteId)?.createdAt||new Date().toISOString()):new Date().toISOString()
   };
-  lembretes.unshift(lem);
-  saveLembretes();
-  document.getElementById("lemTitle").value="";
-  document.getElementById("lemNotes").value="";
-  renderLembretes(); updateStats();
-  showToast("Lembrete adicionado!");
+  if(editLembreteId){
+    lembretes=lembretes.map(l=>l.id===editLembreteId?lem:l);
+    showToast("Lembrete atualizado!");
+  } else {
+    lembretes.unshift(lem);
+    showToast("Lembrete adicionado!");
+  }
+  saveLembretes(); closeLemForm(); renderLembretes(); updateStats();
 }
 function deleteLembrete(id){
   if(!confirm("Excluir este lembrete?")) return;
   lembretes=lembretes.filter(l=>l.id!==id);
   saveLembretes(); renderLembretes(); updateStats(); showToast("Excluído.");
 }
-function agendarLembrete(id){
-  const l=lembretes.find(x=>x.id===id); if(!l) return;
-  _fromLembreteId=id;
-  editId=null; selArea=l.area;
-  resetForm();
-  document.getElementById("fTitle").value=l.title;
-  document.getElementById("fNotes").value=l.notes||"";
-  document.querySelectorAll("#areaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area===l.area));
-  updateCats();
-  if(l.category) document.getElementById("fCat").value=l.category;
-  document.getElementById("fmTitle").textContent="Agendar compromisso";
-  document.getElementById("fmSub").textContent="Adicione uma data para transformar em compromisso.";
-  document.getElementById("addBackBtn").onclick=()=>{ _fromLembreteId=null; goTo('lembretes'); };
-  goTo("add");
+function toggleLemCardCheck(lemId, itemId){
+  lembretes=lembretes.map(l=>{
+    if(l.id!==lemId) return l;
+    const checklist=(l.checklist||[]).map(i=>i.id===itemId?{...i,checked:!i.checked}:i);
+    return {...l,checklist};
+  });
+  saveLembretes(); renderLembretes();
 }
 function renderLembretes(){
   const el=document.getElementById("lemList"); if(!el) return;
@@ -801,30 +1370,107 @@ function renderLembretes(){
     el.innerHTML=`<div class="empty-state"><div class="ei">📝</div><strong>Nenhum lembrete</strong><span>Adicione coisas que precisa resolver.</span></div>`;
     return;
   }
-  el.innerHTML=`<div class="tasks-list">`+lembretes.map(l=>`
-    <div class="task-item">
-      <div style="font-size:1.2rem;padding-top:2px">${l.area==="Trabalho"?"💼":"🏡"}</div>
-      <div class="task-main">
-        <div class="task-title">${l.title}</div>
-        <div class="task-meta">
-          <span class="mt">${l.area}</span>
-          <span class="mt">${l.category||""}</span>
-          <span class="lembrete-badge">📝 Lembrete</span>
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:9px">`+lembretes.map(l=>{
+    const c=l.color||"#f59e0b";
+    const rgb=hexToRgb(c);
+    const checklistHtml=(l.checklist&&l.checklist.length)?`
+      <div style="margin-top:7px;display:flex;flex-direction:column;gap:4px">
+        ${l.checklist.map(i=>`
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.79rem;${i.checked?"color:var(--text-faint);text-decoration:line-through":"color:var(--text)"}">
+            <input type="checkbox" ${i.checked?"checked":""} onchange="toggleLemCardCheck('${l.id}','${i.id}')" style="width:14px;height:14px;accent-color:${c};cursor:pointer;flex-shrink:0"/>
+            ${i.text}
+          </label>
+        `).join("")}
+      </div>`:"";
+    return `
+    <div class="lem-card ${l.checked?"lem-done":""}" style="background:rgba(${rgb},0.07);border-color:rgba(${rgb},0.3)">
+      <div style="padding-top:2px">
+        <input type="checkbox" ${l.checked?"checked":""} onchange="toggleLemCheck('${l.id}')" style="width:16px;height:16px;accent-color:${c};cursor:pointer"/>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+          <span style="font-size:1.15rem">${l.icon||"📝"}</span>
+          <span class="lem-title ${l.checked?"lem-checked":""}">${l.title}</span>
         </div>
-        ${l.notes?`<div class="task-notes">${l.notes}</div>`:""}
-        <div class="task-footer">
-          <span style="font-size:.68rem;color:var(--text-faint)">${new Date(l.createdAt).toLocaleDateString("pt-BR")}</span>
+        <div class="task-meta">
+          <span class="mt" style="border-color:rgba(${rgb},.4);color:${c}">${l.area}</span>
+          <span class="mt">${l.category||""}</span>
+          ${l.checked?`<span class="mt" style="border-color:rgba(34,197,94,.4);color:#22c55e">✅ Resolvido</span>`:`<span class="lembrete-badge" style="background:rgba(${rgb},.1);border-color:rgba(${rgb},.3);color:${c}">📝 Pendente</span>`}
+        </div>
+        ${l.notes?`<div class="task-notes" style="margin-top:4px">${l.notes}</div>`:""}
+        ${(l.attachments&&l.attachments.length)?`
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
+            ${l.attachments.map(a=>`<span class="attach-card-chip" onclick="downloadLemAttachment('${l.id}','${a.name.replace(/'/g,"\\'")}')">
+              ${fileIcon(a.type)} <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle">${a.name}</span>
+            </span>`).join("")}
+          </div>`:""}
+        ${checklistHtml}
+        <div class="task-footer" style="margin-top:8px">
+          <span style="font-size:.67rem;color:var(--text-faint)">${new Date(l.createdAt).toLocaleDateString("pt-BR")}</span>
           <div class="task-actions">
+            <button onclick="editLembrete('${l.id}')">✏️ Editar</button>
             <button class="agendar-btn" onclick="agendarLembrete('${l.id}')">📅 Agendar</button>
             <button class="del-btn" onclick="deleteLembrete('${l.id}')">🗑️</button>
           </div>
         </div>
       </div>
-    </div>
-  `).join("")+`</div>`;
+    </div>`;
+  }).join("")+`</div>`;
+}
+let _agendandoLemId = null;
+function agendarLembrete(id){
+  const l=lembretes.find(x=>x.id===id); if(!l) return;
+  _agendandoLemId=id;
+  const modal=document.getElementById("agendarModal");
+  document.getElementById("agendarLemTitle").textContent=`${l.icon||"📝"} ${l.title}`;
+  document.getElementById("agendarData").value="";
+  document.getElementById("agendarHora").value="";
+  modal.style.display="flex";
+}
+function fecharAgendarModal(){
+  document.getElementById("agendarModal").style.display="none";
+  _agendandoLemId=null;
+}
+async function confirmarAgendamento(){
+  const data=document.getElementById("agendarData").value;
+  if(!data){ showToast("Informe a data do compromisso."); return; }
+  const l=lembretes.find(x=>x.id===_agendandoLemId); if(!l) return;
+  const hora=document.getElementById("agendarHora").value;
+  const task={
+    id:uid(), title:l.title, area:l.area,
+    category:l.category||CATS[l.area][0],
+    notes:l.notes||"", priority:"medium",
+    date:data, time:hora,
+    isDaily:false, reminder:false, remBefore:"15",
+    completed:false, createdAt:new Date().toISOString(),
+    gcalEventId:null, gcalLink:null
+  };
+  tasks.unshift(task);
+  save();
+  // Remove o lembrete original
+  lembretes=lembretes.filter(x=>x.id!==_agendandoLemId);
+  saveLembretes();
+  fecharAgendarModal();
+  updateStats(); renderLembretes();
+  showToast("Compromisso agendado com sucesso! 🎉");
+  // Navega para a lista do tipo correto
+  setTimeout(()=>goTo("list",{type:l.area}), 600);
 }
 
 // ===== METAS DIÁRIAS =====
+function openMetaForm(){
+  document.getElementById("metaFormWrap").style.display="block";
+  document.getElementById("metaAddBtn").style.display="none";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function closeMetaForm(){
+  document.getElementById("metaFormWrap").style.display="none";
+  document.getElementById("metaAddBtn").style.display="inline-block";
+  document.getElementById("metaTitle").value="";
+  document.getElementById("metaColor").value="#3b82f6";
+  selMetaTypeVal="check";
+  document.querySelectorAll("#metaTypeChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.mt==="check"));
+}
 function selMetaType(t){
   selMetaTypeVal=t;
   document.querySelectorAll("#metaTypeChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.mt===t));
@@ -839,7 +1485,7 @@ function saveMeta(){
   };
   metas.push(meta);
   saveMetas(); renderMetas(); renderDashboard();
-  document.getElementById("metaTitle").value="";
+  closeMetaForm();
   showToast("Meta criada!"); updateStats();
 }
 function deleteMeta(id){
@@ -1007,20 +1653,19 @@ function setupTC(){
 }
 function handleGoogleLogin(){ if(gOk){ showToast("Google já está conectado!"); return; } waitGoogle(()=>{ if(!gTC) setupTC(); gTC.requestAccessToken({prompt:"consent"}); }); }
 function updateGUI(on){
-  const lb=document.getElementById("gLoginBtn"), bb=document.getElementById("gBannerBtn");
-  const sb=document.getElementById("gStatusBadge"), bd=document.getElementById("gBannerDesc");
+  const dot=document.getElementById("gNavDot");
+  const lbl=document.getElementById("gNavLabel");
+  const nav=document.getElementById("gNavStatus");
   const syb=document.getElementById("gSyncBtn");
   if(on){
-    lb.textContent="✅ Conectado"; lb.classList.add("connected");
-    bb.textContent="✅ Conectado"; bb.classList.add("connected");
-    sb.textContent="Conectado"; sb.className="gcal-status connected";
-    bd.textContent="Conta Google conectada. Dados sincronizados entre seus aparelhos.";
+    if(dot){ dot.style.background="#22c55e"; }
+    if(lbl) lbl.textContent="Conectado";
+    if(nav){ nav.style.borderColor="rgba(34,197,94,.4)"; nav.style.color="#22c55e"; nav.title="Google conectado — clique para sincronizar"; nav.onclick=()=>syncFromDrive(); }
     if(syb) syb.style.display="inline-block";
   } else {
-    lb.textContent="📅 Conectar"; lb.classList.remove("connected");
-    bb.textContent="📅 Conectar"; bb.classList.remove("connected");
-    sb.textContent="Desconectado"; sb.className="gcal-status disconnected";
-    bd.textContent="Conecte sua conta Google para sincronizar atividades entre seus aparelhos.";
+    if(dot){ dot.style.background="#eab308"; }
+    if(lbl) lbl.textContent="Conectar Google";
+    if(nav){ nav.style.borderColor="rgba(234,179,8,.4)"; nav.style.color="#eab308"; nav.title="Clique para conectar o Google"; nav.onclick=handleGoogleLogin; }
     if(syb) syb.style.display="none";
   }
 }
@@ -1201,7 +1846,8 @@ async function sendToGcal(task){
 // ===== INIT =====
 load(); loadLembretes(); loadMetas();
 applyTheme(localStorage.getItem(TK)||"dark");
-updateCats(); updateLemCats(); updateStats(); updatePermUI();
+applyAccent(localStorage.getItem(AK)||"#f97316");
+updateCats(); updateLemCats(); initIconPicker(); updateStats(); updatePermUI(); setHeroDate();
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(e=>console.warn("SW falhou:",e));
 }
