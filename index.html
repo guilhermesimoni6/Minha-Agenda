@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#0f172a"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="apple-mobile-web-app-title" content="Atividades"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link rel="icon" href="icon-192.png"/>
@@ -34,7 +34,12 @@
 body{background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* NAV TOPO */
-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--nav-bg);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
+nav{display:flex;align-items:center;justify-content:space-between;
+  padding-top:calc(env(safe-area-inset-top) + 12px);
+  padding-bottom:14px;
+  padding-left:calc(env(safe-area-inset-left) + 20px);
+  padding-right:calc(env(safe-area-inset-right) + 20px);
+  background:var(--nav-bg);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
 .nav-brand{font-size:1.05rem;font-weight:900;display:flex;align-items:center;gap:10px;cursor:pointer;letter-spacing:-.02em;}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px var(--orange),0 0 20px var(--orange-glow);}
 .theme-toggle{background:var(--orange);border:none;border-radius:12px;padding:8px 16px;font-size:.82rem;color:#fff;cursor:pointer;font-weight:700;box-shadow:0 4px 16px var(--orange-glow);transition:all .2s;}
@@ -67,7 +72,23 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
 /* SCREENS */
 .screen{display:none;padding:0 0 20px;max-width:520px;margin:0 auto;position:relative;z-index:1;}
 .screen.active{display:block;}
-.screen-inner{padding:20px 18px;}
+.screen-inner{padding:20px calc(env(safe-area-inset-right) + 18px) 20px calc(env(safe-area-inset-left) + 18px);}
+
+/* Margem lateral safe area em elementos específicos */
+.back-btn{margin:16px calc(env(safe-area-inset-right) + 18px) 4px calc(env(safe-area-inset-left) + 18px);}
+.screen-title-bar{padding:16px calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 18px);}
+.form-card{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 18px);}
+.list-toolbar{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 18px);}
+.tasks-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
+.checkin-card{margin:0 calc(env(safe-area-inset-right) + 18px) 18px calc(env(safe-area-inset-left) + 18px);}
+.meta-dash{margin:0 calc(env(safe-area-inset-right) + 18px) 12px calc(env(safe-area-inset-left) + 18px);}
+.ag-header{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 18px);}
+.gcf-row{margin:0 calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 18px);}
+.ev-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
+.ev-empty{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
+.ag-off{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
+.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:24px calc(env(safe-area-inset-right) + 16px) 8px calc(env(safe-area-inset-left) + 16px);}
+.stats-float{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 calc(env(safe-area-inset-right) + 16px);margin-top:-22px;position:relative;z-index:10;}
 
 /* HOME HERO */
 .home-hero{background:linear-gradient(135deg,var(--orange),var(--orange2));padding:32px 22px 44px;position:relative;overflow:hidden;border-radius:0 0 32px 32px;}
@@ -1765,6 +1786,13 @@ async function driveReadFile(id){
   if(!r.ok) return null;
   return await r.text();
 }
+// Mescla dois arrays pelo ID: remoto tem prioridade, mas itens só locais são preservados
+function mergeById(remote, local){
+  const remoteIds = new Set((remote||[]).map(i=>i.id));
+  const localOnly = (local||[]).filter(i=>!remoteIds.has(i.id));
+  return [...(remote||[]), ...localOnly];
+}
+
 async function syncFromDrive(){
   if(!gOk||!gToken) return;
   driveBusy=true;
@@ -1774,27 +1802,35 @@ async function syncFromDrive(){
       const txt=await driveReadFile(id);
       if(txt){
         const remote=JSON.parse(txt);
+        // Salva cópia dos dados locais antes de mesclar
+        const localTasks=[...tasks];
+        const localLem=[...lembretes];
+        const localMetas=[...metas];
         if(Array.isArray(remote)){
-          // Formato antigo (só tasks)
-          tasks=remote; lembretes=[]; metas=[];
+          tasks=mergeById(remote, localTasks);
+          lembretes=localLem;
         } else {
-          tasks=remote.tasks||[]; lembretes=remote.lembretes||[]; metas=remote.metas||[];
+          tasks=mergeById(remote.tasks, localTasks);
+          lembretes=mergeById(remote.lembretes, localLem);
+          metas=mergeById(remote.metas, localMetas);
         }
         localStorage.setItem(SK,JSON.stringify(tasks));
         localStorage.setItem(LEM_SK,JSON.stringify(lembretes));
         localStorage.setItem(META_SK,JSON.stringify(metas));
+        // Envia versão mesclada de volta pro Drive
+        await pushToDrive();
         renderTasks(); updateStats();
         const sc=document.getElementById("screen-lembretes");
         if(sc&&sc.classList.contains("active")) renderLembretes();
         const sm=document.getElementById("screen-metas");
         if(sm&&sm.classList.contains("active")){ renderMetas(); renderDashboard(); }
       }
-      showToast("Dados sincronizados da nuvem ☁️");
+      showToast("Dados sincronizados ☁️");
     } else {
       await driveCreateFile(getAllData());
-      showToast("Backup inicial enviado pra nuvem ☁️");
+      showToast("Backup enviado para a nuvem ☁️");
     }
-  }catch(e){ console.error("Erro de sincronização (pull):",e); showToast("Não foi possível sincronizar com a nuvem."); }
+  }catch(e){ console.error("Erro de sincronização (pull):",e); showToast("⚠️ Não foi possível sincronizar com a nuvem."); }
   finally{ driveBusy=false; }
 }
 function scheduleDrivePush(){
