@@ -352,9 +352,9 @@ textarea{resize:vertical;min-height:64px;}
 <!-- NOVA / EDITAR COMPROMISSO -->
 <div class="screen" id="screen-add">
   <button class="back-btn" id="addBackBtn" onclick="goTo('home')">← Voltar</button>
-  <div class="screen-header">
-    <h2 id="fmTitle">Novo compromisso</h2>
-    <p id="fmSub">Preencha os detalhes.</p>
+  <div class="screen-header" style="text-align:center;padding:8px calc(env(safe-area-inset-right) + 24px) 16px calc(env(safe-area-inset-left) + 24px)">
+    <h2 id="fmTitle" style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em">Novo compromisso</h2>
+    <p id="fmSub" style="color:var(--text-faint);font-size:.84rem;margin-top:4px">Preencha os detalhes.</p>
   </div>
   <div class="form-card">
     <form id="taskForm" onsubmit="saveTask(event)">
