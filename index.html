@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;}
 nav{display:flex;align-items:center;justify-content:space-between;
   padding-top:calc(env(safe-area-inset-top) + 12px);
   padding-bottom:14px;
-  padding-left:calc(env(safe-area-inset-left) + 20px);
+  padding-left:calc(env(safe-area-inset-left) + 30px);
   padding-right:calc(env(safe-area-inset-right) + 20px);
   background:var(--nav-bg);position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
 .nav-brand{font-size:1.05rem;font-weight:900;display:flex;align-items:center;gap:10px;cursor:pointer;letter-spacing:-.02em;}
@@ -72,22 +72,22 @@ nav{display:flex;align-items:center;justify-content:space-between;
 /* SCREENS */
 .screen{display:none;padding:0 0 20px;max-width:520px;margin:0 auto;position:relative;z-index:1;}
 .screen.active{display:block;}
-.screen-inner{padding:20px calc(env(safe-area-inset-right) + 18px) 20px calc(env(safe-area-inset-left) + 18px);}
+.screen-inner{padding:20px calc(env(safe-area-inset-right) + 18px) 20px calc(env(safe-area-inset-left) + 30px);}
 
 /* Margem lateral safe area em elementos específicos */
-.back-btn{margin:16px calc(env(safe-area-inset-right) + 18px) 4px calc(env(safe-area-inset-left) + 18px);}
-.screen-title-bar{padding:16px calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 18px);}
-.form-card{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 18px);}
-.list-toolbar{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 18px);}
-.tasks-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
-.checkin-card{margin:0 calc(env(safe-area-inset-right) + 18px) 18px calc(env(safe-area-inset-left) + 18px);}
-.meta-dash{margin:0 calc(env(safe-area-inset-right) + 18px) 12px calc(env(safe-area-inset-left) + 18px);}
-.ag-header{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 18px);}
-.gcf-row{margin:0 calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 18px);}
-.ev-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
-.ev-empty{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
-.ag-off{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 18px);}
-.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:24px calc(env(safe-area-inset-right) + 16px) 8px calc(env(safe-area-inset-left) + 16px);}
+.back-btn{margin:16px calc(env(safe-area-inset-right) + 18px) 4px calc(env(safe-area-inset-left) + 30px);}
+.screen-title-bar{padding:16px calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 30px);}
+.form-card{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
+.list-toolbar{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
+.tasks-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
+.checkin-card{margin:0 calc(env(safe-area-inset-right) + 18px) 18px calc(env(safe-area-inset-left) + 30px);}
+.meta-dash{margin:0 calc(env(safe-area-inset-right) + 18px) 12px calc(env(safe-area-inset-left) + 30px);}
+.ag-header{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
+.gcf-row{margin:0 calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 30px);}
+.ev-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
+.ev-empty{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
+.ag-off{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
+.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:24px calc(env(safe-area-inset-right) + 16px) 8px calc(env(safe-area-inset-left) + 28px);}
 .stats-float{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 calc(env(safe-area-inset-right) + 16px);margin-top:-22px;position:relative;z-index:10;}
 
 /* HOME HERO */
@@ -478,7 +478,7 @@ textarea{resize:vertical;min-height:64px;}
 <!-- COMPROMISSOS (lista) -->
 <div class="screen" id="screen-list">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px)">
     <div>
       <h2 id="listTitle" style="font-size:1.25rem;font-weight:700;margin-bottom:3px">Compromissos</h2>
       <p style="color:var(--text-faint);font-size:.81rem">Gerencie e acompanhe seus compromissos.</p>
