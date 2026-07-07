@@ -949,9 +949,58 @@ function load(){ try{ tasks=JSON.parse(localStorage.getItem(SK)||"[]"); }catch{ 
 function loadLembretes(){ try{ lembretes=JSON.parse(localStorage.getItem(LEM_SK)||"[]"); }catch{ lembretes=[]; } }
 function loadMetas(){ try{ metas=JSON.parse(localStorage.getItem(META_SK)||"[]"); }catch{ metas=[]; } }
 
-function save(){ localStorage.setItem(SK,JSON.stringify(tasks)); scheduleDrivePush(); }
-function saveLembretes(){ localStorage.setItem(LEM_SK,JSON.stringify(lembretes)); scheduleDrivePush(); }
-function saveMetas(){ localStorage.setItem(META_SK,JSON.stringify(metas)); scheduleDrivePush(); }
+function save(){ 
+  localStorage.setItem(SK,JSON.stringify(tasks)); 
+  pushToDriveNow();
+}
+function saveLembretes(){ 
+  localStorage.setItem(LEM_SK,JSON.stringify(lembretes)); 
+  pushToDriveNow();
+}
+function saveMetas(){ 
+  localStorage.setItem(META_SK,JSON.stringify(metas)); 
+  pushToDriveNow();
+}
+
+// Push imediato — sem debounce — para garantir envio antes do app fechar
+async function pushToDriveNow(){
+  if(!gOk||!gToken||driveBusy) { scheduleDrivePush(); return; }
+  showSyncIndicator(true);
+  try{
+    const id=await driveFindFileId();
+    const content=getAllData();
+    if(id) await driveUpdateFile(id,content);
+    else await driveCreateFile(content);
+    showSyncIndicator(false);
+  }catch(e){ 
+    console.error("Erro push Drive:",e);
+    showSyncIndicator(false);
+    scheduleDrivePush(); // tenta novamente via debounce se falhar
+  }
+}
+
+function showSyncIndicator(loading){
+  let el=document.getElementById("syncIndicator");
+  if(!el){
+    el=document.createElement("div");
+    el.id="syncIndicator";
+    el.style.cssText="position:fixed;top:70px;right:16px;font-size:.72rem;padding:5px 12px;border-radius:999px;z-index:9998;transition:all .3s;font-weight:600;";
+    document.body.appendChild(el);
+  }
+  if(loading){
+    el.style.background="rgba(249,115,22,0.15)";
+    el.style.border="1px solid rgba(249,115,22,0.3)";
+    el.style.color="var(--orange)";
+    el.textContent="☁️ Salvando...";
+    el.style.opacity="1";
+  } else {
+    el.style.background="rgba(34,197,94,0.12)";
+    el.style.border="1px solid rgba(34,197,94,0.3)";
+    el.style.color="#22c55e";
+    el.textContent="✅ Salvo";
+    setTimeout(()=>{ el.style.opacity="0"; },2000);
+  }
+}
 
 function getAllData(){ return JSON.stringify({tasks,lembretes,metas}); }
 
