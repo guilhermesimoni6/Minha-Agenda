@@ -76,10 +76,10 @@ nav{display:flex;align-items:center;justify-content:space-between;
 
 /* Margem lateral safe area em elementos específicos */
 .back-btn{margin:16px calc(env(safe-area-inset-right) + 18px) 4px calc(env(safe-area-inset-left) + 30px);}
-.screen-title-bar{padding:16px calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 30px);}
+.screen-title-bar{padding:16px calc(env(safe-area-inset-right) + 22px) 14px calc(env(safe-area-inset-left) + 22px);text-align:center;}
 .form-card{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
-.list-toolbar{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
-.tasks-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
+.list-toolbar{margin:0 calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px);}
+.tasks-list{padding:0 calc(env(safe-area-inset-right) + 22px) 0 calc(env(safe-area-inset-left) + 22px);}
 .checkin-card{margin:0 calc(env(safe-area-inset-right) + 18px) 18px calc(env(safe-area-inset-left) + 30px);}
 .meta-dash{margin:0 calc(env(safe-area-inset-right) + 18px) 12px calc(env(safe-area-inset-left) + 30px);}
 .ag-header{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
@@ -131,7 +131,6 @@ nav{display:flex;align-items:center;justify-content:space-between;
 .back-btn:hover{border-color:var(--orange);color:var(--orange);}
 
 /* SCREEN HEADERS */
-.screen-title-bar{padding:20px 18px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .screen-title-bar h2{font-size:1.4rem;font-weight:900;letter-spacing:-.03em;}
 .screen-title-bar p{font-size:.8rem;color:var(--text-faint);margin-top:2px;}
 
@@ -478,10 +477,10 @@ textarea{resize:vertical;min-height:64px;}
 <!-- COMPROMISSOS (lista) -->
 <div class="screen" id="screen-list">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px)">
-    <div>
-      <h2 id="listTitle" style="font-size:1.25rem;font-weight:700;margin-bottom:3px">Compromissos</h2>
-      <p style="color:var(--text-faint);font-size:.81rem">Gerencie e acompanhe seus compromissos.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
+    <div style="flex:1">
+      <h2 id="listTitle" style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">Compromissos</h2>
+      <p style="color:var(--text-faint);font-size:.8rem">Gerencie e acompanhe seus compromissos.</p>
     </div>
     <button class="btn-primary" id="listAddBtn" onclick="addFromList()" style="display:none">+ Adicionar</button>
   </div>
@@ -506,12 +505,12 @@ textarea{resize:vertical;min-height:64px;}
 <!-- LEMBRETES -->
 <div class="screen" id="screen-lembretes">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-    <div>
-      <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:3px">📝 Lembretes</h2>
-      <p style="color:var(--text-faint);font-size:.81rem">Anotações sem data — quando tiver data, vira compromisso.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
+    <div style="flex:1">
+      <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">📝 Lembretes</h2>
+      <p style="color:var(--text-faint);font-size:.8rem">Anotações sem data — quando tiver data, vira compromisso.</p>
     </div>
-    <button class="btn-primary" onclick="openLemForm()" id="lemAddBtn" style="background:linear-gradient(to right,#d97706,#f59e0b);white-space:nowrap">+ Adicionar lembrete</button>
+    <button class="btn-primary" onclick="openLemForm()" id="lemAddBtn" style="background:linear-gradient(to right,#d97706,#f59e0b);white-space:nowrap">+ Adicionar</button>
   </div>
 
   <div id="lemFormWrap" style="display:none;margin-bottom:18px">
@@ -603,10 +602,10 @@ textarea{resize:vertical;min-height:64px;}
 <!-- METAS DIÁRIAS -->
 <div class="screen" id="screen-metas">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-    <div>
-      <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:3px">🎯 Metas Diárias</h2>
-      <p style="color:var(--text-faint);font-size:.81rem">Hábitos que você quer cultivar todo dia.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
+    <div style="flex:1">
+      <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">🎯 Metas Diárias</h2>
+      <p style="color:var(--text-faint);font-size:.8rem">Hábitos que você quer cultivar todo dia.</p>
     </div>
     <button class="btn-primary" onclick="openMetaForm()" id="metaAddBtn">+ Nova meta</button>
   </div>
@@ -663,7 +662,7 @@ textarea{resize:vertical;min-height:64px;}
 <!-- GOOGLE AGENDA -->
 <div class="screen" id="screen-agenda">
   <button class="back-btn" onclick="goTo('home')">← Voltar</button>
-  <div class="screen-header">
+  <div class="screen-title-bar">
     <h2>🗓️ Google Agenda</h2>
     <p>Seus compromissos sincronizados do Google Agenda.</p>
   </div>
@@ -745,6 +744,8 @@ const GSCOP = "https://www.googleapis.com/auth/calendar.events https://www.googl
 const SK      = "atividadesv4";
 const LEM_SK  = "atividadeslembretes";
 const META_SK = "atividadesmetas";
+const DEL_SK  = "atividadesdeletados";
+let deletedIds = [];
 const TK      = "atividadestema";
 const DRIVE_FILE = "atividades_diarias_tasks.json";
 
@@ -948,6 +949,12 @@ function setHeroDate(){
 function load(){ try{ tasks=JSON.parse(localStorage.getItem(SK)||"[]"); }catch{ tasks=[]; } }
 function loadLembretes(){ try{ lembretes=JSON.parse(localStorage.getItem(LEM_SK)||"[]"); }catch{ lembretes=[]; } }
 function loadMetas(){ try{ metas=JSON.parse(localStorage.getItem(META_SK)||"[]"); }catch{ metas=[]; } }
+function loadDeletedIds(){ try{ deletedIds=JSON.parse(localStorage.getItem(DEL_SK)||"[]"); }catch{ deletedIds=[]; } }
+function saveDeletedId(id){
+  if(!deletedIds.includes(id)) deletedIds.push(id);
+  if(deletedIds.length>500) deletedIds=deletedIds.slice(-500);
+  localStorage.setItem(DEL_SK,JSON.stringify(deletedIds));
+}
 
 function save(){ 
   localStorage.setItem(SK,JSON.stringify(tasks)); 
@@ -1002,7 +1009,7 @@ function showSyncIndicator(loading){
   }
 }
 
-function getAllData(){ return JSON.stringify({tasks,lembretes,metas}); }
+function getAllData(){ return JSON.stringify({tasks,lembretes,metas,deletedIds}); }
 
 // ===== STATUS =====
 function getStatus(t){
@@ -1183,6 +1190,7 @@ function editTask(id){
 }
 function deleteTask(id){
   if(!confirm("Excluir este compromisso?")) return;
+  saveDeletedId(id);
   tasks=tasks.filter(t=>t.id!==id); save(); renderTasks(); updateStats(); showToast("Excluído.");
 }
 function toggleDone(id){
@@ -1423,6 +1431,7 @@ function saveLembrete(){
 }
 function deleteLembrete(id){
   if(!confirm("Excluir este lembrete?")) return;
+  saveDeletedId(id);
   lembretes=lembretes.filter(l=>l.id!==id);
   saveLembretes(); renderLembretes(); updateStats(); showToast("Excluído.");
 }
@@ -1560,6 +1569,7 @@ function saveMeta(){
 }
 function deleteMeta(id){
   if(!confirm("Excluir esta meta e todo o histórico?")) return;
+  saveDeletedId(id);
   metas=metas.filter(m=>m.id!==id);
   saveMetas(); renderMetas(); renderDashboard(); updateStats(); showToast("Meta excluída.");
 }
@@ -1836,10 +1846,11 @@ async function driveReadFile(id){
   return await r.text();
 }
 // Mescla dois arrays pelo ID: remoto tem prioridade, mas itens só locais são preservados
-function mergeById(remote, local){
+function mergeById(remote, local, allDeletedIds){
+  const deleted = new Set(allDeletedIds||[]);
   const remoteIds = new Set((remote||[]).map(i=>i.id));
-  const localOnly = (local||[]).filter(i=>!remoteIds.has(i.id));
-  return [...(remote||[]), ...localOnly];
+  const localOnly = (local||[]).filter(i=>!remoteIds.has(i.id) && !deleted.has(i.id));
+  return [...(remote||[]).filter(i=>!deleted.has(i.id)), ...localOnly];
 }
 
 async function syncFromDrive(){
@@ -1851,23 +1862,26 @@ async function syncFromDrive(){
       const txt=await driveReadFile(id);
       if(txt){
         const remote=JSON.parse(txt);
-        // Salva cópia dos dados locais antes de mesclar
         const localTasks=[...tasks];
         const localLem=[...lembretes];
         const localMetas=[...metas];
+        // Mescla lista de deletados dos dois dispositivos
+        const remoteDel=(remote.deletedIds)||[];
+        const allDel=[...new Set([...deletedIds,...remoteDel])];
+        deletedIds=allDel;
+        localStorage.setItem(DEL_SK,JSON.stringify(deletedIds));
         if(Array.isArray(remote)){
-          tasks=mergeById(remote, localTasks);
-          lembretes=localLem;
+          tasks=mergeById(remote, localTasks, allDel);
+          lembretes=localLem.filter(l=>!allDel.includes(l.id));
         } else {
-          tasks=mergeById(remote.tasks, localTasks);
-          lembretes=mergeById(remote.lembretes, localLem);
-          metas=mergeById(remote.metas, localMetas);
+          tasks=mergeById(remote.tasks, localTasks, allDel);
+          lembretes=mergeById(remote.lembretes, localLem, allDel);
+          metas=mergeById(remote.metas, localMetas, allDel);
         }
         localStorage.setItem(SK,JSON.stringify(tasks));
         localStorage.setItem(LEM_SK,JSON.stringify(lembretes));
         localStorage.setItem(META_SK,JSON.stringify(metas));
-        // Envia versão mesclada de volta pro Drive
-        await pushToDrive();
+        await pushToDriveNow();
         renderTasks(); updateStats();
         const sc=document.getElementById("screen-lembretes");
         if(sc&&sc.classList.contains("active")) renderLembretes();
@@ -1929,7 +1943,7 @@ async function sendToGcal(task){
 }
 
 // ===== INIT =====
-load(); loadLembretes(); loadMetas();
+load(); loadLembretes(); loadMetas(); loadDeletedIds();
 applyTheme(localStorage.getItem(TK)||"dark");
 applyAccent(localStorage.getItem(AK)||"#f97316");
 updateCats(); updateLemCats(); initIconPicker(); updateStats(); updatePermUI(); setHeroDate();
