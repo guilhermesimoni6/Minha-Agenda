@@ -5,7 +5,7 @@
 // e só cai pro cache se estiver sem internet. Assim, atualizações no GitHub chegam
 // no app sem precisar reinstalar.
 
-const CACHE_NAME = "atividades-shell-v41";
+const CACHE_NAME = "atividades-shell-v63";
 const SHELL_FILES = ["./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {

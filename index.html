@@ -30,8 +30,53 @@
   --orange:#f97316;--orange2:#fb923c;--orange3:#fdba74;--orange-glow:rgba(249,115,22,0.15);
   --card-text:#fff;
 }
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;}
-body{background:var(--bg);color:var(--text);min-height:100vh;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;}
+button,a,[onclick]{touch-action:manipulation;}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:calc(58px + env(safe-area-inset-bottom));}
+/* CALENDÁRIO */
+.cal-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px calc(env(safe-area-inset-left) + 20px);}
+.cal-title{color:var(--text);font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:9px;}
+.cal-title .cal-logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--orange),var(--orange2));display:flex;align-items:center;justify-content:center;}
+.cal-toggle{display:flex;gap:4px;background:var(--bg-input);border-radius:12px;padding:3px;}
+.cal-toggle button{padding:6px 14px;border-radius:9px;border:none;background:transparent;color:var(--text-muted);font-size:.76rem;font-weight:700;cursor:pointer;transition:all .18s;}
+.cal-toggle button.active{background:var(--orange);color:#fff;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:4px calc(env(safe-area-inset-left) + 20px) 16px;}
+.cal-nav-btn{width:36px;height:36px;border-radius:10px;background:var(--bg-input);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-size:1.2rem;}
+.cal-month{color:var(--text);font-size:1rem;font-weight:800;text-transform:capitalize;}
+.cal-grid-wrap{padding:0 calc(env(safe-area-inset-left) + 16px);}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;}
+.cal-weekdays div{text-align:center;color:var(--text-faint);font-size:.66rem;font-weight:800;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text);font-size:.85rem;border-radius:12px;cursor:pointer;transition:all .15s;position:relative;border:1.5px solid transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;}
+.cal-day.other{opacity:.35;}
+.cal-day.today{background:var(--orange);color:#fff;font-weight:800;}
+.cal-day.selected:not(.today){border-color:var(--orange);}
+.cal-day:hover:not(.today){background:var(--bg-input);}
+.cal-dots{display:flex;gap:2px;margin-top:3px;height:5px;justify-content:center;}
+.cal-dot{width:5px;height:5px;border-radius:50%;}
+.cal-detail{padding:18px calc(env(safe-area-inset-left) + 20px) 8px;}
+.cal-detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-detail-date{color:var(--text);font-size:.95rem;font-weight:800;text-transform:capitalize;}
+.cal-detail-count{color:var(--text-faint);font-size:.78rem;}
+.cal-event{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;align-items:center;gap:13px;margin-bottom:9px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s;}
+.cal-event:hover{border-color:rgba(249,115,22,0.3);}
+.ce-bar{position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;}
+.ce-time{text-align:center;min-width:46px;margin-left:6px;font-size:.92rem;font-weight:800;}
+.ce-body{flex:1;border-left:1px solid var(--border);padding-left:13px;}
+.ce-title{color:var(--text);font-size:.86rem;font-weight:700;}
+.ce-sub{color:var(--text-faint);font-size:.72rem;margin-top:1px;}
+.cal-legend{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;align-items:center;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--nav-bg);border-top:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:200;gap:6px;}
+.nav-pill{display:flex;align-items:center;gap:4px;padding:7px 10px;border-radius:999px;cursor:pointer;transition:all .18s;flex-shrink:0;border:1px solid transparent;}
+.nav-pill span{color:var(--text-muted);font-size:11px;font-weight:600;white-space:nowrap;}
+.nav-pill-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.nav-pill.active span{font-weight:700;}
+.cal-empty{text-align:center;padding:28px;color:var(--text-faint);font-size:.82rem;background:var(--bg-card);border:1px dashed var(--border);border-radius:16px;margin:0 calc(env(safe-area-inset-left) + 20px);}
+/* BOTTOM NAV FIXA */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:200;padding:8px 6px calc(8px + env(safe-area-inset-bottom));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;padding:6px 10px;border-radius:14px;transition:all .18s;flex:1;color:var(--text-faint);}
+.bnav-btn i{font-size:1.5rem;line-height:1;}
+.bnav-btn .bnav-label{font-size:.6rem;font-weight:700;}
+.bnav-btn.active{color:var(--orange);}
 
 /* NAV TOPO */
 nav{display:flex;align-items:center;justify-content:space-between;
@@ -44,14 +89,6 @@ nav{display:flex;align-items:center;justify-content:space-between;
 .dot{width:9px;height:9px;border-radius:50%;background:var(--orange);box-shadow:0 0 10px var(--orange),0 0 20px var(--orange-glow);}
 .theme-toggle{background:var(--orange);border:none;border-radius:12px;padding:8px 16px;font-size:.82rem;color:#fff;cursor:pointer;font-weight:700;box-shadow:0 4px 16px var(--orange-glow);transition:all .2s;}
 .theme-toggle:hover{transform:translateY(-1px);filter:brightness(1.1);}
-
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:68px;background:var(--nav-bg);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:200;padding:0 4px;}
-.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;border:none;cursor:pointer;padding:8px 12px;border-radius:14px;transition:all .18s;flex:1;color:var(--text-faint);}
-.bnav-btn .bnav-icon{font-size:1.3rem;line-height:1;}
-.bnav-btn .bnav-label{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
-.bnav-btn.active{color:var(--orange);}
-.bnav-btn.active .bnav-icon{filter:drop-shadow(0 0 6px var(--orange));}
 
 /* POPUP TEMA */
 .theme-popup{position:fixed;top:62px;right:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:9999;min-width:230px;display:none;}
@@ -324,69 +361,71 @@ textarea{resize:vertical;min-height:64px;}
   </div>
 </nav>
 
-<!-- HOME -->
+<!-- HOME = CALENDÁRIO -->
 <div class="screen active" id="screen-home">
-  <div class="home-hero">
-    <div class="hero-date" id="heroDate"></div>
-    <h1 id="heroGreeting">Olá!</h1>
-    <p id="heroSubtitle">Vamos organizar o seu dia.</p>
-    <div class="hero-progress" id="heroProgress" style="display:none">
-      <div class="hero-progress-bar"><div class="hero-progress-fill" id="progressFill"></div></div>
-      <div class="hero-progress-text" id="progressText"></div>
+  <div class="cal-topbar">
+    <div class="cal-title"><div class="cal-logo"><span style="font-size:15px">📅</span></div>Calendário</div>
+    <div class="cal-toggle">
+      <button id="calMonthBtn" class="active" onclick="setCalView('month')">Mês</button>
+      <button id="calWeekBtn" onclick="setCalView('week')">Semana</button>
     </div>
   </div>
-  <div class="stats-float">
-    <div class="stat-card" onclick="goTo('list',{type:'Trabalho'})"><strong id="sWork">0</strong><span>Trabalho</span></div>
-    <div class="stat-card" onclick="goTo('list',{type:'Pessoal'})"><strong id="sPersonal">0</strong><span>Pessoal</span></div>
-    <div class="stat-card" onclick="goTo('lembretes')"><strong id="sLem">0</strong><span>Lembretes</span></div>
-    <div class="stat-card" onclick="goTo('list',{filter:'completed'})"><strong id="sDone">0</strong><span>Feitas</span></div>
-    <div class="stat-card" onclick="goTo('list',{filter:'today'})"><strong id="sLate">0</strong><span>Atrasadas</span></div>
+  <div class="cal-nav">
+    <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+    <span class="cal-month" id="calMonthLabel">—</span>
+    <button class="cal-nav-btn" onclick="calNext()">›</button>
   </div>
+  <div class="cal-grid-wrap">
+    <div class="cal-weekdays">
+      <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+    </div>
+    <div class="cal-days" id="calDays"></div>
+  </div>
+  <div class="cal-detail">
+    <div class="cal-detail-header">
+      <span class="cal-detail-date" id="calDetailDate">—</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="cal-detail-count" id="calDetailCount"></span>
+        <button onclick="addFromCalDay()" style="background:var(--orange);border:none;border-radius:10px;color:#fff;font-size:.78rem;font-weight:700;padding:5px 12px;cursor:pointer;touch-action:manipulation">+ Novo</button>
+      </div>
+    </div>
+    <div id="calDetailList"></div>
+  </div>
+</div>
 
-  <!-- Painel de hoje -->
-  <div id="todayHomePanel" class="today-home-panel"></div>
-
-  <div class="section-label">Explorar</div>
-  <div class="home-cards">
-    <div class="home-card" onclick="goTo('list',{type:'Trabalho'})">
-      <div class="card-icon-wrap">💼</div>
-      <h3>Compromissos de Trabalho</h3>
-      <p>Reuniões, projetos e estudos.</p>
-    </div>
-    <div class="home-card" onclick="goTo('list',{type:'Pessoal'})">
-      <div class="card-icon-wrap">📅</div>
-      <h3>Compromissos Pessoais</h3>
-      <p>Saúde, família e lazer.</p>
-    </div>
-    <div class="home-card" onclick="goTo('lembretes')">
-      <div class="card-icon-wrap">📝</div>
-      <h3>Lembretes</h3>
-      <p>Anotações e pendências.</p>
-    </div>
-    <div class="home-card" onclick="goTo('metas')">
-      <div class="card-icon-wrap">🎯</div>
-      <h3>Metas Diárias</h3>
-      <p>Hábitos e rotinas.</p>
-    </div>
-    <div class="home-card" onclick="goTo('list',{filter:'today'})">
-      <div class="card-icon-wrap">⚡</div>
-      <h3>Para hoje</h3>
-      <p>Compromissos de hoje.</p>
-    </div>
-    <div class="home-card" onclick="goTo('agenda')">
-      <div class="card-icon-wrap">🗓️</div>
-      <h3>Google Agenda</h3>
-      <p>Compromissos sincronizados.</p>
-    </div>
+<!-- COMPROMISSOS: escolha Trabalho/Pessoal -->
+<div class="screen" id="screen-compromissos">
+  <div class="screen-title-bar">
+    <h2>💼 Compromissos</h2>
+    <p>Escolha a categoria que deseja ver.</p>
   </div>
-  <div style="text-align:center;padding:4px 0 8px">
-    <button id="gSyncBtn" onclick="syncFromDrive()" style="display:none;background:transparent;border:1px solid var(--border);border-radius:999px;padding:6px 16px;font-size:.74rem;color:var(--text-faint);cursor:pointer">🔄 Sincronizar dados</button>
+  <div style="padding:8px calc(env(safe-area-inset-left) + 20px);display:flex;flex-direction:column;gap:14px">
+    <div onclick="goTo('list',{type:'Trabalho'})" style="background:linear-gradient(135deg,var(--orange),var(--orange2));border-radius:22px;padding:24px 20px;cursor:pointer;position:relative;overflow:hidden">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:14px">💼</div>
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:800;margin-bottom:4px">Compromissos de Trabalho</h3>
+      <p style="color:rgba(255,255,255,0.8);font-size:.8rem">Reuniões, projetos, administração e estudos.</p>
+    </div>
+    <div onclick="goTo('list',{type:'Pessoal'})" style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:22px;padding:24px 20px;cursor:pointer;position:relative;overflow:hidden">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:14px">🏡</div>
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:800;margin-bottom:4px">Compromissos Pessoais</h3>
+      <p style="color:rgba(255,255,255,0.8);font-size:.8rem">Consultas, eventos, saúde, família e lazer.</p>
+    </div>
+    <div onclick="goTo('list',{filter:'today'})" style="background:linear-gradient(135deg,#15803d,#22c55e);border-radius:22px;padding:24px 20px;cursor:pointer;position:relative;overflow:hidden">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:14px">⚡</div>
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:800;margin-bottom:4px">Para hoje</h3>
+      <p style="color:rgba(255,255,255,0.8);font-size:.8rem">Compromissos com prazo hoje.</p>
+    </div>
+    <div onclick="goTo('agenda')" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);border-radius:22px;padding:24px 20px;cursor:pointer;position:relative;overflow:hidden">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:14px">🗓️</div>
+      <h3 style="color:#fff;font-size:1.1rem;font-weight:800;margin-bottom:4px">Google Agenda</h3>
+      <p style="color:rgba(255,255,255,0.8);font-size:.8rem">Seus compromissos sincronizados.</p>
+    </div>
   </div>
 </div>
 
 <!-- NOVA / EDITAR COMPROMISSO -->
 <div class="screen" id="screen-add">
-  <button class="back-btn" id="addBackBtn" onclick="goTo('home')">← Voltar</button>
+  <button class="back-btn" id="addBackBtn" onclick="goTo('home')">Voltar</button>
   <div class="screen-header" style="text-align:center;padding:8px calc(env(safe-area-inset-right) + 24px) 16px calc(env(safe-area-inset-left) + 24px)">
     <h2 id="fmTitle" style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em">Novo compromisso</h2>
     <p id="fmSub" style="color:var(--text-faint);font-size:.84rem;margin-top:4px">Preencha os detalhes.</p>
@@ -512,7 +551,7 @@ textarea{resize:vertical;min-height:64px;}
 
 <!-- COMPROMISSOS (lista) -->
 <div class="screen" id="screen-list">
-  <button class="back-btn" onclick="goTo('home')">← Voltar</button>
+  <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
     <div style="flex:1">
       <h2 id="listTitle" style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">Compromissos</h2>
@@ -540,7 +579,7 @@ textarea{resize:vertical;min-height:64px;}
 
 <!-- LEMBRETES -->
 <div class="screen" id="screen-lembretes">
-  <button class="back-btn" onclick="goTo('home')">← Voltar</button>
+  <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
     <div style="flex:1">
       <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">📝 Lembretes</h2>
@@ -637,7 +676,7 @@ textarea{resize:vertical;min-height:64px;}
 
 <!-- METAS DIÁRIAS -->
 <div class="screen" id="screen-metas">
-  <button class="back-btn" onclick="goTo('home')">← Voltar</button>
+  <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
     <div style="flex:1">
       <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">🎯 Metas Diárias</h2>
@@ -697,7 +736,7 @@ textarea{resize:vertical;min-height:64px;}
 
 <!-- GOOGLE AGENDA -->
 <div class="screen" id="screen-agenda">
-  <button class="back-btn" onclick="goTo('home')">← Voltar</button>
+  <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div class="screen-title-bar">
     <h2>🗓️ Google Agenda</h2>
     <p>Seus compromissos sincronizados do Google Agenda.</p>
@@ -768,6 +807,26 @@ textarea{resize:vertical;min-height:64px;}
       <button class="btn-primary" onclick="confirmarAgendamento()">✅ Confirmar agendamento</button>
       <button class="btn-secondary" onclick="fecharAgendarModal()">Cancelar</button>
     </div>
+  </div>
+</div>
+
+<!-- NAV BAR FIXA - fora de todas as telas -->
+<div class="cal-legend" id="mainNavBar">
+  <div class="nav-pill active" id="navPillHome" onclick="navPillClick('home')" style="background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25)">
+    <div class="nav-pill-dot" style="background:#f97316"></div>
+    <span style="color:#f97316">Calendário</span>
+  </div>
+  <div class="nav-pill" id="navPillComp" onclick="navPillClick('compromissos')">
+    <div class="nav-pill-dot" style="background:#8b5cf6"></div>
+    <span>Compromissos</span>
+  </div>
+  <div class="nav-pill" id="navPillMetas" onclick="navPillClick('metas')">
+    <div class="nav-pill-dot" style="background:#22c55e"></div>
+    <span>Metas</span>
+  </div>
+  <div class="nav-pill" id="navPillLem" onclick="navPillClick('lembretes')">
+    <div class="nav-pill-dot" style="background:#f59e0b"></div>
+    <span>Lembretes</span>
   </div>
 </div>
 
@@ -1120,18 +1179,13 @@ function updateStats(){
 }
 
 // ===== NAVEGAÇÃO =====
-function updateBottomNav(screen){
-  document.querySelectorAll(".bnav-btn").forEach(b=>{
-    const match = b.dataset.bnav===screen || (screen==="list" && b.dataset.bnav==="list");
-    b.classList.toggle("active", match);
-  });
-}
+function updateBottomNav(screen){ updateNavPills(screen); }
 function goTo(screen,opts={}){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById("screen-"+screen).classList.add("active");
   updateBottomNav(screen);
   window.scrollTo(0,0);
-  if(screen==="home"){ updateStats(); setHeroDate(); }
+  if(screen==="home"){ updateStats(); renderCalendar(); }
   if(screen==="list"){
     curType=opts.type||"all"; curFilter=opts.filter||"all"; curSearch="";
     document.getElementById("searchInput").value="";
@@ -1139,7 +1193,6 @@ function goTo(screen,opts={}){
     document.getElementById("listTitle").textContent=
       curType==="Trabalho"?"💼 Compromissos de Trabalho":
       curType==="Pessoal"?"📅 Compromissos Pessoais":"Todos os Compromissos";
-    // Botão de adicionar apenas em Trabalho e Pessoal (não em "Para hoje")
     const addBtn=document.getElementById("listAddBtn");
     if(addBtn) addBtn.style.display=(curType==="Trabalho"||curType==="Pessoal")?"inline-block":"none";
     renderTasks();
@@ -1151,6 +1204,180 @@ function goTo(screen,opts={}){
   }
   if(screen==="lembretes"){ updateLemCats(); initIconPicker(); renderLembretes(); }
   if(screen==="metas"){ renderMetas(); renderDashboard(); }
+}
+
+function navPillClick(screen){
+  // Navega para a tela
+  if(screen==="compromissos") goTo("list",{type:"all"});
+  else goTo(screen);
+  updateNavPills(screen);
+}
+function updateNavPills(screen){
+  const map={
+    home:"navPillHome", list:"navPillComp", compromissos:"navPillComp",
+    metas:"navPillMetas", lembretes:"navPillLem"
+  };
+  const colors={
+    navPillHome:{bg:"rgba(249,115,22,0.12)",border:"rgba(249,115,22,0.25)",color:"#f97316"},
+    navPillComp:{bg:"rgba(139,92,246,0.12)",border:"rgba(139,92,246,0.25)",color:"#a78bfa"},
+    navPillMetas:{bg:"rgba(34,197,94,0.12)",border:"rgba(34,197,94,0.25)",color:"#4ade80"},
+    navPillLem:{bg:"rgba(245,158,11,0.12)",border:"rgba(245,158,11,0.25)",color:"#fbbf24"}
+  };
+  const activeId=map[screen]||"navPillHome";
+  ["navPillHome","navPillComp","navPillMetas","navPillLem"].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    if(id===activeId){
+      const c=colors[id];
+      el.style.background=c.bg; el.style.borderColor=c.border;
+      el.querySelector("span").style.color=c.color;
+    } else {
+      el.style.background="transparent"; el.style.borderColor="transparent";
+      el.querySelector("span").style.color="";
+    }
+  });
+}
+let calYear, calMonth, calSelectedDate, calViewMode="month";
+const MONTH_NAMES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+
+function initCalendar(){
+  const now=new Date();
+  calYear=now.getFullYear();
+  calMonth=now.getMonth();
+  calSelectedDate=today();
+}
+function setCalView(mode){
+  calViewMode=mode;
+  document.getElementById("calMonthBtn").classList.toggle("active",mode==="month");
+  document.getElementById("calWeekBtn").classList.toggle("active",mode==="week");
+  renderCalendar();
+}
+function calPrev(){
+  if(calViewMode==="week"){
+    const d=new Date(calSelectedDate+"T12:00"); d.setDate(d.getDate()-7);
+    calSelectedDate=d.toISOString().slice(0,10); calYear=d.getFullYear(); calMonth=d.getMonth();
+  } else {
+    calMonth--; if(calMonth<0){ calMonth=11; calYear--; }
+  }
+  renderCalendar();
+}
+function calNext(){
+  if(calViewMode==="week"){
+    const d=new Date(calSelectedDate+"T12:00"); d.setDate(d.getDate()+7);
+    calSelectedDate=d.toISOString().slice(0,10); calYear=d.getFullYear(); calMonth=d.getMonth();
+  } else {
+    calMonth++; if(calMonth>11){ calMonth=0; calYear++; }
+  }
+  renderCalendar();
+}
+// Retorna as cores dos pontos para um dia (yyyy-mm-dd)
+function getDayDots(dateStr){
+  const dots=[];
+  const dayTasks=tasks.filter(t=>t.date===dateStr);
+  if(dayTasks.some(t=>t.area==="Trabalho")) dots.push("#f97316");
+  if(dayTasks.some(t=>t.area==="Pessoal")) dots.push("#8b5cf6");
+  // Metas: se houver alguma meta com registro nesse dia
+  const hasMetaLog=metas.some(m=>m.logs&&m.logs[dateStr]);
+  if(hasMetaLog) dots.push("#22c55e");
+  return dots.slice(0,3);
+}
+function renderCalendar(){
+  const label=document.getElementById("calMonthLabel");
+  if(label) label.textContent=`${MONTH_NAMES[calMonth].charAt(0).toUpperCase()+MONTH_NAMES[calMonth].slice(1)} ${calYear}`;
+  const grid=document.getElementById("calDays");
+  if(!grid) return;
+  const td=today();
+
+  if(calViewMode==="week"){
+    // Semana: 7 dias a partir do domingo da semana selecionada
+    const sel=new Date(calSelectedDate+"T12:00");
+    const dow=sel.getDay();
+    const start=new Date(sel); start.setDate(sel.getDate()-dow);
+    let html="";
+    for(let i=0;i<7;i++){
+      const d=new Date(start); d.setDate(start.getDate()+i);
+      const ds=d.toISOString().slice(0,10);
+      const dots=getDayDots(ds);
+      const cls=["cal-day"];
+      if(ds===td) cls.push("today");
+      if(ds===calSelectedDate) cls.push("selected");
+      html+=`<div class="${cls.join(' ')}" onclick="selectCalDay('${ds}')">${d.getDate()}
+        <div class="cal-dots">${dots.map(c=>`<div class="cal-dot" style="background:${c}"></div>`).join("")}</div></div>`;
+    }
+    grid.innerHTML=html;
+  } else {
+    // Mês completo
+    const first=new Date(calYear,calMonth,1);
+    const startDow=first.getDay();
+    const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+    const prevDays=new Date(calYear,calMonth,0).getDate();
+    let html="";
+    // Dias do mês anterior
+    for(let i=startDow-1;i>=0;i--){
+      html+=`<div class="cal-day other">${prevDays-i}</div>`;
+    }
+    // Dias do mês
+    for(let d=1;d<=daysInMonth;d++){
+      const ds=`${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      const dots=getDayDots(ds);
+      const cls=["cal-day"];
+      if(ds===td) cls.push("today");
+      if(ds===calSelectedDate) cls.push("selected");
+      html+=`<div class="${cls.join(' ')}" onclick="selectCalDay('${ds}')">${d}
+        <div class="cal-dots">${dots.map(c=>`<div class="cal-dot" style="background:${c}"></div>`).join("")}</div></div>`;
+    }
+    // Completar última linha
+    const totalCells=startDow+daysInMonth;
+    const rem=(7-(totalCells%7))%7;
+    for(let i=1;i<=rem;i++){
+      html+=`<div class="cal-day other">${i}</div>`;
+    }
+    grid.innerHTML=html;
+  }
+  renderCalDetail();
+}
+function selectCalDay(ds){
+  calSelectedDate=ds;
+  renderCalendar();
+}
+function addFromCalDay(){
+  resetForm();
+  document.getElementById("addBackBtn").onclick=()=>goTo("home");
+  goTo("add");
+  document.getElementById("fDate").value=calSelectedDate;
+}
+function renderCalDetail(){
+  const dateEl=document.getElementById("calDetailDate");
+  const countEl=document.getElementById("calDetailCount");
+  const listEl=document.getElementById("calDetailList");
+  if(!listEl) return;
+  const d=new Date(calSelectedDate+"T12:00");
+  const dateStr=d.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+  dateEl.textContent=dateStr.charAt(0).toUpperCase()+dateStr.slice(1);
+  const dayTasks=tasks.filter(t=>t.date===calSelectedDate).sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
+  countEl.textContent=dayTasks.length?`${dayTasks.length} compromisso${dayTasks.length>1?"s":""}`:"";
+  if(!dayTasks.length){
+    listEl.innerHTML=`<div class="cal-empty">Nenhum compromisso neste dia.</div>`;
+    return;
+  }
+  listEl.innerHTML=dayTasks.map(t=>{
+    const c=t.color||(t.area==="Trabalho"?"#f97316":"#8b5cf6");
+    const chkStyle=t.completed
+      ?`background:#22c55e;border:none;display:flex;align-items:center;justify-content:center;`
+      :`background:transparent;border:2px solid var(--border-hover);`;
+    return `<div class="cal-event">
+      <div class="ce-bar" style="background:${c}"></div>
+      <button type="button"
+        onclick="event.stopPropagation();toggleDone('${t.id}')"
+        style="width:36px;height:36px;border-radius:10px;${chkStyle}cursor:pointer;flex-shrink:0;margin-left:6px;touch-action:manipulation;transition:background .1s,border .1s">
+        ${t.completed?'<span style="color:#fff;font-size:16px;font-weight:900">✓</span>':''}
+      </button>
+      <div class="ce-time" style="color:${c}">${t.time||"—"}</div>
+      <div class="ce-body" onclick="editTask('${t.id}')">
+        <div class="ce-title" style="${t.completed?'text-decoration:line-through;opacity:.45':''}">${t.title}</div>
+        <div class="ce-sub">${t.area}${t.category?" · "+t.category:""}</div>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 // ===== FORMULÁRIO DE COMPROMISSO =====
@@ -1275,13 +1502,16 @@ function editTask(id){
 function deleteTask(id){
   if(!confirm("Excluir este compromisso?")) return;
   saveDeletedId(id);
-  tasks=tasks.filter(t=>t.id!==id); save(); renderTasks(); updateStats(); showToast("Excluído.");
+  tasks=tasks.filter(t=>t.id!==id); save(); renderTasks(); updateStats(); renderCalendar(); showToast("Excluído.");
 }
 function toggleDone(id){
-  tasks=tasks.map(t=>t.id===id?{...t,completed:!t.completed}:t); save(); renderTasks(); updateStats();
-  // Atualiza painel da home se estiver visível
+  tasks=tasks.map(t=>t.id===id?{...t,completed:!t.completed}:t);
+  // Atualiza UI imediatamente
   const sh=document.getElementById("screen-home");
-  if(sh&&sh.classList.contains("active")){ updateHeroProgress(); renderTodayHomePanel(); }
+  if(sh&&sh.classList.contains("active")) renderCalDetail();
+  else renderTasks();
+  // Salva em background sem bloquear a UI
+  requestAnimationFrame(()=>{ save(); updateStats(); });
 }
 
 // ===== FILTROS E BUSCA =====
@@ -2033,7 +2263,13 @@ async function sendToGcal(task){
 load(); loadLembretes(); loadMetas(); loadDeletedIds();
 applyTheme(localStorage.getItem(TK)||"dark");
 applyAccent(localStorage.getItem(AK)||"#f97316");
-updateCats(); updateLemCats(); initIconPicker(); updateStats(); updatePermUI(); setHeroDate();
+initCalendar();
+try{ renderCalendar(); }catch(e){ console.error("Erro renderCalendar:",e); }
+try{ updateCats(); }catch(e){ console.error(e); }
+try{ updateLemCats(); }catch(e){ console.error(e); }
+try{ initIconPicker(); }catch(e){ console.error(e); }
+try{ updateStats(); }catch(e){ console.error(e); }
+try{ updatePermUI(); }catch(e){ console.error(e); }
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(e=>console.warn("SW falhou:",e));
 }
