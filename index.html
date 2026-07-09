@@ -477,6 +477,18 @@ textarea{resize:vertical;min-height:64px;}
         </div>
       </div>
       <div class="form-group">
+        <label>🔁 Compromisso diário</label>
+        <div class="nbox">
+          <div class="nrow">
+            <div>
+              <div style="font-size:.79rem;color:var(--text)">Repetir todos os dias</div>
+              <div class="ndesc">Compromisso se repete diariamente.</div>
+            </div>
+            <div class="tog"><input type="checkbox" id="fDaily"/><label for="fDaily" style="margin:0">Ativar</label></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
         <label>📅 Enviar para o Google Agenda</label>
         <div class="nbox">
           <div class="nrow">
@@ -1284,6 +1296,7 @@ function renderCalDetail(){
         <div class="ce-title" style="${t.completed?'text-decoration:line-through;opacity:.45':''}">${escHtml(t.title)}</div>
         <div class="ce-sub">${escHtml(t.area)}${t.category?" · "+escHtml(t.category):""}</div>
       </div>
+      <button type="button" onclick="event.stopPropagation();deleteTask('${t.id}')" style="width:32px;height:32px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;margin-right:4px;font-size:14px;transition:all .15s">🗑️</button>
     </div>`;
   }).join("");
 }
@@ -1331,8 +1344,8 @@ function cancelForm(){
   if(_fromLembreteId) goTo('lembretes');
   else goTo('home');
 }
-function toggleRemOpts(){ document.getElementById("remOpts").style.display=document.getElementById("fReminder").checked?"block":"none"; updatePermUI(); }
-function toggleGHint(){ document.getElementById("gHint").style.display=document.getElementById("fGcal").checked?"block":"none"; }
+function toggleRemOpts(){ var _r=document.getElementById("fReminder"),_o=document.getElementById("remOpts"); if(_o) _o.style.display=(_r&&_r.checked)?"block":"none"; updatePermUI(); }
+function toggleGHint(){ var _g=document.getElementById("fGcal"),_h=document.getElementById("gHint"); if(_h) _h.style.display=(_g&&_g.checked)?"block":"none"; }
 function updateDlHint(){
   const v=document.getElementById("fDate").value, h=document.getElementById("dlHint"), td=today();
   if(!v){ h.textContent=""; return; }
@@ -1347,9 +1360,9 @@ let _fromScreen = "home";
 
 function saveTask(){
   try{
-    const title=document.getElementById("fTitle").value.trim();
-    const date=document.getElementById("fDate").value;
-    const time=document.getElementById("fTime").value;
+    var _fTitleEl=document.getElementById("fTitle"); var title=_fTitleEl?_fTitleEl.value.trim():"";
+    var _fDateEl=document.getElementById("fDate"); var date=_fDateEl?_fDateEl.value:"";
+    var _fTimeEl=document.getElementById("fTime"); var time=_fTimeEl?_fTimeEl.value:"";
 
     if(!title){ showToast("⚠️ Informe o título."); return; }
     if(!date){ showToast("⚠️ Informe a data."); return; }
@@ -1360,13 +1373,13 @@ function saveTask(){
 
     const task={
       id:editId||uid(), title:title, area:selArea,
-      category:document.getElementById("fCat").value||"",
-      notes:document.getElementById("fNotes").value.trim(),
+      category:(document.getElementById("fCat")?document.getElementById("fCat").value:"")||"",
+      notes:document.getElementById("fNotes")?document.getElementById("fNotes").value.trim():"",
       priority:"medium",
       date:date, time:time,
-      isDaily:document.getElementById("fDaily").checked,
-      reminder:document.getElementById("fReminder").checked,
-      remBefore:document.getElementById("fRemBefore").value,
+      isDaily:!!(document.getElementById("fDaily") && document.getElementById("fDaily").checked),
+      reminder:!!(document.getElementById("fReminder") && document.getElementById("fReminder").checked),
+      remBefore:document.getElementById("fRemBefore")?document.getElementById("fRemBefore").value:"15",
       color:document.getElementById("fColor")?document.getElementById("fColor").value:"#f97316",
       attachments:taskAttachments.slice(),
       completed:false, createdAt:new Date().toISOString(),
@@ -1421,9 +1434,9 @@ function editTask(id){
   
   document.getElementById("fDate").value=t.date||"";
   document.getElementById("fTime").value=t.time||"";
-  document.getElementById("fDaily").checked=!!t.isDaily;
-  document.getElementById("fReminder").checked=!!t.reminder;
-  document.getElementById("fRemBefore").value=t.remBefore||"15";
+  var _fDaily=document.getElementById("fDaily"); if(_fDaily) _fDaily.checked=!!t.isDaily;
+  var _fReminder=document.getElementById("fReminder"); if(_fReminder) _fReminder.checked=!!t.reminder;
+  var _fRemBefore=document.getElementById("fRemBefore"); if(_fRemBefore) _fRemBefore.value=t.remBefore||"15";
   document.querySelectorAll("#areaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area===t.area));
   updateCats();
   document.getElementById("fCat").value=t.category||"";
@@ -1433,7 +1446,7 @@ function editTask(id){
   document.getElementById("addBackBtn").onclick=()=>goTo(_fromScreen||'list');
   document.getElementById("remOpts").style.display=t.reminder?"block":"none";
   document.getElementById("gHint").style.display="none";
-  document.getElementById("fGcal").checked=false;
+  var _fGcal=document.getElementById("fGcal"); if(_fGcal) _fGcal.checked=false;
   // Detecta de onde veio para voltar ao lugar certo
   const sh=document.getElementById("screen-home");
   _fromScreen=sh&&sh.classList.contains("active")?"home":"list";
@@ -1948,7 +1961,7 @@ function renderDashboard(){
 
 // ===== NOTIFICAÇÕES =====
 function notifPerm(){ return "Notification" in window?Notification.permission:"denied"; }
-function updatePermUI(){ const b=document.getElementById("permBox"); if(b) b.style.display=notifPerm()!=="granted"?"block":"none"; }
+function updatePermUI(){ const b=document.getElementById("permBox"); const rem=document.getElementById("fReminder"); if(b) b.style.display=(rem&&rem.checked&&notifPerm()!=="granted")?"block":"none"; }
 async function reqNotifPerm(){ if(!("Notification" in window)){ showToast("Navegador não suporta notificações."); return; } await Notification.requestPermission(); updatePermUI(); }
 
 // ===== GOOGLE AUTH =====
