@@ -813,6 +813,7 @@ const DEL_SK  = "atividadesdeletados";
 let deletedIds = [];
 const TK      = "atividadestema";
 const DRIVE_FILE = "atividades_diarias_tasks.json";
+const GCAL_SYNC_SK = "atividadesgcalsync"; // IDs de eventos importados do Google
 
 // ===== ESTADO =====
 let tasks=[], lembretes=[], metas=[];
@@ -1299,10 +1300,11 @@ function renderCalDetail(){
         style="width:36px;height:36px;border-radius:10px;${chkStyle}cursor:pointer;flex-shrink:0;margin-left:6px;touch-action:manipulation;transition:background .1s,border .1s">
         ${t.completed?'<span style="color:#fff;font-size:16px;font-weight:900">✓</span>':''}
       </button>
-      <div class="ce-time" style="color:${c}">${t.time||"—"}</div>
+      <div class="ce-time" style="color:${t.completed?'var(--text-faint)':c};${t.completed?'text-decoration:line-through;opacity:.5':''}">${t.time||"—"}</div>
       <div class="ce-body" onclick="editTask('${t.id}')">
-        <div class="ce-title" style="${t.completed?'text-decoration:line-through;opacity:.45':''}">${escHtml(t.title)}</div>
-        <div class="ce-sub">${escHtml(t.area)}${t.category?" · "+escHtml(t.category):""}</div>
+        <div class="ce-title" style="${t.completed?'text-decoration:line-through;color:var(--text-faint);opacity:.6':''}">
+          ${escHtml(t.title)}</div>
+        <div class="ce-sub" style="${t.completed?'opacity:.4':''}">${escHtml(t.area)}${t.category?" · "+escHtml(t.category):""}</div>
       </div>
       <button type="button" onclick="event.stopPropagation();deleteTask('${t.id}')" style="width:32px;height:32px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;margin-right:4px;font-size:14px;transition:all .15s">🗑️</button>
     </div>`;
@@ -2036,19 +2038,129 @@ function updateGUI(on){
 }
 
 // ===== GOOGLE AGENDA =====
+
+// Retorna mapa de gcalEventId -> taskId dos eventos já importados
+function getImportedGcalIds(){
+  try{ return JSON.parse(localStorage.getItem(GCAL_SYNC_SK)||"{}"); }catch(e){ return {}; }
+}
+function saveImportedGcalIds(map){
+  try{ localStorage.setItem(GCAL_SYNC_SK, JSON.stringify(map)); }catch(e){}
+}
+
+// Importa eventos do Google Calendar como tasks do app (sincronização bidirecional)
+function syncGcalToTasks(events){
+  var imported = getImportedGcalIds();
+  var changed = false;
+  var now = new Date();
+
+  events.forEach(function(ev){
+    if(!ev.id || !ev.summary) return;
+    // Pular eventos que vieram DO app (para não duplicar)
+    if(ev.description && ev.description.indexOf("Criado via Atividades Diárias") !== -1) return;
+
+    var start = ev.start && (ev.start.dateTime || ev.start.date);
+    if(!start) return;
+
+    var startDate = new Date(start);
+    var dateStr = startDate.toISOString().slice(0,10);
+    var timeStr = ev.start.dateTime
+      ? startDate.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+      : "00:00";
+
+    // Se já foi importado antes, atualiza
+    if(imported[ev.id]){
+      var existingIdx = tasks.findIndex(function(t){ return t.id === imported[ev.id]; });
+      if(existingIdx !== -1){
+        // Atualiza título, data e hora caso tenham mudado
+        var t = tasks[existingIdx];
+        if(t.title !== ev.summary || t.date !== dateStr || t.time !== timeStr){
+          tasks[existingIdx] = Object.assign({}, t, {
+            title: ev.summary,
+            date: dateStr,
+            time: timeStr
+          });
+          changed = true;
+        }
+        return;
+      }
+    }
+
+    // Evento novo — importar como task
+    var newTask = {
+      id: uid(),
+      title: ev.summary,
+      area: "Pessoal",
+      category: "Geral",
+      notes: ev.description || "",
+      priority: "medium",
+      date: dateStr,
+      time: timeStr,
+      isDaily: false,
+      reminder: false,
+      remBefore: "15",
+      color: "#3b82f6",
+      attachments: [],
+      completed: false,
+      createdAt: new Date().toISOString(),
+      gcalEventId: ev.id,
+      gcalLink: ev.htmlLink || null,
+      fromGcal: true  // marcador de origem
+    };
+    tasks.push(newTask);
+    imported[ev.id] = newTask.id;
+    changed = true;
+  });
+
+  // Remover tasks importadas cujo evento foi deletado do Google Calendar
+  var activeGcalIds = {};
+  events.forEach(function(ev){ if(ev.id) activeGcalIds[ev.id] = true; });
+  Object.keys(imported).forEach(function(gcalId){
+    if(!activeGcalIds[gcalId]){
+      var taskId = imported[gcalId];
+      var idx = tasks.findIndex(function(t){ return t.id === taskId; });
+      if(idx !== -1 && tasks[idx].fromGcal){
+        tasks.splice(idx, 1);
+        changed = true;
+      }
+      delete imported[gcalId];
+    }
+  });
+
+  if(changed){
+    saveImportedGcalIds(imported);
+    save();
+    updateStats();
+    renderCalendar();
+    renderCalDetail();
+  }
+
+  return changed;
+}
+
 async function fetchGcal(){
   if(!gOk){ showToast("Conecte o Google Agenda primeiro."); return; }
   if(!gapiOk){ showToast("Aguarde, inicializando..."); setTimeout(fetchGcal,1200); return; }
   const el=document.getElementById("evList"), rb=document.getElementById("refBtn");
-  el.innerHTML=`<div class="gcal-loading"><span class="spin"></span>Carregando eventos...</div>`;
+  if(el) el.innerHTML=`<div class="gcal-loading"><span class="spin"></span>Carregando eventos...</div>`;
   if(rb) rb.classList.add("loading");
   try{
-    const now=new Date(), fim=new Date(); fim.setMonth(fim.getMonth()+3);
-    const r=await gapi.client.calendar.events.list({calendarId:"primary",timeMin:now.toISOString(),timeMax:fim.toISOString(),maxResults:50,singleEvents:true,orderBy:"startTime"});
+    // Busca 3 meses passados + 3 meses futuros para sincronização completa
+    const past=new Date(); past.setMonth(past.getMonth()-3);
+    const fim=new Date(); fim.setMonth(fim.getMonth()+3);
+    const r=await gapi.client.calendar.events.list({
+      calendarId:"primary",
+      timeMin:past.toISOString(),
+      timeMax:fim.toISOString(),
+      maxResults:200,
+      singleEvents:true,
+      orderBy:"startTime"
+    });
     gcEvs=r.result.items||[];
-    showToast(gcEvs.length+" eventos carregados!");
-    renderGcal();
-  }catch(e){ console.error(e); el.innerHTML=`<div class="ev-empty">⚠️ Erro ao carregar. Tente reconectar.</div>`; }
+    // Sincronizar eventos para o calendário do app
+    var importCount = syncGcalToTasks(gcEvs);
+    showToast(gcEvs.length+" eventos sincronizados!");
+    if(el) renderGcal();
+  }catch(e){ console.error(e); if(el) el.innerHTML=`<div class="ev-empty">⚠️ Erro ao carregar. Tente reconectar.</div>`; }
   finally{ if(rb) rb.classList.remove("loading"); }
 }
 function setGcf(f){ gcF=f; document.querySelectorAll(".gcf").forEach(c=>c.classList.toggle("active",c.dataset.gf===f)); renderGcal(); }
