@@ -71,12 +71,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:calc
 .nav-pill-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .nav-pill.active span{font-weight:700;}
 .cal-empty{text-align:center;padding:28px;color:var(--text-faint);font-size:.82rem;background:var(--bg-card);border:1px dashed var(--border);border-radius:16px;margin:0 calc(env(safe-area-inset-left) + 20px);}
-/* BOTTOM NAV FIXA */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:200;padding:8px 6px calc(8px + env(safe-area-inset-bottom));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
-.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;padding:6px 10px;border-radius:14px;transition:all .18s;flex:1;color:var(--text-faint);}
-.bnav-btn i{font-size:1.5rem;line-height:1;}
-.bnav-btn .bnav-label{font-size:.6rem;font-weight:700;}
-.bnav-btn.active{color:var(--orange);}
+
 
 /* NAV TOPO */
 nav{display:flex;align-items:center;justify-content:space-between;
@@ -322,30 +317,6 @@ textarea{resize:vertical;min-height:64px;}
 .gcal-status.disconnected{border-color:rgba(249,115,22,.5);color:var(--orange);background:rgba(249,115,22,.06);}
 .gcal-status{font-size:.7rem;padding:3px 10px;border-radius:999px;border:1px solid;}
 
-/* HERO PROGRESS */
-.hero-progress{margin-top:18px;position:relative;z-index:1;}
-.hero-progress-bar{height:8px;background:rgba(255,255,255,0.2);border-radius:999px;overflow:hidden;}
-.hero-progress-fill{height:100%;background:rgba(255,255,255,0.9);border-radius:999px;width:0%;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
-.hero-progress-text{font-size:.75rem;color:rgba(255,255,255,0.85);margin-top:8px;font-weight:600;}
-
-/* SECTION LABEL */
-.section-label{font-size:.72rem;font-weight:800;color:var(--text-faint);text-transform:uppercase;letter-spacing:.1em;padding:0 calc(env(safe-area-inset-left) + 22px);margin:24px 0 12px;}
-
-/* TODAY HOME PANEL */
-.today-home-panel{padding:0 calc(env(safe-area-inset-right) + 16px) 0 calc(env(safe-area-inset-left) + 16px);}
-.today-home-panel:empty{display:none;}
-.today-section-title{font-size:.72rem;font-weight:800;color:var(--text-faint);text-transform:uppercase;letter-spacing:.1em;margin:22px 0 12px;display:flex;align-items:center;gap:8px;}
-.today-item{display:flex;align-items:center;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:13px 15px;margin-bottom:9px;transition:all .2s;position:relative;overflow:hidden;}
-.today-item:hover{border-color:rgba(249,115,22,0.3);}
-.today-item .ti-bar{position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;}
-.today-item .ti-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-left:6px;}
-.today-item .ti-check.done{background:#22c55e;border-color:#22c55e;color:#fff;}
-.today-item .ti-body{flex:1;min-width:0;}
-.today-item .ti-title{font-size:.86rem;font-weight:700;margin-bottom:2px;}
-.today-item .ti-title.done{text-decoration:line-through;color:var(--text-faint);}
-.today-item .ti-meta{font-size:.7rem;color:var(--text-faint);display:flex;align-items:center;gap:6px;}
-.today-empty{text-align:center;padding:24px;color:var(--text-faint);font-size:.82rem;background:var(--bg-card);border:1px dashed var(--border);border-radius:16px;}
-.today-empty .te-icon{font-size:1.6rem;display:block;margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -431,10 +402,10 @@ textarea{resize:vertical;min-height:64px;}
     <p id="fmSub" style="color:var(--text-faint);font-size:.84rem;margin-top:4px">Preencha os detalhes.</p>
   </div>
   <div class="form-card">
-    <form id="taskForm" onsubmit="saveTask(event)">
+    <form id="taskForm" novalidate onsubmit="return false">
       <div class="form-group">
         <label>Título *</label>
-        <input id="fTitle" required placeholder="Ex: Reunião com cliente, consulta médica..."/>
+        <input id="fTitle" placeholder="Ex: Reunião com cliente, consulta médica..."/>
       </div>
       <div class="form-group">
         <label>Tipo *</label>
@@ -445,7 +416,7 @@ textarea{resize:vertical;min-height:64px;}
       </div>
       <div class="form-group">
         <label id="catLabel">Categoria de Trabalho *</label>
-        <select id="fCat" required></select>
+        <select id="fCat"></select>
       </div>
       <div class="form-group">
         <label>Notas (opcional)</label>
@@ -469,27 +440,13 @@ textarea{resize:vertical;min-height:64px;}
       </div>
       <div class="form-row form-group">
         <div>
-          <label>Prioridade</label>
-          <select id="fPrio">
-            <option value="medium">Média</option>
-            <option value="high">Alta</option>
-            <option value="low">Baixa</option>
-          </select>
-        </div>
-        <div>
           <label>📅 Data</label>
           <input type="date" id="fDate" oninput="updateDlHint()"/>
           <div class="dlhint" id="dlHint"></div>
         </div>
-      </div>
-      <div class="form-row form-group">
         <div>
           <label>⏰ Horário</label>
           <input type="time" id="fTime"/>
-        </div>
-        <div>
-          <label>Repetição</label>
-          <div class="tog"><input type="checkbox" id="fDaily"/><label for="fDaily" style="margin:0">Repetir diariamente</label></div>
         </div>
       </div>
       <div class="form-group">
@@ -542,7 +499,7 @@ textarea{resize:vertical;min-height:64px;}
         <div style="font-size:.67rem;color:var(--text-faint);margin-top:5px">Máx. 3 arquivos · 2MB cada · Imagens, PDF, documentos</div>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn-primary" id="submitBtn">Salvar compromisso</button>
+        <button type="button" class="btn-primary" id="submitBtn" onclick="saveTask()">Salvar compromisso</button>
         <button type="button" class="btn-secondary" onclick="cancelForm()">Cancelar</button>
       </div>
     </form>
@@ -646,13 +603,6 @@ textarea{resize:vertical;min-height:64px;}
               <button type="button" onclick="setLemColor('#ec4899')" style="width:22px;height:22px;border-radius:50%;background:#ec4899;border:2px solid transparent;cursor:pointer" title="Rosa"></button>
               <button type="button" onclick="setLemColor('#6b7280')" style="width:22px;height:22px;border-radius:50%;background:#6b7280;border:2px solid transparent;cursor:pointer" title="Cinza"></button>
             </div>
-          </div>
-        </div>
-        <div>
-          <label>Status inicial</label>
-          <div class="tog" style="margin-top:10px">
-            <input type="checkbox" id="lemChecked" style="width:15px;height:15px;accent-color:#f59e0b"/>
-            <label for="lemChecked" style="margin:0;font-size:.82rem">Marcar como resolvido</label>
           </div>
         </div>
       </div>
@@ -869,7 +819,7 @@ let selTaskColor = "#f97316";
 function setTaskColor(c){
   selTaskColor=c;
   const el=document.getElementById("fColor"); if(el) el.value=c;
-} // anexos do formulário atual
+}
 
 function fileIcon(type){
   if(type.startsWith("image/")) return "🖼️";
@@ -937,6 +887,7 @@ function downloadAttachment(taskId, fileName){
   }
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function escHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function today(){ return new Date().toISOString().slice(0,10); }
 function showToast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2800); }
 function hexToRgb(hex){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `${r},${g},${b}`; }
@@ -1035,59 +986,6 @@ function toggleThemePopup(e){
 }
 document.addEventListener("click",()=>{ const p=document.getElementById("themePopup"); if(p) p.classList.remove("open"); });
 
-function setHeroDate(){
-  const el=document.getElementById("heroDate"); if(!el) return;
-  const d=new Date();
-  el.textContent=d.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  // Saudação dinâmica pela hora
-  const h=d.getHours();
-  const greeting=h<12?"Bom dia!":h<18?"Boa tarde!":"Boa noite!";
-  const g=document.getElementById("heroGreeting");
-  if(g) g.textContent=greeting;
-  updateHeroProgress();
-  renderTodayHomePanel();
-}
-
-function updateHeroProgress(){
-  const td=today();
-  const todayTasks=tasks.filter(t=>t.date===td);
-  const fill=document.getElementById("progressFill");
-  const text=document.getElementById("progressText");
-  const wrap=document.getElementById("heroProgress");
-  const sub=document.getElementById("heroSubtitle");
-  if(!todayTasks.length){
-    if(wrap) wrap.style.display="none";
-    if(sub) sub.textContent="Nenhum compromisso para hoje. Aproveite!";
-    return;
-  }
-  const done=todayTasks.filter(t=>t.completed).length;
-  const pct=Math.round(done/todayTasks.length*100);
-  if(wrap) wrap.style.display="block";
-  if(fill) setTimeout(()=>{ fill.style.width=pct+"%"; },100);
-  if(text) text.textContent=`${done} de ${todayTasks.length} concluídos hoje`;
-  if(sub) sub.textContent=pct===100?"Tudo pronto por hoje! 🎉":`Você tem ${todayTasks.length-done} compromisso(s) para hoje.`;
-}
-
-function renderTodayHomePanel(){
-  const el=document.getElementById("todayHomePanel"); if(!el) return;
-  const td=today();
-  const todayTasks=tasks.filter(t=>t.date===td).sort((a,b)=>(a.time||"99:99").localeCompare(b.time||"99:99"));
-  if(!todayTasks.length){ el.innerHTML=""; return; }
-  el.innerHTML=`
-    <div class="today-section-title">⚡ Hoje</div>
-    ${todayTasks.map(t=>{
-      const c=t.color||"#f97316";
-      return `<div class="today-item">
-        <div class="ti-bar" style="background:${c}"></div>
-        <div class="ti-check ${t.completed?"done":""}" onclick="toggleDone('${t.id}');event.stopPropagation()">${t.completed?"✓":""}</div>
-        <div class="ti-body" onclick="editTask('${t.id}')">
-          <div class="ti-title ${t.completed?"done":""}">${t.title}</div>
-          <div class="ti-meta">${t.time?"🕐 "+t.time:"Sem horário"} · ${t.area}</div>
-        </div>
-      </div>`;
-    }).join("")}
-  `;
-}
 // ===== STORAGE =====
 function load(){ try{ tasks=JSON.parse(localStorage.getItem(SK)||"[]"); }catch{ tasks=[]; } }
 function loadLembretes(){ try{ lembretes=JSON.parse(localStorage.getItem(LEM_SK)||"[]"); }catch{ lembretes=[]; } }
@@ -1171,11 +1069,12 @@ function getStatus(t){
 
 // ===== STATS =====
 function updateStats(){
-  document.getElementById("sWork").textContent=tasks.filter(t=>t.area==="Trabalho").length;
-  document.getElementById("sPersonal").textContent=tasks.filter(t=>t.area==="Pessoal").length;
-  document.getElementById("sLem").textContent=lembretes.length;
-  document.getElementById("sDone").textContent=tasks.filter(t=>t.completed).length;
-  document.getElementById("sLate").textContent=tasks.filter(t=>getStatus(t)==="late").length;
+  const el=id=>document.getElementById(id);
+  const sw=el("sWork"); if(sw) sw.textContent=tasks.filter(t=>t.area==="Trabalho").length;
+  const sp=el("sPersonal"); if(sp) sp.textContent=tasks.filter(t=>t.area==="Pessoal").length;
+  const sl=el("sLem"); if(sl) sl.textContent=lembretes.length;
+  const sd=el("sDone"); if(sd) sd.textContent=tasks.filter(t=>t.completed).length;
+  const sa=el("sLate"); if(sa) sa.textContent=tasks.filter(t=>getStatus(t)==="late").length;
 }
 
 // ===== NAVEGAÇÃO =====
@@ -1185,7 +1084,7 @@ function goTo(screen,opts={}){
   document.getElementById("screen-"+screen).classList.add("active");
   updateBottomNav(screen);
   window.scrollTo(0,0);
-  if(screen==="home"){ updateStats(); renderCalendar(); }
+  if(screen==="home"){ updateStats(); renderCalendar(); renderCalDetail(); }
   if(screen==="list"){
     curType=opts.type||"all"; curFilter=opts.filter||"all"; curSearch="";
     document.getElementById("searchInput").value="";
@@ -1336,11 +1235,20 @@ function renderCalendar(){
   renderCalDetail();
 }
 function selectCalDay(ds){
+  // Atualiza seleção sem recriar toda a grade
+  const prev=document.querySelector('.cal-day.selected');
+  if(prev) prev.classList.remove('selected');
   calSelectedDate=ds;
-  renderCalendar();
+  // Encontra e marca o novo dia selecionado
+  document.querySelectorAll('.cal-day').forEach(el=>{
+    if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+ds+"'"))
+      el.classList.add('selected');
+  });
+  renderCalDetail();
 }
 function addFromCalDay(){
   resetForm();
+  _fromScreen="home";
   document.getElementById("addBackBtn").onclick=()=>goTo("home");
   goTo("add");
   document.getElementById("fDate").value=calSelectedDate;
@@ -1373,8 +1281,8 @@ function renderCalDetail(){
       </button>
       <div class="ce-time" style="color:${c}">${t.time||"—"}</div>
       <div class="ce-body" onclick="editTask('${t.id}')">
-        <div class="ce-title" style="${t.completed?'text-decoration:line-through;opacity:.45':''}">${t.title}</div>
-        <div class="ce-sub">${t.area}${t.category?" · "+t.category:""}</div>
+        <div class="ce-title" style="${t.completed?'text-decoration:line-through;opacity:.45':''}">${escHtml(t.title)}</div>
+        <div class="ce-sub">${escHtml(t.area)}${t.category?" · "+escHtml(t.category):""}</div>
       </div>
     </div>`;
   }).join("");
@@ -1416,6 +1324,7 @@ function addFromList(){
     updateCats();
   }
   document.getElementById("addBackBtn").onclick=()=>goTo("list");
+  _fromScreen="list";
   goTo("add");
 }
 function cancelForm(){
@@ -1433,42 +1342,70 @@ function updateDlHint(){
 }
 
 // ===== SALVAR COMPROMISSO =====
-async function saveTask(e){
-  e.preventDefault();
-  const title=document.getElementById("fTitle").value.trim();
-  if(!title){ showToast("Informe um título."); return; }
-  const task={
-    id:editId||uid(), title, area:selArea,
-    category:document.getElementById("fCat").value,
-    notes:document.getElementById("fNotes").value.trim(),
-    priority:document.getElementById("fPrio").value,
-    date:document.getElementById("fDate").value,
-    time:document.getElementById("fTime").value,
-    isDaily:document.getElementById("fDaily").checked,
-    reminder:document.getElementById("fReminder").checked,
-    remBefore:document.getElementById("fRemBefore").value,
-    color:document.getElementById("fColor")?.value||selTaskColor,
-    attachments:[...taskAttachments],
-    completed:false, createdAt:new Date().toISOString(),
-    gcalEventId:null, gcalLink:null
-  };
-  if(editId){
-    const old=tasks.find(t=>t.id===editId);
-    if(old){ task.completed=old.completed; task.gcalEventId=old.gcalEventId; task.gcalLink=old.gcalLink; }
-    tasks=tasks.map(t=>t.id===editId?task:t);
-    showToast("Compromisso atualizado!");
-  } else {
-    tasks.unshift(task);
-    showToast("Compromisso salvo!");
+// Rastreia de onde o usuário veio para voltar ao lugar certo
+let _fromScreen = "home";
+
+function saveTask(){
+  try{
+    const title=document.getElementById("fTitle").value.trim();
+    const date=document.getElementById("fDate").value;
+    const time=document.getElementById("fTime").value;
+
+    if(!title){ showToast("⚠️ Informe o título."); return; }
+    if(!date){ showToast("⚠️ Informe a data."); return; }
+    if(!time){ showToast("⚠️ Informe o horário."); return; }
+
+    const conflito=tasks.find(t=>t.id!==editId && t.date===date && t.time===time);
+    if(conflito){ showToast("⚠️ Já existe \""+escHtml(conflito.title)+"\" às "+time); return; }
+
+    const task={
+      id:editId||uid(), title:title, area:selArea,
+      category:document.getElementById("fCat").value||"",
+      notes:document.getElementById("fNotes").value.trim(),
+      priority:"medium",
+      date:date, time:time,
+      isDaily:document.getElementById("fDaily").checked,
+      reminder:document.getElementById("fReminder").checked,
+      remBefore:document.getElementById("fRemBefore").value,
+      color:document.getElementById("fColor")?document.getElementById("fColor").value:"#f97316",
+      attachments:taskAttachments.slice(),
+      completed:false, createdAt:new Date().toISOString(),
+      gcalEventId:null, gcalLink:null
+    };
+
+    if(editId){
+      var old=tasks.find(function(t){return t.id===editId;});
+      if(old){ task.completed=old.completed; task.gcalEventId=old.gcalEventId; task.gcalLink=old.gcalLink; }
+      tasks=tasks.map(function(t){return t.id===editId?task:t;});
+      showToast("✅ Compromisso atualizado!");
+    } else {
+      tasks.unshift(task);
+      showToast("✅ Compromisso salvo!");
+    }
+
+    localStorage.setItem(SK,JSON.stringify(tasks));
+    updateStats();
+
+    if(_fromLembreteId){
+      lembretes=lembretes.filter(function(l){return l.id!==_fromLembreteId;});
+      saveLembretes(); _fromLembreteId=null;
+    }
+
+    // Navega imediatamente para home
+    goTo("home");
+
+    // Sync em background depois
+    setTimeout(function(){ pushToDriveNow(); },100);
+
+    // Google Calendar em background
+    var gcalCheck=document.getElementById("fGcal");
+    if(gcalCheck && gcalCheck.checked){
+      setTimeout(function(){ try{sendToGcal(task);}catch(e){} },200);
+    }
+
+  }catch(err){
+    showToast("❌ Erro: "+err.message);
   }
-  save(); updateStats();
-  // Se veio de um lembrete, remove o lembrete original
-  if(_fromLembreteId){
-    lembretes=lembretes.filter(l=>l.id!==_fromLembreteId);
-    saveLembretes(); _fromLembreteId=null;
-  }
-  if(document.getElementById("fGcal").checked) await sendToGcal(task);
-  goTo("list");
 }
 
 // ===== EDITAR / EXCLUIR / CONCLUIR =====
@@ -1481,7 +1418,7 @@ function editTask(id){
   renderAttachPreview();
   document.getElementById("fTitle").value=t.title;
   document.getElementById("fNotes").value=t.notes||"";
-  document.getElementById("fPrio").value=t.priority||"medium";
+  
   document.getElementById("fDate").value=t.date||"";
   document.getElementById("fTime").value=t.time||"";
   document.getElementById("fDaily").checked=!!t.isDaily;
@@ -1493,10 +1430,13 @@ function editTask(id){
   document.getElementById("fmTitle").textContent="Editar compromisso";
   document.getElementById("fmSub").textContent="Atualize os detalhes.";
   document.getElementById("submitBtn").textContent="Atualizar";
-  document.getElementById("addBackBtn").onclick=()=>goTo('list');
+  document.getElementById("addBackBtn").onclick=()=>goTo(_fromScreen||'list');
   document.getElementById("remOpts").style.display=t.reminder?"block":"none";
   document.getElementById("gHint").style.display="none";
   document.getElementById("fGcal").checked=false;
+  // Detecta de onde veio para voltar ao lugar certo
+  const sh=document.getElementById("screen-home");
+  _fromScreen=sh&&sh.classList.contains("active")?"home":"list";
   updateDlHint(); updatePermUI(); goTo("add");
 }
 function deleteTask(id){
@@ -1551,7 +1491,7 @@ function renderTasks(){
       <div style="position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;${barStyle}opacity:1"></div>
       <div style="padding-top:2px;padding-left:8px"><input type="checkbox" ${t.completed?"checked":""} onchange="toggleDone('${t.id}')" style="width:15px;height:15px;accent-color:${chkColor};cursor:pointer"/></div>
       <div class="task-main">
-        <div class="task-title ${t.completed?"done":""}">${t.title}</div>
+        <div class="task-title ${t.completed?"done":""}">${escHtml(t.title)}</div>
         <div class="task-meta">
           <span class="mt">${t.area}</span>
           <span class="mt">${t.category||""}</span>
@@ -1561,7 +1501,7 @@ function renderTasks(){
           ${t.reminder?`<span class="mt">🔔</span>`:""}
           ${gtag}
         </div>
-        ${t.notes?`<div class="task-notes">${t.notes}</div>`:""}
+        ${t.notes?`<div class="task-notes">${escHtml(t.notes)}</div>`:""}
         ${(t.attachments&&t.attachments.length)?`
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
             ${t.attachments.map(a=>`<span class="attach-card-chip" onclick="downloadAttachment('${t.id}','${a.name.replace(/'/g,"\\'")}')" title="${a.name}">
@@ -1694,7 +1634,7 @@ function resetLemForm(){
   editLembreteId=null; selLemIcon="📝"; selLemAreaVal="Trabalho"; selLemColor="#f59e0b"; lemCheckItems=[]; lemAttachments=[];
   document.getElementById("lemTitle").value="";
   document.getElementById("lemNotes").value="";
-  document.getElementById("lemChecked").checked=false;
+  
   document.getElementById("lemColor").value="#f59e0b";
   document.getElementById("lemCheckInput").value="";
   document.querySelectorAll("#lemAreaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area==="Trabalho"));
@@ -1711,7 +1651,7 @@ function editLembrete(id){
   lemAttachments=(l.attachments||[]).map(a=>({...a}));
   document.getElementById("lemTitle").value=l.title;
   document.getElementById("lemNotes").value=l.notes||"";
-  document.getElementById("lemChecked").checked=!!l.checked;
+  
   document.getElementById("lemColor").value=selLemColor;
   document.querySelectorAll("#lemAreaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area===l.area));
   updateLemCats();
@@ -1734,7 +1674,7 @@ function saveLembrete(){
     icon:selLemIcon, color:colorVal,
     checklist:[...lemCheckItems],
     attachments:[...lemAttachments],
-    checked:document.getElementById("lemChecked").checked,
+    checked:false,
     createdAt:editLembreteId?(lembretes.find(l=>l.id===editLembreteId)?.createdAt||new Date().toISOString()):new Date().toISOString()
   };
   if(editLembreteId){
@@ -1786,14 +1726,14 @@ function renderLembretes(){
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
           <span style="font-size:1.15rem">${l.icon||"📝"}</span>
-          <span class="lem-title ${l.checked?"lem-checked":""}">${l.title}</span>
+          <span class="lem-title ${l.checked?"lem-checked":""}">${escHtml(l.title)}</span>
         </div>
         <div class="task-meta">
           <span class="mt" style="border-color:rgba(${rgb},.4);color:${c}">${l.area}</span>
           <span class="mt">${l.category||""}</span>
           ${l.checked?`<span class="mt" style="border-color:rgba(34,197,94,.4);color:#22c55e">✅ Resolvido</span>`:`<span class="lembrete-badge" style="background:rgba(${rgb},.1);border-color:rgba(${rgb},.3);color:${c}">📝 Pendente</span>`}
         </div>
-        ${l.notes?`<div class="task-notes" style="margin-top:4px">${l.notes}</div>`:""}
+        ${l.notes?`<div class="task-notes" style="margin-top:4px">${escHtml(l.notes)}</div>`:""}
         ${(l.attachments&&l.attachments.length)?`
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
             ${l.attachments.map(a=>`<span class="attach-card-chip" onclick="downloadLemAttachment('${l.id}','${a.name.replace(/'/g,"\\'")}')">
@@ -1912,7 +1852,7 @@ function renderMetas(){
         const log=m.logs[td]||{done:false,value:0};
         return `<div class="checkin-row">
           <div class="meta-dot" style="background:${m.color}"></div>
-          <div style="flex:1;font-size:.86rem;font-weight:600">${m.title}</div>
+          <div style="flex:1;font-size:.86rem;font-weight:600">${escHtml(m.title)}</div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <label style="display:flex;align-items:center;gap:5px;font-size:.8rem;cursor:pointer">
               <input type="checkbox" ${log.done?"checked":""} onchange="logMeta('${m.id}',this.checked,${log.value||0})" style="width:16px;height:16px;accent-color:${m.color}"/>
@@ -1990,7 +1930,7 @@ function renderDashboard(){
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <div style="display:flex;align-items:center;gap:8px">
           <div class="meta-dot" style="background:${m.color}"></div>
-          <span style="font-size:.92rem;font-weight:700">${m.title}</span>
+          <span style="font-size:.92rem;font-weight:700">${escHtml(m.title)}</span>
           <span style="font-size:.68rem;padding:2px 8px;border-radius:999px;background:rgba(${rgb},0.12);color:${m.color};border:1px solid rgba(${rgb},0.3)">${m.type==="time"?"⏱️ Tempo":"✅ Check"}</span>
         </div>
         <button onclick="deleteMeta('${m.id}')" style="background:transparent;border:1px solid var(--border);border-radius:999px;padding:2px 10px;font-size:.67rem;color:var(--text-faint);cursor:pointer">🗑️</button>
