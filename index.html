@@ -2202,11 +2202,27 @@ document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==
 window.addEventListener("pagehide",flushDrivePush);
 
 // ===== ENVIAR PARA O GOOGLE AGENDA =====
+async function waitGapiOk(maxMs){
+  maxMs=maxMs||8000;
+  const start=Date.now();
+  return new Promise(function(resolve,reject){
+    (function check(){
+      if(gapiOk) return resolve();
+      if(Date.now()-start>maxMs) return reject(new Error("Timeout aguardando GAPI"));
+      setTimeout(check,200);
+    })();
+  });
+}
+
 async function sendToGcal(task){
   if(!gOk){ showToast("Conecte o Google Agenda primeiro."); return; }
-  if(!gapiOk){ showToast("Aguarde, inicializando o Google..."); return; }
   if(!task.date){ showToast("Adicione uma data para enviar ao Google Agenda."); return; }
   try{
+    // Aguarda GAPI inicializar (pode demorar alguns segundos)
+    if(!gapiOk){
+      showToast("Inicializando Google...");
+      await waitGapiOk(8000);
+    }
     const tm=task.time||"09:00";
     const st=new Date(task.date+"T"+tm+":00");
     const en=new Date(st.getTime()+3600000);
@@ -2224,7 +2240,7 @@ async function sendToGcal(task){
     const resp=await gapi.client.calendar.events.insert({calendarId:"primary",resource:ev});
     tasks=tasks.map(t=>t.id===task.id?{...t,gcalEventId:resp.result.id,gcalLink:resp.result.htmlLink}:t);
     save(); showToast("Enviado ao Google Agenda!"); renderTasks(); setTimeout(()=>fetchGcal(),1000);
-  }catch(e){ console.error(e); showToast("Erro ao enviar para o Google Agenda."); }
+  }catch(e){ console.error("sendToGcal erro:",e); showToast("❌ Erro Google Agenda: "+(e.result&&e.result.error&&e.result.error.message?e.result.error.message:e.message||String(e))); }
 }
 
 // ===== INIT =====
