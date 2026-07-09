@@ -1412,16 +1412,23 @@ function saveTask(){
       saveLembretes(); _fromLembreteId=null;
     }
 
+    // Captura estado do fGcal ANTES de navegar (goTo limpa o form)
+    var _sendGcal = !!(document.getElementById("fGcal") && document.getElementById("fGcal").checked);
+
     // Navega imediatamente para home
     goTo("home");
 
     // Sync em background depois
     setTimeout(function(){ pushToDriveNow(); },100);
 
-    // Google Calendar em background
-    var gcalCheck=document.getElementById("fGcal");
-    if(gcalCheck && gcalCheck.checked){
-      setTimeout(function(){ try{sendToGcal(task);}catch(e){} },200);
+    // Google Calendar em background (usando valor capturado antes do goTo)
+    if(_sendGcal){
+      setTimeout(function(){
+        sendToGcal(task).catch(function(e){
+          console.error("Erro sendToGcal:",e);
+          showToast("Erro ao enviar ao Google Agenda: "+e.message);
+        });
+      },300);
     }
 
   }catch(err){
