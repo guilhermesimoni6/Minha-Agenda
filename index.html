@@ -496,19 +496,7 @@ textarea{resize:vertical;min-height:64px;}
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>📅 Enviar para o Google Agenda</label>
-        <div class="nbox">
-          <div class="nrow">
-            <div>
-              <div style="font-size:.79rem;color:var(--text)">Sincronizar com o Google Agenda</div>
-              <div class="ndesc">Requer data preenchida e Google conectado.</div>
-            </div>
-            <div class="tog"><input type="checkbox" id="fGcal" onchange="toggleGHint()"/><label for="fGcal" style="margin:0">Enviar</label></div>
-          </div>
-          <div id="gHint" style="display:none" class="ghint">📅 Será enviado ao seu Google Agenda ao salvar.</div>
-        </div>
-      </div>
+
       <div class="form-group">
         <label>📎 Anexos (opcional)</label>
         <div id="attachPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>
@@ -1334,7 +1322,6 @@ function resetForm(){
   document.getElementById("submitBtn").textContent="Salvar compromisso";
   document.getElementById("addBackBtn").onclick=()=>goTo('home');
   document.getElementById("remOpts").style.display="none";
-  document.getElementById("gHint").style.display="none";
   document.getElementById("dlHint").textContent="";
   updatePermUI();
 }
@@ -1355,7 +1342,7 @@ function cancelForm(){
   else goTo('home');
 }
 function toggleRemOpts(){ var _r=document.getElementById("fReminder"),_o=document.getElementById("remOpts"); if(_o) _o.style.display=(_r&&_r.checked)?"block":"none"; updatePermUI(); }
-function toggleGHint(){ var _g=document.getElementById("fGcal"),_h=document.getElementById("gHint"); if(_h) _h.style.display=(_g&&_g.checked)?"block":"none"; }
+function toggleGHint(){}
 function updateDlHint(){
   const v=document.getElementById("fDate").value, h=document.getElementById("dlHint"), td=today();
   if(!v){ h.textContent=""; return; }
@@ -1414,8 +1401,8 @@ function saveTask(){
       saveLembretes(); _fromLembreteId=null;
     }
 
-    // Captura estado do fGcal ANTES de navegar (goTo limpa o form)
-    var _sendGcal = !!(document.getElementById("fGcal") && document.getElementById("fGcal").checked);
+    // Sempre envia ao Google Calendar se conectado
+    var _sendGcal = gOk;
 
     // Navega imediatamente para home
     goTo("home");
@@ -1462,8 +1449,7 @@ function editTask(id){
   document.getElementById("submitBtn").textContent="Atualizar";
   document.getElementById("addBackBtn").onclick=()=>goTo(_fromScreen||'list');
   document.getElementById("remOpts").style.display=t.reminder?"block":"none";
-  document.getElementById("gHint").style.display="none";
-  var _fGcal=document.getElementById("fGcal"); if(_fGcal) _fGcal.checked=false;
+
   // Detecta de onde veio para voltar ao lugar certo
   const sh=document.getElementById("screen-home");
   _fromScreen=sh&&sh.classList.contains("active")?"home":"list";
@@ -2379,37 +2365,70 @@ function forceRefresh(){
   if(btn) btn.classList.add("spinning");
   if(lbl) lbl.textContent="Atualizando...";
 
-  // Limpa todos os caches do Service Worker e recarrega
+  function done(msg){
+    if(btn) btn.classList.remove("spinning");
+    if(lbl) lbl.textContent="Atualizar";
+    if(msg) showToast(msg);
+  }
+
+  // Se Google conectado: sincroniza dados em tempo real sem recarregar
+  if(gOk && gapiOk){
+    syncFromDrive()
+      .then(function(){ return fetchGcal(); })
+      .then(function(){ done("✅ Sincronizado!"); })
+      .catch(function(e){ console.error(e); done("⚠️ Erro ao sincronizar."); });
+    return;
+  }
+
+  // Se não conectado: recarrega o app normalmente
   if("serviceWorker" in navigator && navigator.serviceWorker.controller){
     navigator.serviceWorker.getRegistrations().then(function(regs){
-      var dels=regs.map(function(r){ return r.unregister(); });
-      return Promise.all(dels);
+      return Promise.all(regs.map(function(r){ return r.unregister(); }));
     }).then(function(){
       if("caches" in window){
         return caches.keys().then(function(keys){
           return Promise.all(keys.map(function(k){ return caches.delete(k); }));
         });
       }
-    }).then(function(){
-      window.location.reload(true);
-    }).catch(function(){
-      window.location.reload(true);
-    });
+    }).then(function(){ window.location.reload(true); })
+    .catch(function(){ window.location.reload(true); });
   } else {
-    // Sem SW: força reload ignorando cache
-    if("caches" in window){
-      caches.keys().then(function(keys){
-        return Promise.all(keys.map(function(k){ return caches.delete(k); }));
-      }).then(function(){ window.location.reload(true); });
-    } else {
-      window.location.reload(true);
-    }
+    window.location.reload(true);
   }
 }
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(e=>console.warn("SW falhou:",e));
 }
 restoreSessionIfValid();
+
+// ===== SYNC PERIÓDICO EM BACKGROUND =====
+// Sincroniza com Google Calendar a cada 2 minutos enquanto o app está aberto
+var _syncInterval = null;
+function startPeriodicSync(){
+  if(_syncInterval) clearInterval(_syncInterval);
+  _syncInterval = setInterval(function(){
+    if(gOk && gapiOk){
+      fetchGcal().catch(function(e){ console.warn("Sync periódico falhou:",e); });
+    }
+  }, 2 * 60 * 1000); // 2 minutos
+}
+
+// Sincroniza imediatamente ao voltar para o app (ex: saiu e voltou no iPhone)
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "visible" && gOk && gapiOk){
+    setTimeout(function(){
+      fetchGcal().catch(function(e){ console.warn("Sync ao voltar falhou:",e); });
+    }, 800);
+  }
+});
+
+// Inicia sync periódico quando Google conectar
+var _origUpdateGUI = typeof updateGUI === "function" ? updateGUI : null;
+function updateGUI(connected){
+  if(_origUpdateGUI) _origUpdateGUI(connected);
+  if(connected) startPeriodicSync();
+  else { if(_syncInterval){ clearInterval(_syncInterval); _syncInterval=null; } }
+}
 </script>
 </body>
 </html>
