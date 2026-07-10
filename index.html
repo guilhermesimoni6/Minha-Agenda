@@ -1457,8 +1457,16 @@ function editTask(id){
 }
 function deleteTask(id){
   if(!confirm("Excluir este compromisso?")) return;
+  var task=tasks.find(function(t){return t.id===id;});
   saveDeletedId(id);
-  tasks=tasks.filter(t=>t.id!==id); save(); renderTasks(); updateStats(); renderCalendar(); showToast("Excluído.");
+  tasks=tasks.filter(function(t){return t.id!==id;});
+  save(); renderTasks(); updateStats(); renderCalendar(); renderCalDetail(); showToast("Excluído.");
+  // Remove do Google Calendar se tiver evento vinculado
+  if(task && task.gcalEventId){
+    deleteFromGcal(task.gcalEventId).then(function(){
+      setTimeout(function(){ fetchGcal(); },1500);
+    });
+  }
 }
 function toggleDone(id){
   tasks=tasks.map(t=>t.id===id?{...t,completed:!t.completed}:t);
@@ -2327,15 +2335,17 @@ async function waitGapiOk(maxMs){
 }
 
 async function sendToGcal(task){
-  if(!gOk||!gToken){ showToast("Conecte o Google Agenda primeiro."); return; }
-  if(!task.date){ showToast("Adicione uma data para enviar ao Google Agenda."); return; }
+  if(!gOk||!gToken){ return; } // silencioso se não conectado
+  if(!task.date){ return; } // sem data, sem envio
   try{
     const tm=task.time||"09:00";
     const st=new Date(task.date+"T"+tm+":00");
     const en=new Date(st.getTime()+3600000);
     const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
     const PM={high:"🔴 Alta",medium:"🟡 Média",low:"🟢 Baixa"};
-    const desc=[task.notes||"","---",
+    const desc=[
+      task.notes||"",
+      "---",
       "📂 "+task.area+(task.category?" › "+task.category:""),
       "⚡ "+(PM[task.priority]||"Média"),
       task.isDaily?"🔁 Compromisso diário":"",
@@ -2352,33 +2362,53 @@ async function sendToGcal(task){
     };
     if(task.isDaily) ev.recurrence=["RRULE:FREQ=DAILY"];
 
-    // Usa fetch direto — mais confiável no Safari/iOS do que gapi.client
-    const resp = await fetch(
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-      {
-        method:"POST",
-        headers:{
-          "Authorization":"Bearer "+gToken,
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(ev)
-      }
-    );
+    var url, method;
+    // Se já tem evento no Google: atualiza (PATCH). Senão: cria (POST)
+    if(task.gcalEventId){
+      url="https://www.googleapis.com/calendar/v3/calendars/primary/events/"+encodeURIComponent(task.gcalEventId);
+      method="PATCH";
+    } else {
+      url="https://www.googleapis.com/calendar/v3/calendars/primary/events";
+      method="POST";
+    }
+
+    const resp=await fetch(url,{
+      method:method,
+      headers:{"Authorization":"Bearer "+gToken,"Content-Type":"application/json"},
+      body:JSON.stringify(ev)
+    });
     if(!resp.ok){
       const err=await resp.json().catch(()=>({}));
       throw new Error((err.error&&err.error.message)||"HTTP "+resp.status);
     }
     const data=await resp.json();
+    // Salva o ID do evento criado/atualizado
     tasks=tasks.map(function(t){
       return t.id===task.id?Object.assign({},t,{gcalEventId:data.id,gcalLink:data.htmlLink}):t;
     });
     save();
-    showToast("✅ Enviado ao Google Agenda!");
-    renderTasks();
-    setTimeout(function(){ fetchGcal(); },1000);
+    showToast("✅ Sincronizado com Google Agenda!");
+    setTimeout(function(){ fetchGcal(); },1500);
   }catch(e){
     console.error("sendToGcal erro:",e);
     showToast("❌ Erro Google Agenda: "+(e.message||String(e)));
+  }
+}
+
+// Deleta evento no Google Calendar
+async function deleteFromGcal(gcalEventId){
+  if(!gOk||!gToken||!gcalEventId) return;
+  try{
+    const resp=await fetch(
+      "https://www.googleapis.com/calendar/v3/calendars/primary/events/"+encodeURIComponent(gcalEventId),
+      {method:"DELETE",headers:{"Authorization":"Bearer "+gToken}}
+    );
+    // 204 = sucesso, 404 = já não existe — ambos OK
+    if(!resp.ok && resp.status!==404){
+      console.warn("deleteFromGcal HTTP",resp.status);
+    }
+  }catch(e){
+    console.error("deleteFromGcal erro:",e);
   }
 }
 
