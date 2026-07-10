@@ -2010,11 +2010,50 @@ function setupTC(){
         gToken=r.access_token; gOk=true; updateGUI(true); initGapi();
         if(window.gapi&&gapi.client&&gapi.client.setToken) gapi.client.setToken({access_token:gToken});
         saveTokenCache(r.access_token,r.expires_in);
-        showToast("Google conectado! Sincronizando...");
-        syncFromDrive().then(()=>{ setTimeout(()=>fetchGcal(),1200); });
-      } else showToast("Falha ao conectar com o Google.");
+        // Se era renovação silenciosa, não mostra toast nem resync completo
+        if(!_silentRenew){
+          showToast("Google conectado! Sincronizando...");
+          syncFromDrive().then(()=>{ setTimeout(()=>fetchGcal(),1200); });
+        } else {
+          _silentRenew=false;
+          // Apenas retenta a operação que falhou
+          if(_pendingAfterRenew){ _pendingAfterRenew(); _pendingAfterRenew=null; }
+        }
+      } else { _silentRenew=false; _pendingAfterRenew=null; showToast("Falha ao conectar com o Google."); }
     }
   });
+}
+
+var _silentRenew=false, _pendingAfterRenew=null;
+
+// Renova token silenciosamente e executa callback após
+function renewTokenThen(cb){
+  if(_silentRenew) return; // já está renovando
+  _silentRenew=true;
+  _pendingAfterRenew=cb||null;
+  waitGoogle(()=>{
+    if(!gTC) setupTC();
+    gTC.requestAccessToken({prompt:""}); // sem prompt = silencioso
+  });
+}
+
+// Fetch com detecção de 401 e renovação automática
+async function gFetch(url, opts, retry){
+  var r=await fetch(url, opts);
+  if(r.status===401 && !retry){
+    // Token expirado — tenta renovar e repetir
+    return new Promise(function(resolve, reject){
+      renewTokenThen(async function(){
+        // Atualiza Authorization com novo token
+        var newOpts=Object.assign({},opts,{
+          headers:Object.assign({},opts.headers,{"Authorization":"Bearer "+gToken})
+        });
+        try{ resolve(await gFetch(url, newOpts, true)); }
+        catch(e){ reject(e); }
+      });
+    });
+  }
+  return r;
 }
 function handleGoogleLogin(){ if(gOk){ showToast("Google já está conectado!"); return; } waitGoogle(()=>{ if(!gTC) setupTC(); gTC.requestAccessToken({prompt:"consent"}); }); }
 function updateGUI(on){
@@ -2153,7 +2192,7 @@ async function fetchGcal(){
       singleEvents:"true",
       orderBy:"startTime"
     });
-    const resp=await fetch(
+    const resp=await gFetch(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events?"+params.toString(),
       { headers:{ "Authorization":"Bearer "+gToken } }
     );
@@ -2313,7 +2352,14 @@ async function pushToDrive(){
     const content=getAllData();
     if(id) await driveUpdateFile(id,content);
     else await driveCreateFile(content);
-  }catch(e){ console.error("Erro de sincronização (push):",e); showToast("⚠️ Não foi possível salvar na nuvem. Verifique sua conexão."); }
+  }catch(e){ 
+    console.error("Erro de sincronização (push):",e);
+    if(e.message&&e.message.includes("401")){
+      renewTokenThen(function(){ pushToDrive(); });
+    } else {
+      showToast("⚠️ Não foi possível salvar na nuvem. Verifique sua conexão.");
+    }
+  }
 }
 function flushDrivePush(){
   if(driveSyncTimer){ clearTimeout(driveSyncTimer); driveSyncTimer=null; pushToDrive(); }
@@ -2372,7 +2418,7 @@ async function sendToGcal(task){
       method="POST";
     }
 
-    const resp=await fetch(url,{
+    const resp=await gFetch(url,{
       method:method,
       headers:{"Authorization":"Bearer "+gToken,"Content-Type":"application/json"},
       body:JSON.stringify(ev)
