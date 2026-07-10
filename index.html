@@ -1032,7 +1032,13 @@ async function pushToDriveNow(){
   }catch(e){ 
     console.error("Erro push Drive:",e);
     showSyncIndicator(false);
-    scheduleDrivePush(); // tenta novamente via debounce se falhar
+    // Se 401, renova token e tenta novamente
+    if(e.message&&(e.message.includes("401")||e.message.includes("403"))){
+      driveFileId=null; // reseta cache do fileId
+      renewTokenThen(function(){ pushToDriveNow(); });
+    } else {
+      scheduleDrivePush();
+    }
   }
 }
 
@@ -1459,13 +1465,19 @@ function deleteTask(id){
   if(!confirm("Excluir este compromisso?")) return;
   var task=tasks.find(function(t){return t.id===id;});
   saveDeletedId(id);
+  // Também salva o gcalEventId nos deletedIds para evitar reimportação
+  if(task && task.gcalEventId) saveDeletedId(task.gcalEventId);
   tasks=tasks.filter(function(t){return t.id!==id;});
+  // Remove do mapa de importados
+  var imported=getImportedGcalIds();
+  if(task && task.gcalEventId && imported[task.gcalEventId]){
+    delete imported[task.gcalEventId];
+    saveImportedGcalIds(imported);
+  }
   save(); renderTasks(); updateStats(); renderCalendar(); renderCalDetail(); showToast("Excluído.");
   // Remove do Google Calendar se tiver evento vinculado
   if(task && task.gcalEventId){
-    deleteFromGcal(task.gcalEventId).then(function(){
-      setTimeout(function(){ fetchGcal(); },1500);
-    });
+    deleteFromGcal(task.gcalEventId);
   }
 }
 function toggleDone(id){
@@ -2094,8 +2106,10 @@ function syncGcalToTasks(events){
 
   events.forEach(function(ev){
     if(!ev.id || !ev.summary) return;
-    // Pular eventos que vieram DO app (para não duplicar)
+    // Pular eventos criados pelo app (evita duplicar)
     if(ev.description && ev.description.indexOf("Criado via Atividades Diárias") !== -1) return;
+    // Pular eventos que o usuário já deletou no app
+    if(deletedIds && deletedIds.indexOf(ev.id) !== -1) return;
 
     var start = ev.start && (ev.start.dateTime || ev.start.date);
     if(!start) return;
@@ -2260,7 +2274,7 @@ function renderGcal(){
 // ===== SINCRONIZAÇÃO GOOGLE DRIVE =====
 async function driveFindFileId(){
   if(driveFileId) return driveFileId;
-  const r=await fetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&orderBy=modifiedTime%20desc&q="+encodeURIComponent(`name='${DRIVE_FILE}'`),{headers:{Authorization:"Bearer "+gToken}});
+  const r=await gFetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&orderBy=modifiedTime%20desc&q="+encodeURIComponent(`name='${DRIVE_FILE}'`),{headers:{Authorization:"Bearer "+gToken}});
   if(!r.ok) throw new Error("drive list "+r.status);
   const d=await r.json();
   if(d.files&&d.files.length){
@@ -2276,16 +2290,16 @@ async function driveCreateFile(content){
   const meta={name:DRIVE_FILE,parents:["appDataFolder"]};
   const boundary="drvbnd"+Date.now();
   const body=`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n`+`--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n`+`--${boundary}--`;
-  const r=await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",{method:"POST",headers:{Authorization:"Bearer "+gToken,"Content-Type":`multipart/related; boundary=${boundary}`},body,keepalive:true});
+  const r=await gFetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",{method:"POST",headers:{Authorization:"Bearer "+gToken,"Content-Type":`multipart/related; boundary=${boundary}`},body,keepalive:true});
   if(!r.ok) throw new Error("drive create "+r.status);
   const d=await r.json(); driveFileId=d.id; return d.id;
 }
 async function driveUpdateFile(id,content){
-  const r=await fetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:"PATCH",headers:{Authorization:"Bearer "+gToken,"Content-Type":"application/json"},body:content,keepalive:true});
+  const r=await gFetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:"PATCH",headers:{Authorization:"Bearer "+gToken,"Content-Type":"application/json"},body:content,keepalive:true});
   if(!r.ok) throw new Error("drive update "+r.status);
 }
 async function driveReadFile(id){
-  const r=await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`,{headers:{Authorization:"Bearer "+gToken}});
+  const r=await gFetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`,{headers:{Authorization:"Bearer "+gToken}});
   if(!r.ok) return null;
   return await r.text();
 }
@@ -2445,7 +2459,7 @@ async function sendToGcal(task){
 async function deleteFromGcal(gcalEventId){
   if(!gOk||!gToken||!gcalEventId) return;
   try{
-    const resp=await fetch(
+    const resp=await gFetch(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events/"+encodeURIComponent(gcalEventId),
       {method:"DELETE",headers:{"Authorization":"Bearer "+gToken}}
     );
