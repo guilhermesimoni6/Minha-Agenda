@@ -2569,18 +2569,23 @@ var _syncInterval = null;
 function startPeriodicSync(){
   if(_syncInterval) clearInterval(_syncInterval);
   _syncInterval = setInterval(function(){
-    if(gOk && gapiOk){
-      fetchGcal().catch(function(e){ console.warn("Sync periódico falhou:",e); });
+    if(gOk && gToken){
+      // Drive primeiro (sync entre dispositivos), depois GCal
+      syncFromDrive()
+        .then(function(){ return fetchGcal(); })
+        .catch(function(e){ console.warn("Sync periódico falhou:",e); });
     }
-  }, 2 * 60 * 1000); // 2 minutos
+  }, 60 * 1000); // 1 minuto
 }
 
-// Sincroniza imediatamente ao voltar para o app (ex: saiu e voltou no iPhone)
+// Sincroniza ao voltar ao app (minimizou e abriu de novo no iPhone)
 document.addEventListener("visibilitychange", function(){
-  if(document.visibilityState === "visible" && gOk && gapiOk){
+  if(document.visibilityState === "visible" && gOk && gToken){
     setTimeout(function(){
-      fetchGcal().catch(function(e){ console.warn("Sync ao voltar falhou:",e); });
-    }, 800);
+      syncFromDrive()
+        .then(function(){ return fetchGcal(); })
+        .catch(function(e){ console.warn("Sync ao voltar falhou:",e); });
+    }, 500);
   }
 });
 
