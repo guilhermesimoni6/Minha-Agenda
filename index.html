@@ -1008,38 +1008,21 @@ function saveDeletedId(id){
 
 function save(){ 
   localStorage.setItem(SK,JSON.stringify(tasks)); 
-  if(gOk&&gToken) pushToDriveNow();
+  scheduleDrivePush();
 }
 function saveLembretes(){ 
   localStorage.setItem(LEM_SK,JSON.stringify(lembretes)); 
-  if(gOk&&gToken) pushToDriveNow();
+  scheduleDrivePush();
 }
 function saveMetas(){ 
   localStorage.setItem(META_SK,JSON.stringify(metas)); 
-  if(gOk&&gToken) pushToDriveNow();
+  scheduleDrivePush();
 }
 
-// Push imediato — sem debounce — para garantir envio antes do app fechar
+// Push imediato — delega ao doPush unificado
 async function pushToDriveNow(){
-  if(!gOk||!gToken||driveBusy) { scheduleDrivePush(); return; }
-  showSyncIndicator(true);
-  try{
-    const id=await driveFindFileId();
-    const content=getAllData();
-    if(id) await driveUpdateFile(id,content);
-    else await driveCreateFile(content);
-    showSyncIndicator(false);
-  }catch(e){ 
-    console.error("Erro push Drive imediato:",e);
-    showSyncIndicator(false);
-    var msg2=String(e.message||e||"");
-    if(msg2.match(/401|403|unauthorized|forbidden|invalid.credentials/i)){
-      driveFileId=null;
-      renewTokenThen(function(){ setTimeout(pushToDriveNow,1000); });
-    } else {
-      scheduleDrivePush();
-    }
-  }
+  if(!gOk||!gToken) return;
+  return doPush();
 }
 
 function showSyncIndicator(loading){
@@ -2330,100 +2313,108 @@ async function driveReadFile(id){
   return await r.text();
 }
 // Mescla dois arrays pelo ID: remoto tem prioridade, mas itens só locais são preservados
+// ===== MOTOR DE SINCRONIZAÇÃO UNIFICADO =====
+
 function mergeById(remote, local, allDeletedIds){
-  const deleted = new Set(allDeletedIds||[]);
-  const remoteIds = new Set((remote||[]).map(i=>i.id));
-  const localOnly = (local||[]).filter(i=>!remoteIds.has(i.id) && !deleted.has(i.id));
-  return [...(remote||[]).filter(i=>!deleted.has(i.id)), ...localOnly];
+  var deleted=new Set(allDeletedIds||[]);
+  var remoteIds=new Set((remote||[]).map(function(i){return i.id;}));
+  var localOnly=(local||[]).filter(function(i){return !remoteIds.has(i.id)&&!deleted.has(i.id);});
+  return [...(remote||[]).filter(function(i){return !deleted.has(i.id);}), ...localOnly];
 }
 
+function applyRemoteData(remote){
+  var localTasks=[...tasks];
+  var localLem=[...lembretes];
+  var localMetas=[...metas];
+  var remoteDel=(remote.deletedIds)||[];
+  var allDel=[...new Set([...deletedIds,...remoteDel])];
+  deletedIds=allDel;
+  localStorage.setItem(DEL_SK,JSON.stringify(deletedIds));
+  if(Array.isArray(remote)){
+    tasks=mergeById(remote,localTasks,allDel);
+    lembretes=localLem.filter(function(l){return !allDel.includes(l.id);});
+  } else {
+    tasks=mergeById(remote.tasks,localTasks,allDel);
+    lembretes=mergeById(remote.lembretes||[],localLem,allDel);
+    metas=mergeById(remote.metas||[],localMetas,allDel);
+  }
+  localStorage.setItem(SK,JSON.stringify(tasks));
+  localStorage.setItem(LEM_SK,JSON.stringify(lembretes));
+  localStorage.setItem(META_SK,JSON.stringify(metas));
+  renderTasks(); updateStats(); renderCalendar(); renderCalDetail();
+  var sc=document.getElementById("screen-lembretes");
+  if(sc&&sc.classList.contains("active")) renderLembretes();
+  var sm=document.getElementById("screen-metas");
+  if(sm&&sm.classList.contains("active")){ renderMetas(); renderDashboard(); }
+}
+
+// Push para o Drive — sempre silencioso, sem toast de erro
+var _pushTimer=null, _pushBusy=false;
+function scheduleDrivePush(){
+  if(!gOk||!gToken) return;
+  clearTimeout(_pushTimer);
+  _pushTimer=setTimeout(doPush,800);
+}
+async function pushToDrive(){ return doPush(); }
+async function doPush(){
+  if(!gOk||!gToken||_pushBusy) return;
+  _pushBusy=true;
+  showSyncIndicator(true);
+  try{
+    var id=await driveFindFileId();
+    var content=getAllData();
+    if(id) await driveUpdateFile(id,content);
+    else await driveCreateFile(content);
+    showSyncIndicator(false);
+  }catch(e){
+    showSyncIndicator(false);
+    var msg=String(e.message||e||"");
+    if(msg.match(/401|403|unauthorized|forbidden/i)){
+      driveFileId=null;
+      renewTokenThen(function(){ setTimeout(doPush,1500); });
+    } else {
+      // Tenta novamente silenciosamente em 10s
+      setTimeout(doPush, 10000);
+    }
+  }finally{ _pushBusy=false; }
+}
+
+// Pull do Drive + merge local
 async function syncFromDrive(){
   if(!gOk||!gToken) return;
-  if(driveBusy) return; // evita chamadas paralelas
+  if(driveBusy) return;
   driveBusy=true;
   try{
-    const id=await driveFindFileId();
+    var id=await driveFindFileId();
     if(id){
-      const txt=await driveReadFile(id);
+      var txt=await driveReadFile(id);
       if(txt){
-        const remote=JSON.parse(txt);
-        const localTasks=[...tasks];
-        const localLem=[...lembretes];
-        const localMetas=[...metas];
-        const remoteDel=(remote.deletedIds)||[];
-        const allDel=[...new Set([...deletedIds,...remoteDel])];
-        deletedIds=allDel;
-        localStorage.setItem(DEL_SK,JSON.stringify(deletedIds));
-        if(Array.isArray(remote)){
-          tasks=mergeById(remote, localTasks, allDel);
-          lembretes=localLem.filter(function(l){ return !allDel.includes(l.id); });
-        } else {
-          tasks=mergeById(remote.tasks, localTasks, allDel);
-          lembretes=mergeById(remote.lembretes, localLem, allDel);
-          metas=mergeById(remote.metas, localMetas, allDel);
-        }
-        localStorage.setItem(SK,JSON.stringify(tasks));
-        localStorage.setItem(LEM_SK,JSON.stringify(lembretes));
-        localStorage.setItem(META_SK,JSON.stringify(metas));
-        renderTasks(); updateStats();
-        renderCalendar(); renderCalDetail();
-        const sc=document.getElementById("screen-lembretes");
-        if(sc&&sc.classList.contains("active")) renderLembretes();
-        const sm=document.getElementById("screen-metas");
-        if(sm&&sm.classList.contains("active")){ renderMetas(); renderDashboard(); }
+        var remote=JSON.parse(txt);
+        applyRemoteData(remote);
       }
-      // Push silencioso em background — sem bloquear e sem mostrar erro ao usuário
-      setTimeout(function(){
-        if(gOk&&gToken&&!driveBusy) pushToDrive().catch(function(e){ console.warn("push pós-sync:",e); });
-      }, 2000);
+      // Push após merge para garantir que os dados locais também estão no Drive
+      setTimeout(doPush, 1000);
     } else {
-      // Arquivo não existe ainda — cria silenciosamente
-      driveCreateFile(getAllData()).catch(function(e){ console.warn("drive create:",e); });
+      // Primeira vez — cria o arquivo
+      await driveCreateFile(getAllData());
     }
   }catch(e){
-    console.error("Erro syncFromDrive:",e);
+    console.error("syncFromDrive erro:",e);
     var msg=String(e.message||e||"");
     if(msg.match(/401|403|unauthorized/i)){
       driveFileId=null;
-      renewTokenThen(function(){ syncFromDrive(); });
+      renewTokenThen(function(){ setTimeout(syncFromDrive,1500); });
     }
-    // Não mostra toast de erro — falha silenciosa para não atrapalhar UX
-  }
-  finally{ driveBusy=false; }
+  }finally{ driveBusy=false; }
 }
-function scheduleDrivePush(){
-  if(!gOk) return;
-  clearTimeout(driveSyncTimer);
-  driveSyncTimer=setTimeout(pushToDrive,800);
-}
-async function pushToDrive(){
-  if(!gOk||!gToken||driveBusy) return;
-  try{
-    driveFileId=null; // sempre re-busca o fileId para evitar cache inválido
-    const id=await driveFindFileId();
-    const content=getAllData();
-    if(id) await driveUpdateFile(id,content);
-    else await driveCreateFile(content);
-  }catch(e){ 
-    console.error("Erro de sincronização (push):",e);
-    var msg=String(e.message||e||"");
-    var isAuth=msg.match(/401|403|unauthorized|forbidden|invalid.credentials/i);
-    if(isAuth){
-      driveFileId=null;
-      renewTokenThen(function(){ setTimeout(pushToDrive,1000); });
-    } else if(msg.match(/failed to fetch|network|load/i)){
-      // Erro de rede — tenta novamente silenciosamente em 5s
-      setTimeout(pushToDrive, 5000);
-    } else {
-      showToast("⚠️ Não foi possível salvar na nuvem. Verifique sua conexão.");
-    }
-  }
-}
+
 function flushDrivePush(){
-  if(driveSyncTimer){ clearTimeout(driveSyncTimer); driveSyncTimer=null; pushToDrive(); }
+  clearTimeout(_pushTimer); _pushTimer=null; doPush();
 }
-document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") flushDrivePush(); });
-window.addEventListener("pagehide",flushDrivePush);
+document.addEventListener("visibilitychange",function(){
+  if(document.visibilityState==="hidden") flushDrivePush();
+});
+window.addEventListener("pagehide", flushDrivePush);
 
 // ===== ENVIAR PARA O GOOGLE AGENDA =====
 async function waitGapiOk(maxMs){
