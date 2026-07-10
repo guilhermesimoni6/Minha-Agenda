@@ -1008,15 +1008,15 @@ function saveDeletedId(id){
 
 function save(){ 
   localStorage.setItem(SK,JSON.stringify(tasks)); 
-  pushToDriveNow();
+  if(gOk&&gToken) pushToDriveNow();
 }
 function saveLembretes(){ 
   localStorage.setItem(LEM_SK,JSON.stringify(lembretes)); 
-  pushToDriveNow();
+  if(gOk&&gToken) pushToDriveNow();
 }
 function saveMetas(){ 
   localStorage.setItem(META_SK,JSON.stringify(metas)); 
-  pushToDriveNow();
+  if(gOk&&gToken) pushToDriveNow();
 }
 
 // Push imediato — sem debounce — para garantir envio antes do app fechar
@@ -1030,12 +1030,12 @@ async function pushToDriveNow(){
     else await driveCreateFile(content);
     showSyncIndicator(false);
   }catch(e){ 
-    console.error("Erro push Drive:",e);
+    console.error("Erro push Drive imediato:",e);
     showSyncIndicator(false);
-    // Se 401, renova token e tenta novamente
-    if(e.message&&(e.message.includes("401")||e.message.includes("403"))){
-      driveFileId=null; // reseta cache do fileId
-      renewTokenThen(function(){ pushToDriveNow(); });
+    var msg2=String(e.message||e||"");
+    if(msg2.match(/401|403|unauthorized|forbidden|invalid.credentials/i)){
+      driveFileId=null;
+      renewTokenThen(function(){ setTimeout(pushToDriveNow,1000); });
     } else {
       scheduleDrivePush();
     }
@@ -2313,6 +2313,7 @@ function mergeById(remote, local, allDeletedIds){
 
 async function syncFromDrive(){
   if(!gOk||!gToken) return;
+  if(driveBusy) return; // evita chamadas paralelas
   driveBusy=true;
   try{
     const id=await driveFindFileId();
@@ -2323,14 +2324,13 @@ async function syncFromDrive(){
         const localTasks=[...tasks];
         const localLem=[...lembretes];
         const localMetas=[...metas];
-        // Mescla lista de deletados dos dois dispositivos
         const remoteDel=(remote.deletedIds)||[];
         const allDel=[...new Set([...deletedIds,...remoteDel])];
         deletedIds=allDel;
         localStorage.setItem(DEL_SK,JSON.stringify(deletedIds));
         if(Array.isArray(remote)){
           tasks=mergeById(remote, localTasks, allDel);
-          lembretes=localLem.filter(l=>!allDel.includes(l.id));
+          lembretes=localLem.filter(function(l){ return !allDel.includes(l.id); });
         } else {
           tasks=mergeById(remote.tasks, localTasks, allDel);
           lembretes=mergeById(remote.lembretes, localLem, allDel);
@@ -2339,19 +2339,30 @@ async function syncFromDrive(){
         localStorage.setItem(SK,JSON.stringify(tasks));
         localStorage.setItem(LEM_SK,JSON.stringify(lembretes));
         localStorage.setItem(META_SK,JSON.stringify(metas));
-        await pushToDriveNow();
         renderTasks(); updateStats();
+        renderCalendar(); renderCalDetail();
         const sc=document.getElementById("screen-lembretes");
         if(sc&&sc.classList.contains("active")) renderLembretes();
         const sm=document.getElementById("screen-metas");
         if(sm&&sm.classList.contains("active")){ renderMetas(); renderDashboard(); }
       }
-      showToast("Dados sincronizados ☁️");
+      // Push silencioso em background — sem bloquear e sem mostrar erro ao usuário
+      setTimeout(function(){
+        if(gOk&&gToken&&!driveBusy) pushToDrive().catch(function(e){ console.warn("push pós-sync:",e); });
+      }, 2000);
     } else {
-      await driveCreateFile(getAllData());
-      showToast("Backup enviado para a nuvem ☁️");
+      // Arquivo não existe ainda — cria silenciosamente
+      driveCreateFile(getAllData()).catch(function(e){ console.warn("drive create:",e); });
     }
-  }catch(e){ console.error("Erro de sincronização (pull):",e); showToast("⚠️ Não foi possível sincronizar com a nuvem."); }
+  }catch(e){
+    console.error("Erro syncFromDrive:",e);
+    var msg=String(e.message||e||"");
+    if(msg.match(/401|403|unauthorized/i)){
+      driveFileId=null;
+      renewTokenThen(function(){ syncFromDrive(); });
+    }
+    // Não mostra toast de erro — falha silenciosa para não atrapalhar UX
+  }
   finally{ driveBusy=false; }
 }
 function scheduleDrivePush(){
@@ -2362,14 +2373,21 @@ function scheduleDrivePush(){
 async function pushToDrive(){
   if(!gOk||!gToken||driveBusy) return;
   try{
+    driveFileId=null; // sempre re-busca o fileId para evitar cache inválido
     const id=await driveFindFileId();
     const content=getAllData();
     if(id) await driveUpdateFile(id,content);
     else await driveCreateFile(content);
   }catch(e){ 
     console.error("Erro de sincronização (push):",e);
-    if(e.message&&e.message.includes("401")){
-      renewTokenThen(function(){ pushToDrive(); });
+    var msg=String(e.message||e||"");
+    var isAuth=msg.match(/401|403|unauthorized|forbidden|invalid.credentials/i);
+    if(isAuth){
+      driveFileId=null;
+      renewTokenThen(function(){ setTimeout(pushToDrive,1000); });
+    } else if(msg.match(/failed to fetch|network|load/i)){
+      // Erro de rede — tenta novamente silenciosamente em 5s
+      setTimeout(pushToDrive, 5000);
     } else {
       showToast("⚠️ Não foi possível salvar na nuvem. Verifique sua conexão.");
     }
