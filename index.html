@@ -2019,10 +2019,12 @@ function updateGUI(on){
     if(lbl) lbl.textContent="Conectado";
     if(nav){ nav.style.borderColor="rgba(34,197,94,.4)"; nav.style.color="#22c55e"; nav.title="Google conectado — clique para sincronizar"; nav.onclick=()=>syncFromDrive(); }
     if(syb) syb.style.display="inline-block";
+    startPeriodicSync();
   } else {
     if(dot){ dot.style.background="#eab308"; }
-    if(lbl) lbl.textContent="Conectar Google";
+    if(lbl) lbl.textContent="Desconectado";
     if(nav){ nav.style.borderColor="rgba(234,179,8,.4)"; nav.style.color="#eab308"; nav.title="Clique para conectar o Google"; nav.onclick=handleGoogleLogin; }
+    if(_syncInterval){ clearInterval(_syncInterval); _syncInterval=null; }
     if(syb) syb.style.display="none";
   }
 }
@@ -2422,13 +2424,6 @@ document.addEventListener("visibilitychange", function(){
   }
 });
 
-// Inicia sync periódico quando Google conectar
-var _origUpdateGUI = typeof updateGUI === "function" ? updateGUI : null;
-function updateGUI(connected){
-  if(_origUpdateGUI) _origUpdateGUI(connected);
-  if(connected) startPeriodicSync();
-  else { if(_syncInterval){ clearInterval(_syncInterval); _syncInterval=null; } }
-}
 </script>
 </body>
 </html>
