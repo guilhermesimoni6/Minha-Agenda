@@ -2102,10 +2102,36 @@ function saveImportedGcalIds(map){
 function syncGcalToTasks(events){
   var imported = getImportedGcalIds();
   var changed = false;
-  var now = new Date();
 
+  // 1. Primeiro: processar eventos CANCELADOS — remover do app
+  events.forEach(function(ev){
+    if(!ev.id) return;
+    if(ev.status !== "cancelled") return;
+
+    // Evento cancelado no Google — remove task vinculada independente de fromGcal
+    var taskId = imported[ev.id];
+    if(taskId){
+      var idx = tasks.findIndex(function(t){ return t.id === taskId; });
+      if(idx !== -1){
+        saveDeletedId(tasks[idx].id);
+        tasks.splice(idx, 1);
+        changed = true;
+      }
+      delete imported[ev.id];
+    }
+    // Também remove tasks criadas no app que tenham esse gcalEventId
+    var idxByGcal = tasks.findIndex(function(t){ return t.gcalEventId === ev.id; });
+    if(idxByGcal !== -1){
+      saveDeletedId(tasks[idxByGcal].id);
+      tasks.splice(idxByGcal, 1);
+      changed = true;
+    }
+  });
+
+  // 2. Segundo: processar eventos ATIVOS
   events.forEach(function(ev){
     if(!ev.id || !ev.summary) return;
+    if(ev.status === "cancelled") return; // já tratado acima
     // Pular eventos criados pelo app (evita duplicar)
     if(ev.description && ev.description.indexOf("Criado via Atividades Diárias") !== -1) return;
     // Pular eventos que o usuário já deletou no app
@@ -2120,18 +2146,13 @@ function syncGcalToTasks(events){
       ? startDate.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
       : "00:00";
 
-    // Se já foi importado antes, atualiza
+    // Se já foi importado antes, atualiza campos se mudaram
     if(imported[ev.id]){
       var existingIdx = tasks.findIndex(function(t){ return t.id === imported[ev.id]; });
       if(existingIdx !== -1){
-        // Atualiza título, data e hora caso tenham mudado
         var t = tasks[existingIdx];
         if(t.title !== ev.summary || t.date !== dateStr || t.time !== timeStr){
-          tasks[existingIdx] = Object.assign({}, t, {
-            title: ev.summary,
-            date: dateStr,
-            time: timeStr
-          });
+          tasks[existingIdx] = Object.assign({}, t, {title:ev.summary, date:dateStr, time:timeStr});
           changed = true;
         }
         return;
@@ -2157,21 +2178,22 @@ function syncGcalToTasks(events){
       createdAt: new Date().toISOString(),
       gcalEventId: ev.id,
       gcalLink: ev.htmlLink || null,
-      fromGcal: true  // marcador de origem
+      fromGcal: true
     };
     tasks.push(newTask);
     imported[ev.id] = newTask.id;
     changed = true;
   });
 
-  // Remover tasks importadas cujo evento foi deletado do Google Calendar
+  // 3. Terceiro: remover tasks cujo evento sumiu completamente da lista
   var activeGcalIds = {};
-  events.forEach(function(ev){ if(ev.id) activeGcalIds[ev.id] = true; });
+  events.forEach(function(ev){ if(ev.id && ev.status !== "cancelled") activeGcalIds[ev.id] = true; });
   Object.keys(imported).forEach(function(gcalId){
     if(!activeGcalIds[gcalId]){
       var taskId = imported[gcalId];
       var idx = tasks.findIndex(function(t){ return t.id === taskId; });
       if(idx !== -1 && tasks[idx].fromGcal){
+        saveDeletedId(tasks[idx].id);
         tasks.splice(idx, 1);
         changed = true;
       }
@@ -2181,10 +2203,13 @@ function syncGcalToTasks(events){
 
   if(changed){
     saveImportedGcalIds(imported);
-    save();
+    localStorage.setItem(SK, JSON.stringify(tasks));
     updateStats();
     renderCalendar();
     renderCalDetail();
+    renderTasks();
+    // Push silencioso para Drive
+    setTimeout(function(){ if(gOk&&gToken) pushToDrive().catch(function(){}); }, 1500);
   }
 
   return changed;
@@ -2204,7 +2229,8 @@ async function fetchGcal(){
       timeMax:fim.toISOString(),
       maxResults:"200",
       singleEvents:"true",
-      orderBy:"startTime"
+      orderBy:"startTime",
+      showDeleted:"true"  // inclui eventos cancelados para detectar exclusões
     });
     const resp=await gFetch(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events?"+params.toString(),
