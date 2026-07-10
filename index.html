@@ -2130,29 +2130,37 @@ function syncGcalToTasks(events){
 }
 
 async function fetchGcal(){
-  if(!gOk){ showToast("Conecte o Google Agenda primeiro."); return; }
-  if(!gapiOk){ showToast("Aguarde, inicializando..."); setTimeout(fetchGcal,1200); return; }
+  if(!gOk||!gToken){ showToast("Conecte o Google Agenda primeiro."); return; }
   const el=document.getElementById("evList"), rb=document.getElementById("refBtn");
   if(el) el.innerHTML=`<div class="gcal-loading"><span class="spin"></span>Carregando eventos...</div>`;
   if(rb) rb.classList.add("loading");
   try{
-    // Busca 3 meses passados + 3 meses futuros para sincronização completa
     const past=new Date(); past.setMonth(past.getMonth()-3);
     const fim=new Date(); fim.setMonth(fim.getMonth()+3);
-    const r=await gapi.client.calendar.events.list({
+    const params=new URLSearchParams({
       calendarId:"primary",
       timeMin:past.toISOString(),
       timeMax:fim.toISOString(),
-      maxResults:200,
-      singleEvents:true,
+      maxResults:"200",
+      singleEvents:"true",
       orderBy:"startTime"
     });
-    gcEvs=r.result.items||[];
-    // Sincronizar eventos para o calendário do app
-    var importCount = syncGcalToTasks(gcEvs);
-    showToast(gcEvs.length+" eventos sincronizados!");
+    const resp=await fetch(
+      "https://www.googleapis.com/calendar/v3/calendars/primary/events?"+params.toString(),
+      { headers:{ "Authorization":"Bearer "+gToken } }
+    );
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error((err.error&&err.error.message)||"HTTP "+resp.status);
+    }
+    const data=await resp.json();
+    gcEvs=data.items||[];
+    syncGcalToTasks(gcEvs);
     if(el) renderGcal();
-  }catch(e){ console.error(e); if(el) el.innerHTML=`<div class="ev-empty">⚠️ Erro ao carregar. Tente reconectar.</div>`; }
+  }catch(e){
+    console.error("fetchGcal erro:",e);
+    if(el) el.innerHTML=`<div class="ev-empty">⚠️ Erro ao carregar: ${e.message}</div>`;
+  }
   finally{ if(rb) rb.classList.remove("loading"); }
 }
 function setGcf(f){ gcF=f; document.querySelectorAll(".gcf").forEach(c=>c.classList.toggle("active",c.dataset.gf===f)); renderGcal(); }
@@ -2319,32 +2327,59 @@ async function waitGapiOk(maxMs){
 }
 
 async function sendToGcal(task){
-  if(!gOk){ showToast("Conecte o Google Agenda primeiro."); return; }
+  if(!gOk||!gToken){ showToast("Conecte o Google Agenda primeiro."); return; }
   if(!task.date){ showToast("Adicione uma data para enviar ao Google Agenda."); return; }
   try{
-    // Aguarda GAPI inicializar (pode demorar alguns segundos)
-    if(!gapiOk){
-      showToast("Inicializando Google...");
-      await waitGapiOk(8000);
-    }
     const tm=task.time||"09:00";
     const st=new Date(task.date+"T"+tm+":00");
     const en=new Date(st.getTime()+3600000);
     const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
     const PM={high:"🔴 Alta",medium:"🟡 Média",low:"🟢 Baixa"};
-    const desc=[task.notes||"","---",`📂 ${task.area}${task.category?" › "+task.category:""}`,`⚡ ${PM[task.priority]||"Média"}`,task.isDaily?"🔁 Compromisso diário":"","Criado via Atividades Diárias"].filter(Boolean).join("\n");
+    const desc=[task.notes||"","---",
+      "📂 "+task.area+(task.category?" › "+task.category:""),
+      "⚡ "+(PM[task.priority]||"Média"),
+      task.isDaily?"🔁 Compromisso diário":"",
+      "Criado via Atividades Diárias"
+    ].filter(Boolean).join("\n");
     const ev={
-      summary:task.title, description:desc,
+      summary:task.title,
+      description:desc,
       start:{dateTime:st.toISOString(),timeZone:tz},
       end:{dateTime:en.toISOString(),timeZone:tz},
-      colorId:task.area==="Trabalho"?"1":"3",
-      reminders:task.reminder?{useDefault:false,overrides:[{method:"popup",minutes:parseInt(task.remBefore)||15}]}:{useDefault:true}
+      reminders:task.reminder
+        ?{useDefault:false,overrides:[{method:"popup",minutes:parseInt(task.remBefore)||15}]}
+        :{useDefault:true}
     };
     if(task.isDaily) ev.recurrence=["RRULE:FREQ=DAILY"];
-    const resp=await gapi.client.calendar.events.insert({calendarId:"primary",resource:ev});
-    tasks=tasks.map(t=>t.id===task.id?{...t,gcalEventId:resp.result.id,gcalLink:resp.result.htmlLink}:t);
-    save(); showToast("Enviado ao Google Agenda!"); renderTasks(); setTimeout(()=>fetchGcal(),1000);
-  }catch(e){ console.error("sendToGcal erro:",e); showToast("❌ Erro Google Agenda: "+(e.result&&e.result.error&&e.result.error.message?e.result.error.message:e.message||String(e))); }
+
+    // Usa fetch direto — mais confiável no Safari/iOS do que gapi.client
+    const resp = await fetch(
+      "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+      {
+        method:"POST",
+        headers:{
+          "Authorization":"Bearer "+gToken,
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(ev)
+      }
+    );
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error((err.error&&err.error.message)||"HTTP "+resp.status);
+    }
+    const data=await resp.json();
+    tasks=tasks.map(function(t){
+      return t.id===task.id?Object.assign({},t,{gcalEventId:data.id,gcalLink:data.htmlLink}):t;
+    });
+    save();
+    showToast("✅ Enviado ao Google Agenda!");
+    renderTasks();
+    setTimeout(function(){ fetchGcal(); },1000);
+  }catch(e){
+    console.error("sendToGcal erro:",e);
+    showToast("❌ Erro Google Agenda: "+(e.message||String(e)));
+  }
 }
 
 // ===== INIT =====
