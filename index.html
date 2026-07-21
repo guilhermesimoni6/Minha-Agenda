@@ -1368,7 +1368,7 @@ function saveTask(){
       remBefore:document.getElementById("fRemBefore")?document.getElementById("fRemBefore").value:"15",
       color:document.getElementById("fColor")?document.getElementById("fColor").value:"#f97316",
       attachments:taskAttachments.slice(),
-      completed:false, createdAt:new Date().toISOString(),
+      completed:false, createdAt:new Date().toISOString(), updatedAt:Date.now(),
       gcalEventId:null, gcalLink:null
     };
 
@@ -1464,7 +1464,7 @@ function deleteTask(id){
   }
 }
 function toggleDone(id){
-  tasks=tasks.map(t=>t.id===id?{...t,completed:!t.completed}:t);
+  tasks=tasks.map(t=>t.id===id?{...t,completed:!t.completed,updatedAt:Date.now()}:t);
   // Atualiza UI imediatamente
   const sh=document.getElementById("screen-home");
   if(sh&&sh.classList.contains("active")) renderCalDetail();
@@ -1712,14 +1712,14 @@ function deleteLembrete(id){
   saveLembretes(); renderLembretes(); updateStats(); showToast("Excluído.");
 }
 function toggleLemCheck(id){
-  lembretes=lembretes.map(function(l){ return l.id===id?Object.assign({},l,{checked:!l.checked}):l; });
+  lembretes=lembretes.map(function(l){ return l.id===id?Object.assign({},l,{checked:!l.checked,updatedAt:Date.now()}):l; });
   saveLembretes(); renderLembretes(); updateStats();
 }
 function toggleLemCardCheck(lemId, itemId){
   lembretes=lembretes.map(l=>{
     if(l.id!==lemId) return l;
     const checklist=(l.checklist||[]).map(i=>i.id===itemId?{...i,checked:!i.checked}:i);
-    return {...l,checklist};
+    return {...l,checklist,updatedAt:Date.now()};
   });
   saveLembretes(); renderLembretes();
 }
@@ -1801,7 +1801,7 @@ async function confirmarAgendamento(){
     notes:l.notes||"", priority:"medium",
     date:data, time:hora,
     isDaily:false, reminder:false, remBefore:"15",
-    completed:false, createdAt:new Date().toISOString(),
+    completed:false, createdAt:new Date().toISOString(), updatedAt:Date.now(),
     gcalEventId:null, gcalLink:null
   };
   tasks.unshift(task);
@@ -1860,7 +1860,7 @@ function logMeta(id, done, value){
     const logs={...m.logs};
     if(done||value>0) logs[td]={done:done||value>0, value:value||0};
     else delete logs[td];
-    return {...m,logs};
+    return {...m,logs,updatedAt:Date.now()};
   });
   saveMetas(); renderMetas(); renderDashboard();
 }
@@ -2159,6 +2159,7 @@ function syncGcalToTasks(events){
       attachments: [],
       completed: false,
       createdAt: new Date().toISOString(),
+      updatedAt: Date.now(),
       gcalEventId: ev.id,
       gcalLink: ev.htmlLink || null,
       fromGcal: true
@@ -2317,9 +2318,27 @@ async function driveReadFile(id){
 
 function mergeById(remote, local, allDeletedIds){
   var deleted=new Set(allDeletedIds||[]);
-  var remoteIds=new Set((remote||[]).map(function(i){return i.id;}));
-  var localOnly=(local||[]).filter(function(i){return !remoteIds.has(i.id)&&!deleted.has(i.id);});
-  return [...(remote||[]).filter(function(i){return !deleted.has(i.id);}), ...localOnly];
+  var localMap={};
+  (local||[]).forEach(function(i){ localMap[i.id]=i; });
+  var result=[];
+  var seen={};
+  // Para cada item remoto: escolhe a versão mais recente (local vs remoto)
+  (remote||[]).forEach(function(r){
+    if(deleted.has(r.id)) return;
+    var l=localMap[r.id];
+    if(l){
+      var lt=l.updatedAt||0, rt=r.updatedAt||0;
+      result.push(lt>rt?l:r);
+    } else {
+      result.push(r);
+    }
+    seen[r.id]=true;
+  });
+  // Itens que só existem localmente
+  (local||[]).forEach(function(l){
+    if(!seen[l.id] && !deleted.has(l.id)) result.push(l);
+  });
+  return result;
 }
 
 function applyRemoteData(remote){
