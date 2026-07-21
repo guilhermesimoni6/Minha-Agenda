@@ -1,4 +1,4 @@
-const CACHE_NAME = "atividades-shell-v98";
+const CACHE_NAME = "atividades-shell-v99";
 const SHELL_FILES = ["./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(SHELL_FILES))); self.skipWaiting(); });
 self.addEventListener("activate", (e) => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))); self.clients.claim(); });
