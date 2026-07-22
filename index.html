@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Atividades"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link rel="icon" href="icon-192.png"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://*.gstatic.com; connect-src https://*.googleapis.com https://accounts.google.com https://*.gstatic.com; img-src 'self' data: blob: https://*.gstatic.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com; font-src 'self' https://*.gstatic.com; frame-src https://accounts.google.com; worker-src 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://*.gstatic.com; connect-src 'self' data: blob: https://*.googleapis.com https://accounts.google.com https://*.gstatic.com; img-src 'self' data: blob: https://*.gstatic.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com; font-src 'self' https://*.gstatic.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
 <style>
@@ -300,10 +300,28 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .sidebar.collapsed .sb-toggle-btn svg{transform:rotate(180deg);}
 
 /* deslocar conteúdo quando sidebar colapsada */
-body.sb-collapsed .screen{padding-left:60px;}
-body.sb-collapsed nav.topnav{padding-left:84px;}
+body.sb-collapsed .screen{padding-left:60px !important;}
+body.sb-collapsed nav.topnav{padding-left:84px !important;}
 
-/* ===== CALENDÁRIO: limitar tamanho máximo ===== */
+/* ===== NOTIFICAÇÕES ===== */
+.notif-banner{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:14px 18px;
+  box-shadow:var(--sh-3);z-index:500;
+  display:flex;align-items:center;gap:12px;
+  max-width:340px;width:calc(100% - 32px);
+  animation:slideIn .25s var(--ease-out);
+}
+.notif-banner-icon{font-size:1.4rem;flex-shrink:0;}
+.notif-banner-text{flex:1;font-size:.82rem;color:var(--text);line-height:1.4;}
+.notif-banner-text strong{display:block;font-weight:700;margin-bottom:2px;}
+.notif-banner-actions{display:flex;gap:6px;margin-top:8px;}
+.notif-banner-btn{padding:5px 12px;border-radius:999px;font-size:.74rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+.notif-banner-btn.primary{background:var(--orange);color:#fff;}
+.notif-banner-btn.secondary{background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);}
+#notifBtn.active{color:var(--orange);}
+#notifBtn.blocked{opacity:.4;}
 
 /* ===== MOBILE (iPhone) ===== */
 @media(max-width:767px){
@@ -331,9 +349,8 @@ body.sb-collapsed nav.topnav{padding-left:84px;}
   /* Navbar brand menor */
   .nav-brand{ font-size:.85rem; }
 
-  /* Chips/filtros menores */
-  .chip{ padding:5px 12px; font-size:.72rem; }
-  .filter-group{ gap:5px; }
+  .filter-group{ gap:5px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+  .filter-group::-webkit-scrollbar{ display:none; }
   .ftitle{ font-size:.6rem; }
 
   /* Títulos de tela menores */
@@ -541,11 +558,12 @@ select{cursor:pointer;appearance:none;
 @media(max-width:500px){.form-row{grid-template-columns:1fr;}}
 .chip-group{display:flex;flex-wrap:wrap;gap:7px;}
 .chip{
-  padding:var(--sp-2) var(--sp-4);border-radius:var(--r-full);
+  padding:6px 14px;border-radius:var(--r-full);
   background:var(--bg-input);border:1px solid var(--border);
-  font-size:var(--fs-sm);color:var(--text-muted);cursor:pointer;
+  font-size:.78rem;color:var(--text-muted);cursor:pointer;
   font-weight:var(--fw-semi);letter-spacing:var(--ls-tight);
   transition:all var(--dur-base) var(--ease);
+  white-space:nowrap;flex-shrink:0;
 }
 .chip:hover{border-color:var(--border-hover);color:var(--text);background:var(--bg-card2);}
 .chip:active{transform:scale(.95);}
@@ -1156,11 +1174,11 @@ input[type=checkbox]{
 
   /* Todas as telas: offset pelo tamanho da sidebar */
   .screen{
-    width:100%;
-    box-sizing:border-box;
-    max-width:none;
-    margin:0;
-    padding-left:236px;
+    width:100% !important;
+    box-sizing:border-box !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding-left:236px !important;
   }
 
   /* Limitar largura interna do conteúdo */
@@ -1514,12 +1532,13 @@ input[type=checkbox]{
       <span id="refreshLabel">Atualizar</span>
     </button>
     <button class="theme-toggle" onclick="toggleThemePopup(event)" title="Personalizar tema" aria-label="Personalizar tema"><span id="themeIcon">☀️</span></button>
+    <button class="theme-toggle" id="notifBtn" onclick="toggleNotifications()" title="Notificações" aria-label="Ativar notificações" style="display:none">🔔</button>
   </div>
 </nav>
 
 <!-- HOME = CALENDÁRIO -->
 <!-- ===== DASHBOARD ===== -->
-<div class="screen active" id="screen-dashboard" role="main">
+<div class="screen active" id="screen-dashboard" role="main" aria-label="Dashboard">
   <div class="dash-wrap">
     <div class="dash-head">
       <h2 id="dashGreet">Dashboard</h2>
@@ -1529,7 +1548,7 @@ input[type=checkbox]{
   </div>
 </div>
 
-<div class="screen" id="screen-home" role="main">
+<div class="screen" id="screen-home" role="region" aria-label="Calendário">
   <div class="page-wrap">
   <div class="cal-topbar">
     <div class="cal-title"><div class="cal-logo"><span style="font-size:15px">📅</span></div>Calendário</div>
@@ -1561,7 +1580,7 @@ input[type=checkbox]{
   </div>
   </div>
 </div>
-<div class="screen" id="screen-compromissos" role="main">
+<div class="screen" id="screen-compromissos" role="region" aria-label="Compromissos">
   <div class="screen-title-bar">
     <h2>💼 Compromissos</h2>
     <p>Escolha a categoria que deseja ver.</p>
@@ -1591,8 +1610,8 @@ input[type=checkbox]{
 </div>
 
 <!-- NOVA / EDITAR COMPROMISSO -->
-<div class="screen" id="screen-add" role="main">
-  <button class="back-btn" id="addBackBtn" onclick="goTo('home')">Voltar</button>
+<div class="screen" id="screen-add" role="region" aria-label="Novo compromisso">
+
   <div class="screen-header" style="text-align:center;padding:8px calc(env(safe-area-inset-right) + 24px) 16px calc(env(safe-area-inset-left) + 24px)">
     <h2 id="fmTitle" style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em">Novo compromisso</h2>
     <p id="fmSub" style="color:var(--text-faint);font-size:.84rem;margin-top:4px">Preencha os detalhes.</p>
@@ -1712,9 +1731,9 @@ input[type=checkbox]{
 </div>
 
 <!-- COMPROMISSOS (lista) -->
-<div class="screen" id="screen-list" role="main">
+<div class="screen" id="screen-list" role="region" aria-label="Lista de compromissos">
   <div class="page-wrap">
-  <button class="back-btn" onclick="goTo('home')">Voltar</button>
+
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="flex:1">
       <h2 id="listTitle" style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">Compromissos</h2>
@@ -1742,15 +1761,15 @@ input[type=checkbox]{
 </div>
 
 <!-- LEMBRETES -->
-<div class="screen" id="screen-lembretes" role="main">
+<div class="screen" id="screen-lembretes" role="region" aria-label="Lembretes">
   <div class="page-wrap">
-  <button class="back-btn" onclick="goTo('home')">Voltar</button>
+
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="flex:1">
       <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">📝 Lembretes</h2>
       <p style="color:var(--text-faint);font-size:.8rem">Anotações sem data — quando tiver data, vira compromisso.</p>
     </div>
-    <button class="btn-primary" onclick="openLemForm()" id="lemAddBtn" style="background:linear-gradient(to right,#d97706,#f59e0b);white-space:nowrap">+ Adicionar</button>
+    <button class="btn-primary" onclick="openLemForm()" id="lemAddBtn" style="background:linear-gradient(to right,#d97706,#f59e0b);white-space:nowrap;font-size:.78rem;padding:7px 14px">+ Adicionar</button>
   </div>
 
   <div id="lemFormWrap" style="display:none;margin-bottom:18px">
@@ -1834,15 +1853,15 @@ input[type=checkbox]{
 </div>
 
 <!-- METAS DIÁRIAS -->
-<div class="screen" id="screen-metas" role="main">
+<div class="screen" id="screen-metas" role="region" aria-label="Metas diárias">
   <div class="page-wrap">
-  <button class="back-btn" onclick="goTo('home')">Voltar</button>
+
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="flex:1">
       <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">🎯 Metas Diárias</h2>
       <p style="color:var(--text-faint);font-size:.8rem">Hábitos que você quer cultivar todo dia.</p>
     </div>
-    <button class="btn-primary" onclick="openMetaForm()" id="metaAddBtn">+ Nova meta</button>
+    <button class="btn-primary" onclick="openMetaForm()" id="metaAddBtn" style="font-size:.78rem;padding:7px 14px">+ Nova meta</button>
   </div>
 
   <!-- Formulário oculto -->
@@ -1896,9 +1915,9 @@ input[type=checkbox]{
 </div>
 
 <!-- GOOGLE AGENDA -->
-<div class="screen" id="screen-agenda" role="main">
+<div class="screen" id="screen-agenda" role="region" aria-label="Google Agenda">
   <div class="page-wrap">
-  <button class="back-btn" onclick="goTo('home')">Voltar</button>
+
   <div class="screen-title-bar" style="text-align:left;padding:0 0 14px">
     <h2>🗓️ Google Agenda</h2>
     <p>Seus compromissos sincronizados do Google Agenda.</p>
@@ -2104,7 +2123,7 @@ function renderAttachPreview(){
     </div>`;
   }).join("");
 }
-function downloadAttachment(taskId, fileName){
+async function downloadAttachment(taskId, fileName){
   // Busca o task e o anexo pelo nome do arquivo
   const task = tasks.find(t => t.id === taskId);
   if(!task || !task.attachments) return;
@@ -2634,6 +2653,7 @@ function saveTask(){
 
     localStorage.setItem(SK,JSON.stringify(tasks));
     updateStats();
+    try{ scheduleAllNotifications(); }catch(e){}  // re-agenda notificações
 
     if(_fromLembreteId){
       lembretes=lembretes.filter(function(l){return l.id!==_fromLembreteId;});
@@ -2710,6 +2730,7 @@ function deleteTask(id){
     saveImportedGcalIds(imported);
   }
   save(); renderTasks(); updateStats(); renderCalendar(); renderCalDetail(); showToast("Excluído.");
+  try{ scheduleAllNotifications(); }catch(e){}
   // Remove do Google Calendar se tiver evento vinculado
   if(task && task.gcalEventId){
     deleteFromGcal(task.gcalEventId);
@@ -3796,7 +3817,191 @@ async function deleteFromGcal(gcalEventId){
   }
 }
 
-// ===== INIT =====
+// ===== SISTEMA DE NOTIFICAÇÕES =====
+
+var _notifPermission = "default";
+var _notifTimers = {};
+var NOTIF_KEY = "atividadesNotifEnabled";
+
+function initNotifications(){
+  var btn = document.getElementById("notifBtn");
+  if(!("Notification" in window)){ return; } // browser não suporta
+  btn.style.display = "block";
+  _notifPermission = Notification.permission;
+  updateNotifBtn();
+
+  // Mostra banner de convite se ainda não decidiu
+  if(Notification.permission === "default"){
+    var shown = localStorage.getItem("notifBannerShown");
+    if(!shown) setTimeout(showNotifBanner, 3000);
+  }
+  // Se já tem permissão e está habilitado, agenda tudo
+  if(Notification.permission === "granted" && localStorage.getItem(NOTIF_KEY) === "1"){
+    scheduleAllNotifications();
+  }
+}
+
+function updateNotifBtn(){
+  var btn = document.getElementById("notifBtn");
+  if(!btn) return;
+  var enabled = localStorage.getItem(NOTIF_KEY) === "1";
+  if(Notification.permission === "denied"){
+    btn.textContent = "🔕"; btn.title = "Notificações bloqueadas no browser";
+    btn.classList.add("blocked"); btn.classList.remove("active");
+  } else if(Notification.permission === "granted" && enabled){
+    btn.textContent = "🔔"; btn.title = "Notificações ativas — clique para desativar";
+    btn.classList.add("active"); btn.classList.remove("blocked");
+  } else {
+    btn.textContent = "🔔"; btn.title = "Ativar notificações";
+    btn.classList.remove("active","blocked");
+  }
+}
+
+function showNotifBanner(){
+  if(document.getElementById("notifBanner")) return;
+  var d = document.createElement("div");
+  d.id = "notifBanner";
+  d.className = "notif-banner";
+  d.innerHTML = '<div class="notif-banner-icon">🔔</div>'
+    + '<div class="notif-banner-text">'
+    + '<strong>Ativar notificações?</strong>'
+    + 'Receba avisos antes dos seus compromissos.'
+    + '<div class="notif-banner-actions">'
+    + '<button class="notif-banner-btn primary" onclick="requestNotifPermission()">Ativar</button>'
+    + '<button class="notif-banner-btn secondary" onclick="dismissNotifBanner()">Agora não</button>'
+    + '</div></div>';
+  document.body.appendChild(d);
+  localStorage.setItem("notifBannerShown","1");
+}
+
+function dismissNotifBanner(){
+  var b = document.getElementById("notifBanner");
+  if(b) b.remove();
+}
+
+function toggleNotifications(){
+  if(Notification.permission === "denied"){
+    showToast("🔕 Notificações bloqueadas. Habilite nas configurações do browser."); return;
+  }
+  if(Notification.permission === "default"){
+    requestNotifPermission(); return;
+  }
+  // Já tem permissão — toggle on/off
+  var enabled = localStorage.getItem(NOTIF_KEY) === "1";
+  if(enabled){
+    localStorage.setItem(NOTIF_KEY,"0");
+    cancelAllNotifications();
+    showToast("🔕 Notificações desativadas.");
+  } else {
+    localStorage.setItem(NOTIF_KEY,"1");
+    scheduleAllNotifications();
+    showToast("🔔 Notificações ativadas!");
+  }
+  updateNotifBtn();
+}
+
+function requestNotifPermission(){
+  dismissNotifBanner();
+  Notification.requestPermission().then(function(p){
+    _notifPermission = p;
+    if(p === "granted"){
+      localStorage.setItem(NOTIF_KEY,"1");
+      scheduleAllNotifications();
+      showToast("🔔 Notificações ativadas!");
+      // Dispara uma notificação de teste
+      setTimeout(function(){
+        new Notification("Minha Agenda 🎉", {
+          body:"Notificações ativadas com sucesso!",
+          icon:"./icon-192.png",
+          badge:"./icon-192.png"
+        });
+      }, 500);
+    } else if(p === "denied"){
+      showToast("🔕 Permissão negada. Habilite nas configurações do browser.");
+    }
+    updateNotifBtn();
+  });
+}
+
+function scheduleAllNotifications(){
+  if(Notification.permission !== "granted") return;
+  if(localStorage.getItem(NOTIF_KEY) !== "1") return;
+
+  // Cancela todos os timers existentes
+  cancelAllNotifications();
+
+  var now = Date.now();
+  var scheduled = 0;
+
+  tasks.forEach(function(t){
+    if(t.completed || !t.date || !t.time) return;
+
+    // Monta o Date do compromisso
+    var dt = new Date(t.date + "T" + t.time + ":00");
+    var ms = dt.getTime();
+    if(isNaN(ms)) return;
+
+    var remBefore = parseInt(t.remBefore) || 15;
+
+    // Notificação de aviso (X min antes)
+    var warnMs = ms - (remBefore * 60 * 1000);
+    if(warnMs > now + 5000){
+      var delay = warnMs - now;
+      _notifTimers["warn_"+t.id] = setTimeout(function(){
+        fireNotification(
+          "⏰ Em " + remBefore + " min: " + t.title,
+          t.area + (t.category ? " · " + t.category : "") + " — " + t.time,
+          t.id
+        );
+      }, delay);
+      scheduled++;
+    }
+
+    // Notificação no horário exato
+    if(ms > now + 5000){
+      var delay2 = ms - now;
+      _notifTimers["exact_"+t.id] = setTimeout(function(){
+        fireNotification(
+          "📅 Agora: " + t.title,
+          t.area + (t.category ? " · " + t.category : ""),
+          t.id
+        );
+      }, delay2);
+      scheduled++;
+    }
+  });
+
+  if(scheduled > 0) console.log("[Notif] " + scheduled + " notificações agendadas.");
+}
+
+function fireNotification(title, body, taskId){
+  if(Notification.permission !== "granted") return;
+  if(localStorage.getItem(NOTIF_KEY) !== "1") return;
+  try{
+    var n = new Notification(title, {
+      body: body,
+      icon: "./icon-192.png",
+      badge: "./icon-192.png",
+      tag: "task_" + taskId,
+      renotify: true
+    });
+    n.onclick = function(){ window.focus(); goTo("home"); n.close(); };
+  } catch(e){ console.warn("[Notif] Erro:", e); }
+}
+
+function cancelAllNotifications(){
+  Object.keys(_notifTimers).forEach(function(k){
+    clearTimeout(_notifTimers[k]);
+    delete _notifTimers[k];
+  });
+}
+
+// Re-agenda sempre que salvar/deletar tarefa
+var _origSave = typeof save === "function" ? save : null;
+
+// ===== FIM NOTIFICAÇÕES =====
+
+
 load(); loadLembretes(); loadMetas(); loadDeletedIds();
 curAccent = (function(){ try{ return localStorage.getItem(AK)||"#3b82f6"; }catch(e){ return "#3b82f6"; } })();
 applyTheme(localStorage.getItem(TK)||"dark");
@@ -3810,8 +4015,7 @@ try{ updateLemCats(); }catch(e){ console.error(e); }
 try{ initIconPicker(); }catch(e){ console.error(e); }
 try{ updateStats(); }catch(e){ console.error(e); }
 try{ updatePermUI(); }catch(e){ console.error(e); }
-
-// ===== ATUALIZAÇÃO FORÇADA =====
+try{ initNotifications(); }catch(e){ console.error("Erro notif:",e); }
 function forceRefresh(){
   var btn=document.getElementById("refreshBtn");
   var lbl=document.getElementById("refreshLabel");
