@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Atividades"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link rel="icon" href="icon-192.png"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://*.gstatic.com; connect-src https://*.googleapis.com https://accounts.google.com https://*.gstatic.com; img-src 'self' data: blob: https://*.gstatic.com https://*.googleusercontent.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com; font-src 'self' https://*.gstatic.com; frame-src https://accounts.google.com; worker-src 'self';">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js" async defer></script>
 <style>
@@ -116,7 +117,7 @@
   --scrim:rgba(15,15,40,0.35);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{-webkit-text-size-adjust:100%;}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden;}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;
   background:var(--bg);color:var(--text);min-height:100vh;
@@ -126,6 +127,7 @@ body{
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   font-feature-settings:"cv02","cv03","cv04","cv11","ss01";
   letter-spacing:var(--ls-tight);
+  overflow-x:hidden;
 }
 button,a,[onclick]{touch-action:manipulation;font-family:inherit;}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
@@ -176,8 +178,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .cal-nav-btn:active{transform:scale(.92);}
 .cal-month{color:var(--text);font-size:1rem;font-weight:800;text-transform:capitalize;}
 .cal-grid-wrap{padding:0 calc(env(safe-area-inset-left) + 16px);}
-.cal-topbar{}
-.cal-nav{}
 .cal-detail{padding:18px calc(env(safe-area-inset-left) + 20px) 8px;}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
 .cal-weekdays div{text-align:center;color:var(--text-faint);font-size:.66rem;font-weight:800;padding:4px 0;}
@@ -227,19 +227,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .ce-sub{color:var(--text-faint);font-size:var(--fs-xs);margin-top:2px;font-weight:var(--fw-medium);}
 .cal-legend{
   position:fixed;bottom:0;left:0;right:0;
-  display:flex;justify-content:center;align-items:center;
-  padding:var(--sp-3) var(--sp-4) calc(var(--sp-3) + env(safe-area-inset-bottom));
+  display:flex;justify-content:space-between;align-items:center;
+  padding:var(--sp-2) calc(env(safe-area-inset-right) + var(--sp-3)) calc(var(--sp-2) + env(safe-area-inset-bottom)) calc(env(safe-area-inset-left) + var(--sp-3));
   background:var(--nav-bg);border-top:1px solid var(--border);
   backdrop-filter:saturate(180%) blur(24px);-webkit-backdrop-filter:saturate(180%) blur(24px);
-  z-index:200;gap:var(--sp-1);
+  z-index:200;gap:2px;
 }
 .nav-pill{
-  display:flex;align-items:center;gap:var(--sp-1);
-  padding:var(--sp-2) var(--sp-3);border-radius:var(--r-full);
-  cursor:pointer;flex-shrink:0;border:1px solid transparent;
+  display:flex;align-items:center;gap:4px;
+  padding:6px 8px;border-radius:var(--r-full);
+  cursor:pointer;flex-shrink:1;border:1px solid transparent;
   transition:all var(--dur-base) var(--ease);
+  min-width:0;
 }
-.nav-pill span{color:var(--text-muted);font-size:var(--fs-xs);font-weight:var(--fw-semi);white-space:nowrap;letter-spacing:var(--ls-tight);}
+.nav-pill span{color:var(--text-muted);font-size:.68rem;font-weight:var(--fw-semi);white-space:nowrap;letter-spacing:var(--ls-tight);overflow:hidden;text-overflow:ellipsis;}
 .nav-pill-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:transform var(--dur-base) var(--ease-spring);}
 .nav-pill.active span{font-weight:var(--fw-bold);}
 .nav-pill.active .nav-pill-dot{transform:scale(1.3);}
@@ -273,7 +274,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   width:60px !important;
   min-width:60px !important;
   padding:20px 0 !important;
-  overflow:hidden !important;
+  overflow:visible !important;
   align-items:stretch !important;
 }
 .sidebar.collapsed .sb-brand-label,
@@ -291,21 +292,64 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   width:60px;
 }
 .sidebar.collapsed .sb-item{
-  justify-content:center !important;
-  padding:10px 0 !important;
-  gap:0 !important;
-  width:60px !important;
+  justify-content:center;
+  padding:10px 0;
+  gap:0;
+  width:60px;
 }
 .sidebar.collapsed .sb-toggle-btn svg{transform:rotate(180deg);}
 
 /* deslocar conteúdo quando sidebar colapsada */
-body.sb-collapsed .screen{padding-left:60px !important;}
-body.sb-collapsed nav.topnav{padding-left:84px !important;}
+body.sb-collapsed .screen{padding-left:60px;}
+body.sb-collapsed nav.topnav{padding-left:84px;}
 
 /* ===== CALENDÁRIO: limitar tamanho máximo ===== */
 
-/* ===== TELAS MOBILE: largura máxima para bom enquadramento no iPhone ===== */
+/* ===== MOBILE (iPhone) ===== */
 @media(max-width:767px){
+
+  /* Navbar mobile: esconde textos, mantém ícones */
+  #gNavLabel{ display:none; }
+  #gNavStatus{ padding:5px 8px; }
+  #refreshLabel{ display:none; }
+  .refresh-btn{ padding:0 10px; }
+
+  /* Dashboard: padding lateral seguro, 1 coluna */
+  .dash-wrap{ padding:16px 16px 100px; }
+  .dash-grid{ grid-template-columns:1fr; gap:12px; }
+  .wcard{ width:100%; box-sizing:border-box; min-width:0; }
+
+  /* Screen geral: sem scroll horizontal */
+  .screen{ overflow-x:hidden; }
+
+  /* page-wrap mobile */
+  .page-wrap{ padding:12px 16px 100px; }
+
+  /* Bottom nav */
+  .cal-legend{ padding-bottom:calc(env(safe-area-inset-bottom) + 8px); }
+
+  /* Navbar brand menor */
+  .nav-brand{ font-size:.85rem; }
+
+  /* Chips/filtros menores */
+  .chip{ padding:5px 12px; font-size:.72rem; }
+  .filter-group{ gap:5px; }
+  .ftitle{ font-size:.6rem; }
+
+  /* Títulos de tela menores */
+  .page-wrap h2{ font-size:1.1rem; }
+  .page-wrap p{ font-size:.75rem; }
+
+  /* Input de busca menor */
+  #searchInput{ font-size:.79rem; padding:8px 12px; }
+
+  /* Botão voltar menor */
+  .back-btn{ font-size:.78rem; padding:8px 20px; }
+
+  /* List toolbar em coluna */
+  .list-toolbar{ flex-direction:column; gap:8px; }
+
+  /* Elementos com largura máxima */
   .screen-inner,.form-card,.tasks-list,.list-toolbar,
   .checkin-card,.meta-dash,.ag-header,.gcf-row,
   .ev-list,.ev-empty,.ag-off,.back-btn,.screen-title-bar,
@@ -314,24 +358,22 @@ body.sb-collapsed nav.topnav{padding-left:84px !important;}
     max-width:100%;
     box-sizing:border-box;
   }
-  .screen-title-bar{
-    padding-left:16px !important;
-    padding-right:16px !important;
-  }
 }
 
 /* NAV TOPO */
 nav.topnav{display:flex;align-items:center;justify-content:space-between;
   padding-top:calc(env(safe-area-inset-top) + var(--sp-3));
   padding-bottom:var(--sp-3);
-  padding-left:calc(env(safe-area-inset-left) + var(--sp-5));
-  padding-right:calc(env(safe-area-inset-right) + var(--sp-4));
+  padding-left:calc(env(safe-area-inset-left) + var(--sp-4));
+  padding-right:calc(env(safe-area-inset-right) + var(--sp-3));
   background:var(--nav-bg);
   backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
   position:sticky;top:0;z-index:100;
   border-bottom:1px solid var(--border);
+  gap:8px;
+  overflow:hidden;
 }
-.nav-brand{font-size:var(--fs-lg);font-weight:var(--fw-black);display:flex;align-items:center;gap:var(--sp-2);cursor:pointer;letter-spacing:var(--ls-tighter);transition:opacity var(--dur-fast) var(--ease);}
+.nav-brand{font-size:var(--fs-base);font-weight:var(--fw-black);display:flex;align-items:center;gap:var(--sp-2);cursor:pointer;letter-spacing:var(--ls-tighter);transition:opacity var(--dur-fast) var(--ease);white-space:nowrap;flex-shrink:0;}
 .nav-brand:active{opacity:.6;}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 12px var(--orange),0 0 28px var(--orange-glow);animation:pulse 2.4s var(--ease) infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
@@ -407,13 +449,16 @@ nav.topnav{display:flex;align-items:center;justify-content:space-between;
 .google-btn.connected{border-color:#22c55e;color:#22c55e;}
 
 /* SCREENS */
-.screen{display:none;padding:0 0 20px;margin:0 auto;position:relative;z-index:1;}
+.screen{display:none;padding:0 0 20px;margin:0 auto;position:relative;z-index:1;overflow-x:hidden;}
 .screen.active{display:block;}
 .screen-inner{padding:20px calc(env(safe-area-inset-right) + 18px) 20px calc(env(safe-area-inset-left) + 30px);}
 
 /* Margem lateral safe area em elementos específicos */
 .back-btn{margin:16px calc(env(safe-area-inset-right) + 18px) 4px calc(env(safe-area-inset-left) + 30px);}
-.screen-title-bar{padding:16px calc(env(safe-area-inset-right) + 22px) 14px calc(env(safe-area-inset-left) + 22px);text-align:center;}
+/* Título de tela: padding com safe-area, centralizado por padrão */
+.screen-title-bar{padding:16px calc(env(safe-area-inset-right) + 16px) 14px calc(env(safe-area-inset-left) + 16px);text-align:left;}
+/* Dentro do page-wrap: sem padding lateral (o wrapper já cuida) */
+.page-wrap .screen-title-bar{padding:0 0 14px;text-align:left;}
 .form-card{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
 .list-toolbar{margin:0 calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px);}
 .tasks-list{padding:0 calc(env(safe-area-inset-right) + 22px) 0 calc(env(safe-area-inset-left) + 22px);}
@@ -437,85 +482,20 @@ nav.topnav{display:flex;align-items:center;justify-content:space-between;
 .page-wrap .ev-list{padding:0;}
 .page-wrap .ev-empty{margin:0 0 12px;}
 .page-wrap .ag-off{margin:0;}
-.page-wrap .screen-title-bar{padding:0 0 14px;text-align:left;}
-.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:24px calc(env(safe-area-inset-right) + 16px) 8px calc(env(safe-area-inset-left) + 28px);}
-.stats-float{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 calc(env(safe-area-inset-right) + 16px);margin-top:-22px;position:relative;z-index:10;}
-
-/* HOME HERO */
-.home-hero{
-  background:linear-gradient(140deg,var(--orange) 0%,var(--orange2) 55%,#fdba74 100%);
-  padding:var(--sp-8) var(--sp-6) var(--sp-12);
-  position:relative;overflow:hidden;border-radius:0 0 var(--r-2xl) var(--r-2xl);
-  box-shadow:0 12px 40px var(--orange-glow);
-}
-.home-hero::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.1);top:-60px;right:-40px;}
-.home-hero::after{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.07);bottom:-30px;left:20px;}
-.hero-date{font-size:var(--fs-xs);color:rgba(255,255,255,0.78);font-weight:var(--fw-bold);text-transform:uppercase;letter-spacing:var(--ls-wide);margin-bottom:var(--sp-2);position:relative;z-index:1;}
-.home-hero h1{font-size:var(--fs-3xl);font-weight:var(--fw-black);color:#fff;letter-spacing:var(--ls-tighter);line-height:1.05;margin-bottom:var(--sp-2);position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.12);}
-.home-hero p{font-size:var(--fs-base);color:rgba(255,255,255,0.86);font-weight:var(--fw-medium);position:relative;z-index:1;}
-
-/* STATS FLUTUANTES */
-.stat-card{
-  background:var(--bg-card-solid);border-radius:var(--r-lg);
-  padding:var(--sp-3) var(--sp-2);text-align:center;
-  box-shadow:var(--sh-2);border:1px solid var(--border);
-  cursor:pointer;
-  transition:transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease);
-}
-.stat-card:hover{transform:translateY(-3px);box-shadow:var(--sh-3);border-color:var(--border-hover);}
-.stat-card:active{transform:translateY(-1px) scale(.97);}
-.stat-card strong{display:block;font-size:var(--fs-xl);font-weight:var(--fw-black);letter-spacing:var(--ls-tighter);line-height:1;font-variant-numeric:tabular-nums;}
-.stat-card span{font-size:var(--fs-xs);color:var(--text-faint);text-transform:uppercase;letter-spacing:var(--ls-wide);font-weight:var(--fw-bold);margin-top:var(--sp-1);display:block;}
-.stat-card:nth-child(1) strong{color:var(--orange);}
-.stat-card:nth-child(2) strong{color:#a855f7;}
-.stat-card:nth-child(3) strong{color:#f59e0b;}
-.stat-card:nth-child(4) strong{color:#22c55e;}
-.stat-card:nth-child(5) strong{color:#ef4444;}
-
-/* HOME CARDS */
-.home-card{
-  background:linear-gradient(135deg,var(--orange),var(--orange2));
-  border-radius:var(--r-2xl);padding:var(--sp-5) var(--sp-4);
-  cursor:pointer;position:relative;overflow:hidden;border:none;text-align:center;
-  box-shadow:var(--sh-2);
-  transition:transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease);
-  animation:cardIn var(--dur-slow) var(--ease-out) backwards;
-}
-.home-card:active{transform:scale(.97);}
-@keyframes cardIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-.home-card:nth-child(1){animation-delay:.02s;}
-.home-card:nth-child(2){animation-delay:.06s;}
-.home-card:nth-child(3){animation-delay:.1s;}
-.home-card:nth-child(4){animation-delay:.14s;}
-.home-card:nth-child(5){animation-delay:.18s;}
-.home-card:nth-child(6){animation-delay:.22s;}
-.home-card::before{content:'';position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.12);top:-25px;right:-25px;transition:all .3s;}
-.home-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px var(--orange-glow);}
-.home-card:hover::before{transform:scale(1.3);}
-.home-card:nth-child(1){background:linear-gradient(135deg,var(--orange),var(--orange2));}
-.home-card:nth-child(2){background:linear-gradient(135deg,#7c3aed,#a855f7);}
-.home-card:nth-child(3){background:linear-gradient(135deg,#d97706,#f59e0b);}
-.home-card:nth-child(4){background:linear-gradient(135deg,#dc2626,#ef4444);}
-.home-card:nth-child(5){background:linear-gradient(135deg,#15803d,#22c55e);}
-.home-card:nth-child(6){background:linear-gradient(135deg,#1d4ed8,#3b82f6);}
-.card-icon-wrap{font-size:1.8rem;margin-bottom:14px;display:block;}
-.home-card h3{font-size:var(--fs-lg);font-weight:var(--fw-bold);color:#fff;margin-bottom:var(--sp-1);letter-spacing:var(--ls-tight);line-height:var(--lh-tight);}
-.home-card p{font-size:var(--fs-sm);color:rgba(255,255,255,0.8);line-height:var(--lh-snug);font-weight:var(--fw-medium);}
-.card-arrow{display:none;}
 
 /* BACK BTN */
 .back-btn{
   display:inline-flex;align-items:center;gap:var(--sp-2);
-  background:linear-gradient(135deg,#7c3aed,#6d28d9);
+  background:linear-gradient(135deg,var(--orange),var(--orange2));
   border:none;
   border-radius:var(--r-xl);color:#fff;
   font-size:var(--fs-sm);cursor:pointer;
   padding:10px 28px;
   font-weight:var(--fw-bold);
-  box-shadow:0 4px 14px rgba(124,58,237,0.4);
+  box-shadow:0 4px 14px var(--orange-glow);
   transition:all var(--dur-base) var(--ease);
 }
-.back-btn:hover{background:linear-gradient(135deg,#6d28d9,#5b21b6);transform:translateX(-2px);box-shadow:0 6px 18px rgba(124,58,237,0.5);}
+.back-btn:hover{filter:brightness(1.1);transform:translateX(-2px);}
 .back-btn:active{transform:scale(.96);}
 
 /* SCREEN HEADERS */
@@ -1055,7 +1035,6 @@ input[type=checkbox]{
 /* Melhorias em telas largas (tablet) */
 @media(min-width:768px) and (max-width:1023px){
   .screen{max-width:none;}
-  .home-cards{grid-template-columns:repeat(3,1fr);}
   .cal-grid-wrap{padding:0 var(--sp-6);}
 }
 
@@ -1177,63 +1156,53 @@ input[type=checkbox]{
 
   /* Todas as telas: offset pelo tamanho da sidebar */
   .screen{
-    width:100% !important;
-    box-sizing:border-box !important;
-    max-width:none !important;
-    margin:0 !important;
-    padding-left:236px !important;
+    width:100%;
+    box-sizing:border-box;
+    max-width:none;
+    margin:0;
+    padding-left:236px;
   }
 
   /* Limitar largura interna do conteúdo */
   .screen-inner,.form-card,.tasks-list,.list-toolbar,
   .ag-header,.gcf-row,
   .ev-list,.ev-empty,.ag-off,.back-btn,.screen-title-bar,
-  .cal-empty,.dash-wrap,.wrap,
-  .home-cards,.stats-float{
+  .cal-empty,.wrap{
     max-width:1160px;
-    margin-left:auto !important;
-    margin-right:auto !important;
+    margin-left:auto;
+    margin-right:auto;
   }
 
-  /* page-wrap tem seu próprio max-width (900px base, 560px no calendário) */
+  /* page-wrap tem seu próprio max-width */
   .page-wrap{
-    margin-left:auto !important;
-    margin-right:auto !important;
+    margin-left:auto;
+    margin-right:auto;
   }
 
-  /* Elementos com padding lateral que duplica com page-wrap — apenas os que usam padding como margem externa */
+  /* Elementos com padding lateral que duplica com page-wrap */
   .tasks-list,
   .ev-list,.ev-empty,.ag-off{
-    padding-left:0 !important;
-    padding-right:0 !important;
+    padding-left:0;
+    padding-right:0;
   }
   .form-card,.list-toolbar,.ag-header,.gcf-row{
-    padding-left:0 !important;
-    padding-right:0 !important;
+    padding-left:0;
+    padding-right:0;
   }
   .back-btn{
-    margin-left:0 !important;
+    margin-left:0;
   }
-  .screen-title-bar{
-    padding-left:0 !important;
-    padding-right:0 !important;
-  }
-  /* Calendário — dentro do page-wrap, herda max-width e margin:auto do wrapper */
+  /* Calendário — dentro do page-wrap */
   .cal-topbar,.cal-nav,.cal-grid-wrap,.cal-detail,.cal-empty{
-    padding-left:0 !important;
-    padding-right:0 !important;
-  }
-  .home-cards,.stats-float{
-    padding-left:16px !important;
-    padding-right:16px !important;
+    padding-left:0;
+    padding-right:0;
   }
 
   /* Dashboard: 4 colunas no desktop */
-  .dash-grid{grid-template-columns:repeat(4,1fr) !important;}
-  .home-cards{grid-template-columns:repeat(3,1fr) !important;}
+  .dash-grid{grid-template-columns:repeat(4,1fr);}
 
   /* Botão de busca visível */
-  .searchbar-btn{display:flex !important;}
+  .searchbar-btn{display:flex;}
 }
 
 /* ===== BUSCA GLOBAL (Ctrl+K) ===== */
@@ -1291,8 +1260,18 @@ input[type=checkbox]{
 @media(min-width:1024px){.searchbar-btn{display:flex;}}
 
 /* ===== DASHBOARD ===== */
-.dash-wrap{padding:var(--sp-5) var(--sp-5) var(--sp-8);}
-@media(min-width:1024px){.dash-wrap{padding:var(--sp-6) var(--sp-6) var(--sp-10);}}
+.dash-wrap{
+  padding:var(--sp-5) var(--sp-4) var(--sp-8);
+  width:100%;
+  max-width:560px;
+  margin-left:auto;
+  margin-right:auto;
+  box-sizing:border-box;
+  overflow-x:hidden;
+}
+@media(min-width:1024px){
+  .dash-wrap{padding:var(--sp-6) var(--sp-6) var(--sp-10);max-width:1160px;}
+}
 
 /* Wrapper padrão para todas as telas (mesmo enquadramento do dashboard) */
 .page-wrap{
@@ -1306,9 +1285,6 @@ input[type=checkbox]{
 /* Calendário mais estreito para melhor visual */
 #screen-home .page-wrap{
   max-width:560px;
-}
-@media(max-width:767px){
-  .page-wrap{padding:var(--sp-3) var(--sp-4) var(--sp-8);}
 }
 @media(min-width:1024px){
   .page-wrap{padding:var(--sp-5) var(--sp-6) var(--sp-10);}
@@ -1330,6 +1306,7 @@ input[type=checkbox]{
   transition:transform var(--dur-base) var(--ease-out),box-shadow var(--dur-base) var(--ease);
   animation:slideIn var(--dur-slow) var(--ease-out) backwards;
   display:flex;flex-direction:column;min-height:0;
+  box-sizing:border-box;width:100%;
 }
 .wcard:hover{transform:translateY(-2px);box-shadow:var(--sh-3);}
 .wcard.span2{grid-column:span 1;}
@@ -1492,12 +1469,12 @@ input[type=checkbox]{
 <body>
 
 <!-- SIDEBAR DESKTOP -->
-<aside class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu lateral">
   <div class="sb-brand" onclick="goTo('dashboard')">
     <div class="sb-logo">📋</div>
     <span class="sb-brand-label">Minha Agenda</span>
   </div>
-  <button class="sb-toggle-btn" id="sbToggleBtn" onclick="toggleSidebar()" title="Ocultar menu">
+  <button class="sb-toggle-btn" id="sbToggleBtn" onclick="toggleSidebar()" title="Ocultar menu" aria-label="Ocultar menu lateral">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
   </button>
   <nav class="sb-nav">
@@ -1520,9 +1497,9 @@ input[type=checkbox]{
   </div>
 </aside>
 
-<nav class="topnav">
+<nav class="topnav" role="banner" aria-label="Barra de navegação principal">
   <div class="nav-brand" onclick="goTo('home')"><div class="dot"></div>Atividades Diárias</div>
-  <button class="searchbar-btn" onclick="openSearch()" title="Buscar (Ctrl+K)">
+  <button class="searchbar-btn" onclick="openSearch()" title="Buscar (Ctrl+K)" aria-label="Abrir busca">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     <span style="flex:1;text-align:left">Buscar...</span>
     <span class="gs-kbd">⌘K</span>
@@ -1532,17 +1509,17 @@ input[type=checkbox]{
       <span id="gNavDot" style="width:7px;height:7px;border-radius:50%;background:#eab308;flex-shrink:0"></span>
       <span id="gNavLabel">Desconectado</span>
     </div>
-    <button class="refresh-btn" id="refreshBtn" onclick="forceRefresh()" title="Atualizar dados">
+    <button class="refresh-btn" id="refreshBtn" onclick="forceRefresh()" title="Atualizar dados" aria-label="Atualizar dados">
       <svg id="refreshIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       <span id="refreshLabel">Atualizar</span>
     </button>
-    <button class="theme-toggle" onclick="toggleThemePopup(event)" title="Personalizar tema"><span id="themeIcon">☀️</span></button>
+    <button class="theme-toggle" onclick="toggleThemePopup(event)" title="Personalizar tema" aria-label="Personalizar tema"><span id="themeIcon">☀️</span></button>
   </div>
 </nav>
 
 <!-- HOME = CALENDÁRIO -->
 <!-- ===== DASHBOARD ===== -->
-<div class="screen active" id="screen-dashboard">
+<div class="screen active" id="screen-dashboard" role="main">
   <div class="dash-wrap">
     <div class="dash-head">
       <h2 id="dashGreet">Dashboard</h2>
@@ -1552,7 +1529,7 @@ input[type=checkbox]{
   </div>
 </div>
 
-<div class="screen" id="screen-home">
+<div class="screen" id="screen-home" role="main">
   <div class="page-wrap">
   <div class="cal-topbar">
     <div class="cal-title"><div class="cal-logo"><span style="font-size:15px">📅</span></div>Calendário</div>
@@ -1562,9 +1539,9 @@ input[type=checkbox]{
     </div>
   </div>
   <div class="cal-nav">
-    <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+    <button class="cal-nav-btn" onclick="calPrev()" aria-label="Mês anterior">‹</button>
     <span class="cal-month" id="calMonthLabel">—</span>
-    <button class="cal-nav-btn" onclick="calNext()">›</button>
+    <button class="cal-nav-btn" onclick="calNext()" aria-label="Próximo mês">›</button>
   </div>
   <div class="cal-grid-wrap">
     <div class="cal-weekdays">
@@ -1584,7 +1561,7 @@ input[type=checkbox]{
   </div>
   </div>
 </div>
-<div class="screen" id="screen-compromissos">
+<div class="screen" id="screen-compromissos" role="main">
   <div class="screen-title-bar">
     <h2>💼 Compromissos</h2>
     <p>Escolha a categoria que deseja ver.</p>
@@ -1614,7 +1591,7 @@ input[type=checkbox]{
 </div>
 
 <!-- NOVA / EDITAR COMPROMISSO -->
-<div class="screen" id="screen-add">
+<div class="screen" id="screen-add" role="main">
   <button class="back-btn" id="addBackBtn" onclick="goTo('home')">Voltar</button>
   <div class="screen-header" style="text-align:center;padding:8px calc(env(safe-area-inset-right) + 24px) 16px calc(env(safe-area-inset-left) + 24px)">
     <h2 id="fmTitle" style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em">Novo compromisso</h2>
@@ -1624,7 +1601,7 @@ input[type=checkbox]{
     <form id="taskForm" novalidate onsubmit="return false">
       <div class="form-group">
         <label>Título *</label>
-        <input id="fTitle" placeholder="Ex: Reunião com cliente, consulta médica..."/>
+        <input id="fTitle" maxlength="120" placeholder="Ex: Reunião com cliente, consulta médica..."/>
       </div>
       <div class="form-group">
         <label>Tipo *</label>
@@ -1639,7 +1616,7 @@ input[type=checkbox]{
       </div>
       <div class="form-group">
         <label>Notas (opcional)</label>
-        <textarea id="fNotes" placeholder="Detalhes, links, observações..."></textarea>
+        <textarea id="fNotes" maxlength="1000" placeholder="Detalhes, links, observações..."></textarea>
       </div>
       <div class="form-group">
         <label>Cor do card</label>
@@ -1735,7 +1712,7 @@ input[type=checkbox]{
 </div>
 
 <!-- COMPROMISSOS (lista) -->
-<div class="screen" id="screen-list">
+<div class="screen" id="screen-list" role="main">
   <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
@@ -1765,7 +1742,7 @@ input[type=checkbox]{
 </div>
 
 <!-- LEMBRETES -->
-<div class="screen" id="screen-lembretes">
+<div class="screen" id="screen-lembretes" role="main">
   <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
@@ -1793,7 +1770,7 @@ input[type=checkbox]{
       </div>
       <div class="form-group">
         <label>O que precisa resolver? *</label>
-        <input id="lemTitle" placeholder="Ex: Marcar consulta no dentista, Comprar presente..."/>
+        <input id="lemTitle" maxlength="120" placeholder="Ex: Marcar consulta no dentista, Comprar presente..."/>
       </div>
       <div class="form-row form-group">
         <div>
@@ -1810,13 +1787,13 @@ input[type=checkbox]{
       </div>
       <div class="form-group">
         <label>Observação</label>
-        <textarea id="lemNotes" placeholder="Detalhes, contexto, próximos passos..." style="min-height:52px"></textarea>
+        <textarea id="lemNotes" maxlength="1000" placeholder="Detalhes, contexto, próximos passos..." style="min-height:52px"></textarea>
       </div>
       <div class="form-group">
         <label>Checklist (opcional)</label>
         <div id="lemCheckList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:7px"></div>
         <div style="display:flex;gap:8px;align-items:center">
-          <input id="lemCheckInput" placeholder="Adicionar item..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addLemCheckItem();}"/>
+          <input id="lemCheckInput" maxlength="80" placeholder="Adicionar item..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addLemCheckItem();}"/>
           <button type="button" onclick="addLemCheckItem()" class="btn-secondary" style="padding:7px 13px;font-size:.78rem;white-space:nowrap">+ Item</button>
         </div>
       </div>
@@ -1857,7 +1834,7 @@ input[type=checkbox]{
 </div>
 
 <!-- METAS DIÁRIAS -->
-<div class="screen" id="screen-metas">
+<div class="screen" id="screen-metas" role="main">
   <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
@@ -1874,7 +1851,7 @@ input[type=checkbox]{
       <div class="form-row form-group">
         <div>
           <label>Nome da meta *</label>
-          <input id="metaTitle" placeholder="Ex: Ler, Academia, Creatina..."/>
+          <input id="metaTitle" maxlength="60" placeholder="Ex: Ler, Academia, Creatina..."/>
         </div>
         <div>
           <label>Cor</label>
@@ -1919,7 +1896,7 @@ input[type=checkbox]{
 </div>
 
 <!-- GOOGLE AGENDA -->
-<div class="screen" id="screen-agenda">
+<div class="screen" id="screen-agenda" role="main">
   <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
   <div class="screen-title-bar" style="text-align:left;padding:0 0 14px">
@@ -1997,7 +1974,7 @@ input[type=checkbox]{
 </div>
 
 <!-- NAV BAR FIXA - fora de todas as telas -->
-<div class="cal-legend" id="mainNavBar">
+<div class="cal-legend" id="mainNavBar" role="navigation" aria-label="Navegação inferior">
   <div class="nav-pill" id="navPillDash" onclick="navPillClick('dashboard')">
     <div class="nav-pill-dot" style="background:#3b82f6"></div>
     <span>Início</span>
@@ -2022,7 +1999,7 @@ input[type=checkbox]{
 
 <!-- BUSCA GLOBAL -->
 <div class="gs-overlay" id="gsOverlay" onclick="if(event.target===this)closeSearch()">
-  <div class="gs-box">
+  <div class="gs-box" role="dialog" aria-modal="true" aria-label="Busca global">
     <div class="gs-head">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="gsInput" type="text" placeholder="Buscar compromissos, metas, lembretes..." autocomplete="off" oninput="runSearch()" onkeydown="gsKey(event)"/>
@@ -2118,9 +2095,9 @@ function renderAttachPreview(){
   el.innerHTML=taskAttachments.map(a=>{
     const isImg=a.type.startsWith("image/");
     return `<div class="attach-chip">
-      ${isImg?`<img src="${a.data}" alt="${a.name}"/>`:`<span style="font-size:1.4rem">${fileIcon(a.type)}</span>`}
+      ${isImg?`<img src="${a.data}" alt="${escHtml(a.name)}"/>`:`<span style="font-size:1.4rem">${fileIcon(a.type)}</span>`}
       <div class="attach-chip-info">
-        <div class="attach-chip-name" title="${a.name}">${a.name}</div>
+        <div class="attach-chip-name" title="${escHtml(a.name)}">${escHtml(a.name)}</div>
         <div class="attach-chip-size">${fmtSize(a.size)}</div>
       </div>
       <button type="button" class="attach-remove" onclick="removeAttachment('${a.id}')" title="Remover">✕</button>
@@ -2134,8 +2111,14 @@ function downloadAttachment(taskId, fileName){
   const att = task.attachments.find(a => a.name === fileName);
   if(!att) return;
   if(att.type.startsWith("image/")){
-    // Para imagens, abre em nova aba para visualizar
-    const w = window.open(); w.document.write(`<img src="${att.data}" style="max-width:100%;"/>`); w.document.close();
+    // Converte dataURL para blob e abre em nova aba (seguro e moderno)
+    try{
+      const res=await fetch(att.data);
+      const blob=await res.blob();
+      const url=URL.createObjectURL(blob);
+      const w=window.open(url,"_blank");
+      setTimeout(()=>URL.revokeObjectURL(url),30000);
+    }catch(e){ window.open(att.data,"_blank"); }
   } else {
     const a=document.createElement("a"); a.href=att.data; a.download=att.name; a.click();
   }
@@ -2547,7 +2530,7 @@ function renderCalDetail(){
           ${escHtml(t.title)}</div>
         <div class="ce-sub" style="${t.completed?'opacity:.4':''}">${escHtml(t.area)}${t.category?" · "+escHtml(t.category):""}</div>
       </div>
-      <button type="button" onclick="event.stopPropagation();deleteTask('${t.id}')" style="width:32px;height:32px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;margin-right:4px;font-size:14px;transition:all .15s">🗑️</button>
+      <button type="button" aria-label="Excluir compromisso" title="Excluir" onclick="event.stopPropagation();deleteTask('${t.id}')" style="width:32px;height:32px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;margin-right:4px;font-size:14px;transition:all .15s">🗑️</button>
     </div>`;
   }).join("");
 }
@@ -2749,7 +2732,11 @@ function toggleDone(id){
 // ===== FILTROS E BUSCA =====
 function setFilter(f){ curFilter=f; updateFChips(); renderTasks(); }
 function updateFChips(){ document.querySelectorAll("#filterChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.filter===curFilter)); }
-function onSearch(){ curSearch=document.getElementById("searchInput").value; renderTasks(); }
+let _searchTimer, _gsTimer;
+function onSearch(){
+  clearTimeout(_searchTimer);
+  _searchTimer=setTimeout(function(){ curSearch=document.getElementById("searchInput").value; renderTasks(); },200);
+}
 function matchTask(t){
   const s=getStatus(t);
   if(curType!=="all" && t.area!==curType) return false;
@@ -2806,7 +2793,7 @@ function renderTasks(){
       + (t.gcalLink
           ? '<button class="tr-btn" onclick="event.stopPropagation();window.open(\''+t.gcalLink+'\',\'_blank\')" title="Ver no Google">📅</button>'
           : '<button class="tr-btn" onclick="event.stopPropagation();sendFromList(\''+t.id+'\')" title="Enviar ao Google">📤</button>')
-      + '<button class="tr-btn del" onclick="event.stopPropagation();deleteTask(\''+t.id+'\')" title="Excluir">🗑️</button>'
+      + '<button class="tr-btn del" aria-label="Excluir compromisso" onclick="event.stopPropagation();deleteTask(\''+t.id+'\')" title="Excluir">🗑️</button>'
       + '</div></div>';
   }).join("");
 }
@@ -2842,9 +2829,9 @@ function renderLemAttachPreview(){
   el.innerHTML=lemAttachments.map(a=>{
     const isImg=a.type.startsWith("image/");
     return `<div class="attach-chip">
-      ${isImg?`<img src="${a.data}" alt="${a.name}"/>`:`<span style="font-size:1.4rem">${fileIcon(a.type)}</span>`}
+      ${isImg?`<img src="${a.data}" alt="${escHtml(a.name)}"/>`:`<span style="font-size:1.4rem">${fileIcon(a.type)}</span>`}
       <div class="attach-chip-info">
-        <div class="attach-chip-name" title="${a.name}">${a.name}</div>
+        <div class="attach-chip-name" title="${escHtml(a.name)}">${escHtml(a.name)}</div>
         <div class="attach-chip-size">${fmtSize(a.size)}</div>
       </div>
       <button type="button" class="attach-remove" onclick="removeLemAttachment('${a.id}')" title="Remover">✕</button>
@@ -2855,7 +2842,13 @@ function downloadLemAttachment(lemId, fileName){
   const lem=lembretes.find(l=>l.id===lemId); if(!lem||!lem.attachments) return;
   const att=lem.attachments.find(a=>a.name===fileName); if(!att) return;
   if(att.type.startsWith("image/")){
-    const w=window.open(); w.document.write(`<img src="${att.data}" style="max-width:100%;"/>`); w.document.close();
+    try{
+      fetch(att.data).then(r=>r.blob()).then(blob=>{
+        const url=URL.createObjectURL(blob);
+        window.open(url,"_blank");
+        setTimeout(()=>URL.revokeObjectURL(url),30000);
+      });
+    }catch(e){ window.open(att.data,"_blank"); }
   } else {
     const a=document.createElement("a"); a.href=att.data; a.download=att.name; a.click();
   }
@@ -2878,7 +2871,7 @@ function renderLemCheckForm(){
   if(!lemCheckItems.length){ el.innerHTML=""; return; }
   el.innerHTML=lemCheckItems.map(i=>`
     <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px">
-      <span style="font-size:.83rem;flex:1">${i.text}</span>
+      <span style="font-size:.83rem;flex:1">${escHtml(i.text)}</span>
       <button type="button" onclick="removeLemCheckItem('${i.id}')" style="background:transparent;border:none;color:var(--text-faint);cursor:pointer;font-size:.8rem;padding:0">✕</button>
     </div>
   `).join("");
@@ -3008,7 +3001,7 @@ function renderLembretes(){
         ${l.checklist.map(i=>`
           <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.79rem;${i.checked?"color:var(--text-faint);text-decoration:line-through":"color:var(--text)"}">
             <input type="checkbox" ${i.checked?"checked":""} onchange="toggleLemCardCheck('${l.id}','${i.id}')" style="width:14px;height:14px;accent-color:${c};cursor:pointer;flex-shrink:0"/>
-            ${i.text}
+            ${escHtml(i.text)}
           </label>
         `).join("")}
       </div>`:"";
@@ -3019,12 +3012,12 @@ function renderLembretes(){
       </div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
-          <span style="font-size:1.15rem;${l.checked?'opacity:.5':''}">${l.icon||"📝"}</span>
+          <span style="font-size:1.15rem;${l.checked?'opacity:.5':''}">${escHtml(l.icon||"📝")}</span>
           <span class="lem-title ${l.checked?"lem-checked":""}">${escHtml(l.title)}</span>
         </div>
         <div class="task-meta">
-          <span class="mt" style="border-color:rgba(${rgb},.4);color:${c}">${l.area}</span>
-          <span class="mt">${l.category||""}</span>
+          <span class="mt" style="border-color:rgba(${rgb},.4);color:${c}">${escHtml(l.area)}</span>
+          <span class="mt">${escHtml(l.category||"")}</span>
           ${l.checked?`<span class="mt" style="border-color:rgba(34,197,94,.4);color:#22c55e">✅ Resolvido</span>`:`<span class="lembrete-badge" style="background:rgba(${rgb},.1);border-color:rgba(${rgb},.3);color:${c}">📝 Pendente</span>`}
         </div>
         ${l.notes?`<div class="task-notes" style="margin-top:4px;${l.checked?'opacity:.5':''}">${escHtml(l.notes)}</div>`:""}
@@ -3038,9 +3031,9 @@ function renderLembretes(){
         <div class="task-footer" style="margin-top:8px">
           <span style="font-size:.67rem;color:var(--text-faint)">${new Date(l.createdAt).toLocaleDateString("pt-BR")}</span>
           <div class="task-actions">
-            <button onclick="editLembrete('${l.id}')">✏️ Editar</button>
-            <button class="agendar-btn" onclick="agendarLembrete('${l.id}')">📅 Agendar</button>
-            <button class="del-btn" onclick="deleteLembrete('${l.id}')">🗑️</button>
+            <button aria-label="Editar lembrete" onclick="editLembrete('${l.id}')">✏️ Editar</button>
+            <button class="agendar-btn" aria-label="Agendar lembrete" onclick="agendarLembrete('${l.id}')">📅 Agendar</button>
+            <button class="del-btn" aria-label="Excluir lembrete" title="Excluir" onclick="deleteLembrete('${l.id}')">🗑️</button>
           </div>
         </div>
       </div>
@@ -3227,7 +3220,7 @@ function renderDashboard(){
           <span style="font-size:.92rem;font-weight:700">${escHtml(m.title)}</span>
           <span style="font-size:.68rem;padding:2px 8px;border-radius:999px;background:rgba(${rgb},0.12);color:${m.color};border:1px solid rgba(${rgb},0.3)">${m.type==="time"?"⏱️ Tempo":"✅ Check"}</span>
         </div>
-        <button onclick="deleteMeta('${m.id}')" style="background:transparent;border:1px solid var(--border);border-radius:999px;padding:2px 10px;font-size:.67rem;color:var(--text-faint);cursor:pointer">🗑️</button>
+        <button aria-label="Excluir meta" title="Excluir meta" onclick="deleteMeta('${m.id}')" style="background:transparent;border:1px solid var(--border);border-radius:999px;padding:2px 10px;font-size:.67rem;color:var(--text-faint);cursor:pointer">🗑️</button>
       </div>
       <div class="meta-stats">
         <div class="meta-stat"><div class="meta-stat-val" style="color:${m.color}">${pct}%</div><div class="meta-stat-lbl">conclusão</div></div>
@@ -3247,9 +3240,9 @@ async function reqNotifPerm(){ if(!("Notification" in window)){ showToast("Naveg
 
 // ===== GOOGLE AUTH =====
 const GTOK_CACHE="atividadesgtokencache";
-function saveTokenCache(token,expiresInSeconds){ const margemSeguranca=120; const expiresAt=Date.now()+((expiresInSeconds||3500)-margemSeguranca)*1000; try{ localStorage.setItem(GTOK_CACHE,JSON.stringify({token,expiresAt})); }catch{} }
-function loadTokenCache(){ try{ const raw=localStorage.getItem(GTOK_CACHE); if(!raw) return null; const d=JSON.parse(raw); if(d&&d.token&&d.expiresAt&&Date.now()<d.expiresAt) return d; }catch{} return null; }
-function clearTokenCache(){ try{ localStorage.removeItem(GTOK_CACHE); }catch{} }
+function saveTokenCache(token,expiresInSeconds){ const margemSeguranca=120; const expiresAt=Date.now()+((expiresInSeconds||3500)-margemSeguranca)*1000; try{ sessionStorage.setItem(GTOK_CACHE,JSON.stringify({token,expiresAt})); }catch{} }
+function loadTokenCache(){ try{ const raw=sessionStorage.getItem(GTOK_CACHE); if(!raw) return null; const d=JSON.parse(raw); if(d&&d.token&&d.expiresAt&&Date.now()<d.expiresAt) return d; }catch{} return null; }
+function clearTokenCache(){ try{ sessionStorage.removeItem(GTOK_CACHE); localStorage.removeItem(GTOK_CACHE); }catch{} }
 
 function restoreSessionIfValid(){
   const cached=loadTokenCache();
@@ -3540,14 +3533,14 @@ function renderGcal(){
     if(!allDay){ const st=d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}); const es=ev.end?.dateTime; timeStr=es?`⏰ ${st} – ${new Date(es).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`:`⏰ ${st}`; }
     const col=GCOLS[ev.colorId]||"#4285f4";
     const isT=ss.slice(0,10)===tds;
-    const loc=ev.location?`<div class="ev-loc">📍 ${ev.location}</div>`:"";
-    const desc=ev.description?`<div class="ev-desc">${ev.description.replace(/<[^>]*>/g,"").trim()}</div>`:"";
+    const loc=ev.location?`<div class="ev-loc">📍 ${escHtml(ev.location)}</div>`:"";
+    const desc=ev.description?`<div class="ev-desc">${escHtml(ev.description.replace(/<[^>]*>/g,"").trim())}</div>`:"";
     const lnk=ev.htmlLink||"#";
     return `<div class="ev-item ${isT?"today-ev":""}" onclick="window.open('${lnk}','_blank')">
       <div class="ev-date"><div class="ev-day">${dy}</div><div class="ev-mon">${mo}</div><div class="ev-wday">${wd}</div></div>
       <div class="ev-dot" style="background:${col}"></div>
       <div class="ev-main">
-        <div class="ev-title">${ev.summary||"(Sem título)"}</div>
+        <div class="ev-title">${escHtml(ev.summary)||"(Sem título)"}</div>
         <div class="ev-time">${timeStr}</div>
         ${loc}${desc}
         <a class="ev-link" href="${lnk}" target="_blank" onclick="event.stopPropagation()">🔗 Abrir no Google Agenda</a>
@@ -4166,13 +4159,17 @@ function openSearch(){
   ov.classList.add("open");
   var inp=document.getElementById("gsInput");
   if(inp){ inp.value=""; setTimeout(function(){ inp.focus(); },60); }
-  runSearch();
+  _doRunSearch(); // imediato ao abrir, sem debounce
 }
 function closeSearch(){
   var ov=document.getElementById("gsOverlay");
   if(ov) ov.classList.remove("open");
 }
 function runSearch(){
+  clearTimeout(_gsTimer);
+  _gsTimer=setTimeout(_doRunSearch,200);
+}
+function _doRunSearch(){
   var q=(document.getElementById("gsInput")||{}).value||"";
   q=q.trim().toLowerCase();
   var res=document.getElementById("gsResults"); if(!res) return;
