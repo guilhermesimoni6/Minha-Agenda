@@ -176,12 +176,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .cal-nav-btn:active{transform:scale(.92);}
 .cal-month{color:var(--text);font-size:1rem;font-weight:800;text-transform:capitalize;}
 .cal-grid-wrap{padding:0 calc(env(safe-area-inset-left) + 16px);}
-.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;}
-.cal-weekdays div{text-align:center;color:var(--text-faint);font-size:.66rem;font-weight:800;}
-.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-topbar{}
+.cal-nav{}
+.cal-detail{padding:18px calc(env(safe-area-inset-left) + 20px) 8px;}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
+.cal-weekdays div{text-align:center;color:var(--text-faint);font-size:.66rem;font-weight:800;padding:4px 0;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;grid-auto-rows:52px;}
 .cal-day{
-  aspect-ratio:1;display:flex;flex-direction:column;
+  display:flex;flex-direction:column;
   align-items:center;justify-content:center;
+  height:52px;
   color:var(--text);font-size:var(--fs-sm);font-weight:var(--fw-medium);
   border-radius:var(--r-md);cursor:pointer;position:relative;
   border:1.5px solid transparent;
@@ -243,8 +247,81 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .cal-empty{text-align:center;padding:28px;color:var(--text-faint);font-size:.82rem;background:var(--bg-card);border:1px dashed var(--border);border-radius:16px;margin:0 calc(env(safe-area-inset-left) + 20px);}
 
 
+/* ===== SIDEBAR TOGGLE BUTTON ===== */
+.sb-toggle-btn{
+  display:none;
+  position:absolute;
+  top:50%;right:-14px;
+  transform:translateY(-50%);
+  width:28px;height:28px;
+  background:var(--bg-elev);
+  border:1px solid var(--border);
+  border-radius:50%;
+  align-items:center;justify-content:center;
+  cursor:pointer;
+  color:var(--text-muted);
+  z-index:400;
+  transition:all 140ms ease;
+  padding:0;
+  flex-shrink:0;
+}
+.sb-toggle-btn:hover{background:var(--bg-card2);border-color:var(--border-hover);color:var(--text);}
+.sb-toggle-btn svg{transition:transform 240ms ease;}
+
+/* sidebar colapsada */
+.sidebar.collapsed{
+  width:60px !important;
+  min-width:60px !important;
+  padding:20px 0 !important;
+  overflow:hidden !important;
+  align-items:stretch !important;
+}
+.sidebar.collapsed .sb-brand-label,
+.sidebar.collapsed .sb-item span,
+.sidebar.collapsed .sb-sep,
+.sidebar.collapsed .sb-foot{
+  display:none !important;
+}
+.sidebar.collapsed .sb-brand{
+  justify-content:center;
+  padding:8px 0 24px;
+  width:60px;
+}
+.sidebar.collapsed .sb-nav{
+  width:60px;
+}
+.sidebar.collapsed .sb-item{
+  justify-content:center !important;
+  padding:10px 0 !important;
+  gap:0 !important;
+  width:60px !important;
+}
+.sidebar.collapsed .sb-toggle-btn svg{transform:rotate(180deg);}
+
+/* deslocar conteúdo quando sidebar colapsada */
+body.sb-collapsed .screen{padding-left:60px !important;}
+body.sb-collapsed nav.topnav{padding-left:84px !important;}
+
+/* ===== CALENDÁRIO: limitar tamanho máximo ===== */
+
+/* ===== TELAS MOBILE: largura máxima para bom enquadramento no iPhone ===== */
+@media(max-width:767px){
+  .screen-inner,.form-card,.tasks-list,.list-toolbar,
+  .checkin-card,.meta-dash,.ag-header,.gcf-row,
+  .ev-list,.ev-empty,.ag-off,.back-btn,.screen-title-bar,
+  .cal-topbar,.cal-nav,.cal-grid-wrap,.cal-detail,
+  .cal-empty,.wrap{
+    max-width:100%;
+    box-sizing:border-box;
+  }
+  .screen-title-bar{
+    padding-left:16px !important;
+    padding-right:16px !important;
+  }
+}
+
 /* NAV TOPO */
-nav{display:flex;align-items:center;justify-content:space-between;
+nav.topnav{display:flex;align-items:center;justify-content:space-between;
   padding-top:calc(env(safe-area-inset-top) + var(--sp-3));
   padding-bottom:var(--sp-3);
   padding-left:calc(env(safe-area-inset-left) + var(--sp-5));
@@ -330,7 +407,7 @@ nav{display:flex;align-items:center;justify-content:space-between;
 .google-btn.connected{border-color:#22c55e;color:#22c55e;}
 
 /* SCREENS */
-.screen{display:none;padding:0 0 20px;max-width:520px;margin:0 auto;position:relative;z-index:1;}
+.screen{display:none;padding:0 0 20px;margin:0 auto;position:relative;z-index:1;}
 .screen.active{display:block;}
 .screen-inner{padding:20px calc(env(safe-area-inset-right) + 18px) 20px calc(env(safe-area-inset-left) + 30px);}
 
@@ -340,13 +417,27 @@ nav{display:flex;align-items:center;justify-content:space-between;
 .form-card{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
 .list-toolbar{margin:0 calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px);}
 .tasks-list{padding:0 calc(env(safe-area-inset-right) + 22px) 0 calc(env(safe-area-inset-left) + 22px);}
-.checkin-card{margin:0 calc(env(safe-area-inset-right) + 18px) 18px calc(env(safe-area-inset-left) + 30px);}
-.meta-dash{margin:0 calc(env(safe-area-inset-right) + 18px) 12px calc(env(safe-area-inset-left) + 30px);}
+.checkin-card{margin:0 0 18px;}
+.meta-dash{margin:0 0 12px;}
 .ag-header{margin:0 calc(env(safe-area-inset-right) + 18px) 16px calc(env(safe-area-inset-left) + 30px);}
 .gcf-row{margin:0 calc(env(safe-area-inset-right) + 18px) 14px calc(env(safe-area-inset-left) + 30px);}
 .ev-list{padding:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
 .ev-empty{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
 .ag-off{margin:0 calc(env(safe-area-inset-right) + 18px) 0 calc(env(safe-area-inset-left) + 30px);}
+
+/* Dentro do page-wrap: zerar margens laterais (o wrapper já faz o espaçamento) */
+.page-wrap .back-btn{margin:0 0 12px;}
+.page-wrap .form-card{margin:0 0 16px;width:100%;box-sizing:border-box;}
+.page-wrap .list-toolbar{margin:0 0 16px;}
+.page-wrap .tasks-list{padding:0;}
+.page-wrap .checkin-card{margin:0 0 18px;width:100%;box-sizing:border-box;}
+.page-wrap .meta-dash{margin:0 0 12px;width:100%;box-sizing:border-box;}
+.page-wrap .ag-header{margin:0 0 16px;}
+.page-wrap .gcf-row{margin:0 0 14px;}
+.page-wrap .ev-list{padding:0;}
+.page-wrap .ev-empty{margin:0 0 12px;}
+.page-wrap .ag-off{margin:0;}
+.page-wrap .screen-title-bar{padding:0 0 14px;text-align:left;}
 .home-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:24px calc(env(safe-area-inset-right) + 16px) 8px calc(env(safe-area-inset-left) + 28px);}
 .stats-float{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 calc(env(safe-area-inset-right) + 16px);margin-top:-22px;position:relative;z-index:10;}
 
@@ -364,7 +455,6 @@ nav{display:flex;align-items:center;justify-content:space-between;
 .home-hero p{font-size:var(--fs-base);color:rgba(255,255,255,0.86);font-weight:var(--fw-medium);position:relative;z-index:1;}
 
 /* STATS FLUTUANTES */
-.stats-float{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:0 16px;margin-top:-22px;position:relative;z-index:10;}
 .stat-card{
   background:var(--bg-card-solid);border-radius:var(--r-lg);
   padding:var(--sp-3) var(--sp-2);text-align:center;
@@ -383,7 +473,6 @@ nav{display:flex;align-items:center;justify-content:space-between;
 .stat-card:nth-child(5) strong{color:#ef4444;}
 
 /* HOME CARDS */
-.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:24px 16px 8px;}
 .home-card{
   background:linear-gradient(135deg,var(--orange),var(--orange2));
   border-radius:var(--r-2xl);padding:var(--sp-5) var(--sp-4);
@@ -417,13 +506,16 @@ nav{display:flex;align-items:center;justify-content:space-between;
 /* BACK BTN */
 .back-btn{
   display:inline-flex;align-items:center;gap:var(--sp-2);
-  background:var(--bg-input);border:1px solid var(--border);
-  border-radius:var(--r-md);color:var(--text-muted);
-  font-size:var(--fs-sm);cursor:pointer;padding:var(--sp-2) var(--sp-4);
-  font-weight:var(--fw-semi);
+  background:linear-gradient(135deg,#7c3aed,#6d28d9);
+  border:none;
+  border-radius:var(--r-xl);color:#fff;
+  font-size:var(--fs-sm);cursor:pointer;
+  padding:10px 28px;
+  font-weight:var(--fw-bold);
+  box-shadow:0 4px 14px rgba(124,58,237,0.4);
   transition:all var(--dur-base) var(--ease);
 }
-.back-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-glow);transform:translateX(-2px);}
+.back-btn:hover{background:linear-gradient(135deg,#6d28d9,#5b21b6);transform:translateX(-2px);box-shadow:0 6px 18px rgba(124,58,237,0.5);}
 .back-btn:active{transform:scale(.96);}
 
 /* SCREEN HEADERS */
@@ -545,11 +637,11 @@ select{cursor:pointer;appearance:none;
 .dlhint{font-size:.69rem;margin-top:5px;}
 
 /* LISTA */
-.list-toolbar{display:flex;gap:10px;align-items:flex-start;margin:0 18px 16px;flex-wrap:wrap;}
+.list-toolbar{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;}
 .filter-group{display:flex;gap:7px;flex-wrap:wrap;}
 .ftitle{font-size:.65rem;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px;letter-spacing:.07em;font-weight:700;}
 .sw{flex:1;min-width:150px;}
-.tasks-list{display:flex;flex-direction:column;gap:10px;padding:0 18px;}
+.tasks-list{display:flex;flex-direction:column;gap:10px;}
 .task-item{
   display:flex;align-items:flex-start;gap:var(--sp-3);
   padding:var(--sp-4) var(--sp-5);border-radius:var(--r-xl);
@@ -610,16 +702,16 @@ select{cursor:pointer;appearance:none;
 .gcal-btn{border-color:rgba(96,165,250,.35)!important;color:#60a5fa!important;}
 
 /* AGENDA */
-.ag-header{display:flex;align-items:center;justify-content:space-between;margin:0 18px 16px;flex-wrap:wrap;gap:8px;}
+.ag-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 .ag-header h3{font-size:1rem;font-weight:800;display:flex;align-items:center;gap:9px;}
 .badge{font-size:.67rem;padding:4px 11px;border-radius:8px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);color:var(--orange);font-weight:700;}
 .btn-refresh{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:7px 15px;font-size:.76rem;color:var(--text-muted);cursor:pointer;transition:all .15s;font-weight:600;}
 .btn-refresh:hover{border-color:var(--orange);color:var(--orange);}
 .btn-refresh.loading{opacity:.5;pointer-events:none;}
-.gcf-row{display:flex;gap:7px;flex-wrap:wrap;margin:0 18px 14px;}
+.gcf-row{display:flex;gap:7px;flex-wrap:wrap;}
 .gcf{padding:6px 14px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border);font-size:.72rem;color:var(--text-muted);cursor:pointer;font-weight:600;transition:all .15s;}
 .gcf.active{background:var(--orange);border-color:var(--orange);color:#fff;}
-.ev-list{display:flex;flex-direction:column;gap:10px;padding:0 18px;}
+.ev-list{display:flex;flex-direction:column;gap:10px;}
 .ev-item{
   display:flex;align-items:flex-start;gap:var(--sp-3);
   padding:var(--sp-4) var(--sp-5);border-radius:var(--r-xl);
@@ -642,8 +734,8 @@ select{cursor:pointer;appearance:none;
 .ev-loc,.ev-desc{font-size:.7rem;color:var(--text-faint);}
 .ev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:6px;}
 .ev-link{font-size:.69rem;color:var(--orange);text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:5px;font-weight:700;}
-.ev-empty{text-align:center;padding:36px;color:var(--text-faint);background:var(--bg-card);border:1px solid var(--border);border-radius:20px;margin:0 18px;}
-.ag-off{background:var(--bg-card);border:2px dashed var(--border);border-radius:22px;padding:40px;text-align:center;color:var(--text-faint);margin:0 18px;}
+.ev-empty{text-align:center;padding:36px;color:var(--text-faint);background:var(--bg-card);border:1px solid var(--border);border-radius:20px;}
+.ag-off{background:var(--bg-card);border:2px dashed var(--border);border-radius:22px;padding:40px;text-align:center;color:var(--text-faint);}
 .ag-off p{font-size:.84rem;margin-bottom:18px;}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:sp .7s linear infinite;margin-right:7px;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg);}}
@@ -675,7 +767,7 @@ select{cursor:pointer;appearance:none;
   background:var(--bg-card);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border:1px solid var(--border);border-radius:var(--r-2xl);
-  padding:var(--sp-5) var(--sp-6);margin:0 var(--sp-5) var(--sp-5);
+  padding:var(--sp-5) var(--sp-6);margin:0 0 var(--sp-5);
   box-shadow:var(--sh-2), var(--sh-glow);
 }
 .checkin-row{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
@@ -685,7 +777,7 @@ select{cursor:pointer;appearance:none;
   background:var(--bg-card);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border:1px solid var(--border);border-radius:var(--r-2xl);
-  padding:var(--sp-5);margin:0 var(--sp-5) var(--sp-3);
+  padding:var(--sp-5);margin:0 0 var(--sp-3);
   box-shadow:var(--sh-2), var(--sh-glow);
 }
 .meta-stats{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;}
@@ -960,9 +1052,9 @@ input[type=checkbox]{
   border-color:var(--border);
 }
 
-/* Melhorias em telas largas (desktop) */
-@media(min-width:768px){
-  .screen{max-width:640px;}
+/* Melhorias em telas largas (tablet) */
+@media(min-width:768px) and (max-width:1023px){
+  .screen{max-width:none;}
   .home-cards{grid-template-columns:repeat(3,1fr);}
   .cal-grid-wrap{padding:0 var(--sp-6);}
 }
@@ -986,31 +1078,39 @@ input[type=checkbox]{
   /* Remove padding mobile do body */
   body{padding-bottom:0 !important;}
 
-  /* Esconde bottom nav */
+  /* Esconde bottom nav e nav mobile */
   .cal-legend{display:none !important;}
 
-  /* Navbar: recua para não cobrir a sidebar */
-  nav{
-    left:0;right:0;
+  /* Navbar: desloca para não cobrir a sidebar */
+  nav.topnav{
+    left:0 !important;right:0 !important;
     padding-top:calc(env(safe-area-inset-top) + 12px) !important;
     padding-bottom:14px !important;
-    padding-left:calc(236px + 24px) !important;
-    padding-right:20px !important;
+    padding-left:260px !important;
+    padding-right:24px !important;
   }
 
   /* Sidebar fixa */
   .sidebar{
     display:flex !important;
-    flex-direction:column;
-    position:fixed;
-    left:0;top:0;bottom:0;
-    width:236px;
+    flex-direction:column !important;
+    position:fixed !important;
+    left:0 !important;top:0 !important;bottom:0 !important;
+    width:236px !important;
+    min-width:236px !important;
     background:var(--bg-elev);
     border-right:1px solid var(--border);
-    z-index:200;
+    z-index:300 !important;
     padding:20px 12px;
-    overflow-y:auto;
-    overflow-x:hidden;
+    overflow-y:auto !important;
+    overflow-x:visible !important;
+    transition:width 240ms ease, min-width 240ms ease, padding 240ms ease !important;
+  }
+  .sb-toggle-btn{display:flex !important;}
+  /* collapsed override no desktop */
+  .sidebar.collapsed{
+    width:60px !important;
+    min-width:60px !important;
   }
 
   /* Brand */
@@ -1075,28 +1175,62 @@ input[type=checkbox]{
     font-size:12px;font-weight:850;color:#fff;
   }
 
-  /* Todas as telas: recuar pelo tamanho da sidebar */
+  /* Todas as telas: offset pelo tamanho da sidebar */
   .screen{
+    width:100% !important;
+    box-sizing:border-box !important;
     max-width:none !important;
     margin:0 !important;
-    margin-left:0 !important;
     padding-left:236px !important;
   }
 
   /* Limitar largura interna do conteúdo */
   .screen-inner,.form-card,.tasks-list,.list-toolbar,
-  .checkin-card,.meta-dash,.ag-header,.gcf-row,
+  .ag-header,.gcf-row,
   .ev-list,.ev-empty,.ag-off,.back-btn,.screen-title-bar,
-  .cal-topbar,.cal-nav,.cal-grid-wrap,.cal-detail,
-  .cal-empty,.home-cards,.stats-float,.dash-wrap,.wrap{
+  .cal-empty,.dash-wrap,.wrap,
+  .home-cards,.stats-float{
     max-width:1160px;
     margin-left:auto !important;
     margin-right:auto !important;
   }
 
+  /* page-wrap tem seu próprio max-width (900px base, 560px no calendário) */
+  .page-wrap{
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+
+  /* Elementos com padding lateral que duplica com page-wrap — apenas os que usam padding como margem externa */
+  .tasks-list,
+  .ev-list,.ev-empty,.ag-off{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  .form-card,.list-toolbar,.ag-header,.gcf-row{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  .back-btn{
+    margin-left:0 !important;
+  }
+  .screen-title-bar{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  /* Calendário — dentro do page-wrap, herda max-width e margin:auto do wrapper */
+  .cal-topbar,.cal-nav,.cal-grid-wrap,.cal-detail,.cal-empty{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+  .home-cards,.stats-float{
+    padding-left:16px !important;
+    padding-right:16px !important;
+  }
+
   /* Dashboard: 4 colunas no desktop */
   .dash-grid{grid-template-columns:repeat(4,1fr) !important;}
-  .home-cards{grid-template-columns:repeat(3,1fr);}
+  .home-cards{grid-template-columns:repeat(3,1fr) !important;}
 
   /* Botão de busca visível */
   .searchbar-btn{display:flex !important;}
@@ -1152,12 +1286,33 @@ input[type=checkbox]{
   color:var(--text-faint);font-size:var(--fs-sm);cursor:pointer;
   min-width:220px;transition:all var(--dur-base) var(--ease);
 }
+.searchbar-btn svg{width:15px;height:15px;flex-shrink:0;}
 .searchbar-btn:hover{border-color:var(--border-hover);color:var(--text-muted);}
 @media(min-width:1024px){.searchbar-btn{display:flex;}}
 
 /* ===== DASHBOARD ===== */
 .dash-wrap{padding:var(--sp-5) var(--sp-5) var(--sp-8);}
 @media(min-width:1024px){.dash-wrap{padding:var(--sp-6) var(--sp-6) var(--sp-10);}}
+
+/* Wrapper padrão para todas as telas (mesmo enquadramento do dashboard) */
+.page-wrap{
+  padding:var(--sp-4) var(--sp-5) var(--sp-8);
+  max-width:900px;
+  margin-left:auto;
+  margin-right:auto;
+  box-sizing:border-box;
+  width:100%;
+}
+/* Calendário mais estreito para melhor visual */
+#screen-home .page-wrap{
+  max-width:560px;
+}
+@media(max-width:767px){
+  .page-wrap{padding:var(--sp-3) var(--sp-4) var(--sp-8);}
+}
+@media(min-width:1024px){
+  .page-wrap{padding:var(--sp-5) var(--sp-6) var(--sp-10);}
+}
 
 .dash-head{margin-bottom:var(--sp-5);}
 .dash-head h2{font-size:var(--fs-2xl);font-weight:var(--fw-black);letter-spacing:var(--ls-tighter);line-height:var(--lh-tight);}
@@ -1311,7 +1466,7 @@ input[type=checkbox]{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:9px;font-weight:var(--fw-black);font-variant-numeric:tabular-nums;
 }
-.tr-actions{display:flex;gap:var(--sp-1);flex-shrink:0;opacity:0;transition:opacity var(--dur-fast) var(--ease);}
+.tr-actions{display:flex;gap:var(--sp-1);flex-shrink:0;opacity:1;transition:opacity var(--dur-fast) var(--ease);}
 .task-row:hover .tr-actions{opacity:1;}
 @media(hover:none){.tr-actions{opacity:1;}}
 .tr-btn{
@@ -1331,6 +1486,7 @@ input[type=checkbox]{
 .goal-days{display:flex;gap:5px;margin-top:var(--sp-4);justify-content:center;}
 .goal-day{width:26px;height:26px;border-radius:7px;transition:transform var(--dur-fast) var(--ease-spring);}
 .goal-day:hover{transform:scale(1.15);}
+
 </style>
 </head>
 <body>
@@ -1339,8 +1495,11 @@ input[type=checkbox]{
 <aside class="sidebar" id="sidebar">
   <div class="sb-brand" onclick="goTo('dashboard')">
     <div class="sb-logo">📋</div>
-    <span>Minha Agenda</span>
+    <span class="sb-brand-label">Minha Agenda</span>
   </div>
+  <button class="sb-toggle-btn" id="sbToggleBtn" onclick="toggleSidebar()" title="Ocultar menu">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
   <nav class="sb-nav">
     <div class="sb-item" id="sbDashboard" onclick="sbGo('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span>Dashboard</span></div>
     <div class="sb-item" id="sbHome" onclick="sbGo('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Calendário</span></div>
@@ -1361,10 +1520,10 @@ input[type=checkbox]{
   </div>
 </aside>
 
-<nav>
+<nav class="topnav">
   <div class="nav-brand" onclick="goTo('home')"><div class="dot"></div>Atividades Diárias</div>
   <button class="searchbar-btn" onclick="openSearch()" title="Buscar (Ctrl+K)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
     <span style="flex:1;text-align:left">Buscar...</span>
     <span class="gs-kbd">⌘K</span>
   </button>
@@ -1394,6 +1553,7 @@ input[type=checkbox]{
 </div>
 
 <div class="screen" id="screen-home">
+  <div class="page-wrap">
   <div class="cal-topbar">
     <div class="cal-title"><div class="cal-logo"><span style="font-size:15px">📅</span></div>Calendário</div>
     <div class="cal-toggle">
@@ -1422,9 +1582,8 @@ input[type=checkbox]{
     </div>
     <div id="calDetailList"></div>
   </div>
+  </div>
 </div>
-
-<!-- COMPROMISSOS: escolha Trabalho/Pessoal -->
 <div class="screen" id="screen-compromissos">
   <div class="screen-title-bar">
     <h2>💼 Compromissos</h2>
@@ -1577,8 +1736,9 @@ input[type=checkbox]{
 
 <!-- COMPROMISSOS (lista) -->
 <div class="screen" id="screen-list">
+  <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="flex:1">
       <h2 id="listTitle" style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">Compromissos</h2>
       <p style="color:var(--text-faint);font-size:.8rem">Gerencie e acompanhe seus compromissos.</p>
@@ -1601,12 +1761,14 @@ input[type=checkbox]{
     </div>
   </div>
   <div class="tasks-list" id="tasksList"></div>
+  </div>
 </div>
 
 <!-- LEMBRETES -->
 <div class="screen" id="screen-lembretes">
+  <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="flex:1">
       <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">📝 Lembretes</h2>
       <p style="color:var(--text-faint);font-size:.8rem">Anotações sem data — quando tiver data, vira compromisso.</p>
@@ -1691,12 +1853,14 @@ input[type=checkbox]{
     </div>
   </div>
   <div id="lemList"></div>
+  </div>
 </div>
 
 <!-- METAS DIÁRIAS -->
 <div class="screen" id="screen-metas">
+  <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:8px calc(env(safe-area-inset-right) + 22px) 16px calc(env(safe-area-inset-left) + 22px)">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
     <div style="flex:1">
       <h2 style="font-size:1.3rem;font-weight:900;margin-bottom:3px;letter-spacing:-.02em">🎯 Metas Diárias</h2>
       <p style="color:var(--text-faint);font-size:.8rem">Hábitos que você quer cultivar todo dia.</p>
@@ -1735,7 +1899,7 @@ input[type=checkbox]{
   <div id="todayPanel"></div>
 
   <!-- Dashboard -->
-  <div style="margin-bottom:22px;padding:0 calc(env(safe-area-inset-right) + 22px) 0 calc(env(safe-area-inset-left) + 22px)">
+  <div style="margin-bottom:22px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h3 style="font-size:.95rem;font-weight:700">📊 Evolução</h3>
       <div class="chip-group" id="periodChips">
@@ -1751,12 +1915,14 @@ input[type=checkbox]{
     </div>
     <div id="dashboardContent"></div>
   </div>
+  </div>
 </div>
 
 <!-- GOOGLE AGENDA -->
 <div class="screen" id="screen-agenda">
+  <div class="page-wrap">
   <button class="back-btn" onclick="goTo('home')">Voltar</button>
-  <div class="screen-title-bar">
+  <div class="screen-title-bar" style="text-align:left;padding:0 0 14px">
     <h2>🗓️ Google Agenda</h2>
     <p>Seus compromissos sincronizados do Google Agenda.</p>
   </div>
@@ -1779,6 +1945,7 @@ input[type=checkbox]{
       <p>Conecte sua conta Google para visualizar seus compromissos aqui.</p>
       <button class="btn-primary" onclick="handleGoogleLogin()">📅 Conectar Google Agenda</button>
     </div>
+  </div>
   </div>
 </div>
 
@@ -1857,7 +2024,7 @@ input[type=checkbox]{
 <div class="gs-overlay" id="gsOverlay" onclick="if(event.target===this)closeSearch()">
   <div class="gs-box">
     <div class="gs-head">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="gsInput" type="text" placeholder="Buscar compromissos, metas, lembretes..." autocomplete="off" oninput="runSearch()" onkeydown="gsKey(event)"/>
       <span class="gs-kbd">ESC</span>
     </div>
@@ -2973,7 +3140,7 @@ function renderMetas(){
   const el=document.getElementById("todayPanel"); if(!el) return;
   if(!metas.length){ el.innerHTML=""; return; }
   el.innerHTML=`
-    <div class="checkin-card" style="margin-bottom:18px">
+    <div class="checkin-card" style="margin-bottom:18px;width:100%;box-sizing:border-box">
       <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px">✅ Check-in de hoje — ${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}</h4>
       ${metas.map(m=>{
         const log=m.logs[td]||{done:false,value:0};
@@ -3053,7 +3220,7 @@ function renderDashboard(){
       const title=`${new Date(d+"T12:00").toLocaleDateString("pt-BR")}: ${done?"✅ Feito":"❌ Não feito"}${log?.value?` (${log.value}min)`:""}`;
       return `<div class="day-cell" title="${title}" style="background:${bg};opacity:${opacity};outline:${isToday?"2px solid "+m.color:"2px solid transparent"};outline-offset:1px"></div>`;
     }).join("");
-    return `<div class="meta-dash">
+    return `<div class="meta-dash" style="width:100%;box-sizing:border-box">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <div style="display:flex;align-items:center;gap:8px">
           <div class="meta-dot" style="background:${m.color}"></div>
@@ -3728,6 +3895,25 @@ function sbGo(screen){
   if(screen==="compromissos") goTo("list",{type:"all"});
   else goTo(screen);
 }
+
+function toggleSidebar(){
+  var sb=document.getElementById("sidebar");
+  var collapsed=sb.classList.toggle("collapsed");
+  document.body.classList.toggle("sb-collapsed", collapsed);
+  var btn=document.getElementById("sbToggleBtn");
+  if(btn) btn.title = collapsed ? "Expandir menu" : "Ocultar menu";
+  try{ localStorage.setItem("sb_collapsed", collapsed ? "1" : "0"); }catch(e){}
+}
+
+// Restaurar estado do sidebar ao carregar
+(function(){
+  try{
+    if(localStorage.getItem("sb_collapsed")==="1"){
+      var sb=document.getElementById("sidebar");
+      if(sb){ sb.classList.add("collapsed"); document.body.classList.add("sb-collapsed"); }
+    }
+  }catch(e){}
+})();
 
 function updateSidebar(screen){
   var map={dashboard:"sbDashboard",home:"sbHome",list:"sbList",compromissos:"sbList",
