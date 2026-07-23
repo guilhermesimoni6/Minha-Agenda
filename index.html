@@ -1272,10 +1272,8 @@ input[type=checkbox]{
   border-radius:var(--r-md);padding:0 var(--sp-3);height:38px;
   color:var(--text-faint);font-size:var(--fs-sm);cursor:pointer;
   min-width:220px;transition:all var(--dur-base) var(--ease);
-}
-.searchbar-btn svg{width:15px;height:15px;flex-shrink:0;}
+}.searchbar-btn svg{width:15px;height:15px;flex-shrink:0;}
 .searchbar-btn:hover{border-color:var(--border-hover);color:var(--text-muted);}
-@media(min-width:1024px){.searchbar-btn{display:flex;}}
 
 /* ===== DASHBOARD ===== */
 .dash-wrap{
@@ -2513,7 +2511,6 @@ function selectCalDay(ds){
 function addFromCalDay(){
   resetForm();
   _fromScreen="home";
-  document.getElementById("addBackBtn").onclick=()=>goTo("home");
   goTo("add");
   document.getElementById("fDate").value=calSelectedDate;
 }
@@ -2577,7 +2574,6 @@ function resetForm(){
   document.getElementById("fmTitle").textContent="Novo compromisso";
   document.getElementById("fmSub").textContent="Preencha os detalhes.";
   document.getElementById("submitBtn").textContent="Salvar compromisso";
-  document.getElementById("addBackBtn").onclick=()=>goTo('home');
   document.getElementById("remOpts").style.display="none";
   document.getElementById("dlHint").textContent="";
   updatePermUI();
@@ -2590,7 +2586,6 @@ function addFromList(){
     document.querySelectorAll("#areaChips .chip").forEach(c=>c.classList.toggle("active",c.dataset.area===curType));
     updateCats();
   }
-  document.getElementById("addBackBtn").onclick=()=>goTo("list");
   _fromScreen="list";
   goTo("add");
 }
@@ -2708,7 +2703,6 @@ function editTask(id){
   document.getElementById("fmTitle").textContent="Editar compromisso";
   document.getElementById("fmSub").textContent="Atualize os detalhes.";
   document.getElementById("submitBtn").textContent="Atualizar";
-  document.getElementById("addBackBtn").onclick=()=>goTo(_fromScreen||'list');
   document.getElementById("remOpts").style.display=t.reminder?"block":"none";
 
   // Detecta de onde veio para voltar ao lugar certo
