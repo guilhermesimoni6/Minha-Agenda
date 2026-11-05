@@ -3452,21 +3452,8 @@ function syncGcalToTasks(events){
     changed = true;
   });
 
-  // 3. Terceiro: remover tasks cujo evento sumiu completamente da lista
-  var activeGcalIds = {};
-  events.forEach(function(ev){ if(ev.id && ev.status !== "cancelled") activeGcalIds[ev.id] = true; });
-  Object.keys(imported).forEach(function(gcalId){
-    if(!activeGcalIds[gcalId]){
-      var taskId = imported[gcalId];
-      var idx = tasks.findIndex(function(t){ return t.id === taskId; });
-      if(idx !== -1 && tasks[idx].fromGcal){
-        saveDeletedId(tasks[idx].id);
-        tasks.splice(idx, 1);
-        changed = true;
-      }
-      delete imported[gcalId];
-    }
-  });
+  // A consulta cobre apenas uma janela de datas e pode estar paginada.
+  // Ausência na resposta não confirma exclusão; apenas status cancelled remove tasks.
 
   if(changed){
     saveImportedGcalIds(imported);
